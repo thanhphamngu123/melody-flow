@@ -1478,3 +1478,68 @@ body {
         opacity: 0;
     }
 }
+
+/* ============ USER ACTION MENU ============ */
+.user-item {
+    position: relative;
+}
+
+.user-action-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    transition: all 0.2s;
+}
+
+.user-action-btn:hover, .user-action-btn.active {
+    opacity: 1;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.user-action-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 4px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+    min-width: 180px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+}
+
+.user-action-menu.visible {
+    display: flex;
+    animation: fade-in 0.15s ease;
+}
+
+.user-action-menu-item {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    text-align: left;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-family: var(--font);
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-action-menu-item:hover {
+    background: var(--bg-hover);
+}

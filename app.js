@@ -1647,7 +1647,21 @@ class MelodyFlow {
 
             let actionsHtml = '';
             if (this.roomManager.isHost && !isHost) {
-                actionsHtml = `<button class="make-host-btn" data-id="${userId}" title="Pass the DJ" style="background:none;border:none;cursor:pointer;opacity:0.5;font-size:16px;padding:0 4px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">👑</button>`;
+                actionsHtml = `
+                    <button class="user-action-btn" data-id="${userId}" title="Options">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="5" r="2.5"/><circle cx="12" cy="12" r="2.5"/><circle cx="12" cy="19" r="2.5"/>
+                        </svg>
+                    </button>
+                    <div class="user-action-menu" id="user-menu-${userId}">
+                        <button class="user-action-menu-item make-host-btn" data-id="${userId}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                            </svg>
+                            Chuyển quyền Trưởng phòng
+                        </button>
+                    </div>
+                `;
             }
 
             item.innerHTML = `
@@ -1662,14 +1676,47 @@ class MelodyFlow {
             container.appendChild(item);
         });
 
-        // Add event listeners for Make Host buttons
+        // Add event listeners for Context Menu and Make Host
         if (this.roomManager.isHost) {
-            container.querySelectorAll('.make-host-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+            // Close menus when clicking outside
+            const closeAllMenus = () => {
+                container.querySelectorAll('.user-action-menu').forEach(menu => {
+                    menu.classList.remove('visible');
+                });
+                container.querySelectorAll('.user-action-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            };
+
+            document.addEventListener('click', closeAllMenus, { once: true }); // Need a better way, let's just do it on capture phase or on window
+            // Actually, we can attach it globally, but we only want it active if there's a menu open.
+            
+            container.querySelectorAll('.user-action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent document click from closing it immediately
                     const id = btn.dataset.id;
-                    if (confirm('Pass the DJ role to this user?')) {
+                    const menu = document.getElementById(`user-menu-${id}`);
+                    
+                    const isVisible = menu.classList.contains('visible');
+                    closeAllMenus(); // Close others
+                    
+                    if (!isVisible) {
+                        menu.classList.add('visible');
+                        btn.classList.add('active');
+                        // Add listener to close this menu
+                        document.addEventListener('click', closeAllMenus, { once: true });
+                    }
+                });
+            });
+
+            container.querySelectorAll('.make-host-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    if (confirm('Bạn có chắc muốn chuyển quyền Trưởng phòng cho người này không?')) {
                         this.roomManager.transferHost(id);
                     }
+                    closeAllMenus();
                 });
             });
         }
