@@ -453,6 +453,7 @@ body {
     padding-bottom: var(--player-height);
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 /* ============ PLAYLIST VIEW ============ */

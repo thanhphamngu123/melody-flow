@@ -715,10 +715,14 @@ class MelodyFlow {
         this.roomManager.onPlaylistChange((playlist) => {
             this.playlist = playlist || [];
             this.renderSongs();
+            if (this.latestRemoteState) {
+                this.handleRemoteStateChange(this.latestRemoteState);
+            }
         });
 
         this.roomManager.onStateChange((state) => {
             if (!state) return;
+            this.latestRemoteState = state;
             if (this.ignoreNextStateUpdate) {
                 this.ignoreNextStateUpdate = false;
                 return;
@@ -1086,6 +1090,9 @@ class MelodyFlow {
                     onReady: () => {
                         this.playerReady = true;
                         this.player.setVolume(this.volume);
+                        if (this.latestRemoteState && this.playlist.length > 0) {
+                            this.handleRemoteStateChange(this.latestRemoteState);
+                        }
                     },
                     onStateChange: (event) => this.onPlayerStateChange(event),
                     onError: (event) => this.onPlayerError(event)
