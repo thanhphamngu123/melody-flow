@@ -1,0 +1,21 @@
+{
+  "playlists": [
+    {
+      "id": "mry7y45lenv0wc",
+      "name": "My Playlist",
+      "songs": [
+        {
+          "videoId": "NOiyDlWl534",
+          "title": "YENA (최예나) - 캐치 캐치 (Catch Catch) MV",
+          "thumbnail": "https://img.youtube.com/vi/NOiyDlWl534/mqdefault.jpg",
+          "addedAt": 1784853945947
+        }
+      ],
+      "createdAt": 1784853932169
+    }
+  ],
+  "volume": 100,
+  "isShuffle": false,
+  "repeatMode": "none",
+  "is8D": false
+}
