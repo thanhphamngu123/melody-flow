@@ -164,14 +164,12 @@
             
             <div class="chat-input-area">
                 <div class="gif-picker" id="gifPicker">
-                    <div class="gif-picker-header">Select a GIF</div>
-                    <div class="gif-grid">
-                        <img src="https://media.tenor.com/PZcK3y5Qe7gAAAAC/cat-jam.gif" class="gif-option" data-url="https://media.tenor.com/PZcK3y5Qe7gAAAAC/cat-jam.gif" alt="Cat Jam">
-                        <img src="https://media.tenor.com/T0bH564F7mIAAAAC/popcat.gif" class="gif-option" data-url="https://media.tenor.com/T0bH564F7mIAAAAC/popcat.gif" alt="Popcat">
-                        <img src="https://media.tenor.com/Y12D7vYvH5QAAAAC/doge.gif" class="gif-option" data-url="https://media.tenor.com/Y12D7vYvH5QAAAAC/doge.gif" alt="Doge">
-                        <img src="https://media.tenor.com/2RoMB1HovvIAAAAC/pepe-dance.gif" class="gif-option" data-url="https://media.tenor.com/2RoMB1HovvIAAAAC/pepe-dance.gif" alt="Pepe">
-                        <img src="https://media.tenor.com/R3U05qS_Fv0AAAAC/vibing-cat.gif" class="gif-option" data-url="https://media.tenor.com/R3U05qS_Fv0AAAAC/vibing-cat.gif" alt="Vibing Cat">
-                        <img src="https://media.tenor.com/Zq12mO6-U6AAAAAC/nodders-pepe.gif" class="gif-option" data-url="https://media.tenor.com/Zq12mO6-U6AAAAAC/nodders-pepe.gif" alt="Nodders">
+                    <div class="gif-picker-header">
+                        <input type="text" id="gifSearchInput" class="gif-search-input" placeholder="Search Giphy..." autocomplete="off">
+                    </div>
+                    <div class="gif-grid" id="gifGrid">
+                        <!-- GIFs will be loaded here -->
+                        <div style="padding:10px;text-align:center;color:var(--text-muted);font-size:12px;grid-column:span 3;">Type to search GIFs</div>
                     </div>
                 </div>
                 

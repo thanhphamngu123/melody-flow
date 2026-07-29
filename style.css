@@ -1232,9 +1232,25 @@ body {
 }
 
 .gif-picker-header {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-muted);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.gif-search-input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    transition: all var(--transition);
+}
+
+.gif-search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
 .gif-grid {
@@ -1243,6 +1259,7 @@ body {
     gap: 8px;
     max-height: 200px;
     overflow-y: auto;
+    padding-top: 8px;
 }
 
 .gif-option {

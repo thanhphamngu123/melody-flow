@@ -362,6 +362,8 @@ class MelodyFlow {
             sendChatBtn: document.getElementById('sendChatBtn'),
             openGifBtn: document.getElementById('openGifBtn'),
             gifPicker: document.getElementById('gifPicker'),
+            gifSearchInput: document.getElementById('gifSearchInput'),
+            gifGrid: document.getElementById('gifGrid'),
         };
     }
 
@@ -384,17 +386,31 @@ class MelodyFlow {
         this.dom.openGifBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             this.dom.gifPicker.classList.toggle('visible');
+            if (this.dom.gifPicker.classList.contains('visible') && !this.gifsLoaded) {
+                this.loadTrendingGifs();
+            }
         });
         document.addEventListener('click', (e) => {
             if (!this.dom.gifPicker.contains(e.target) && e.target !== this.dom.openGifBtn) {
                 this.dom.gifPicker.classList.remove('visible');
             }
         });
-        document.querySelectorAll('.gif-option').forEach(img => {
-            img.addEventListener('click', () => {
-                this.roomManager.sendMessage(img.dataset.url, true);
+
+        // Event delegation for dynamically loaded GIFs
+        this.dom.gifGrid.addEventListener('click', (e) => {
+            if (e.target.classList.contains('gif-option')) {
+                this.roomManager.sendMessage(e.target.dataset.url, true);
                 this.dom.gifPicker.classList.remove('visible');
-            });
+            }
+        });
+
+        // Debounced search
+        let gifTimeout;
+        this.dom.gifSearchInput.addEventListener('input', (e) => {
+            clearTimeout(gifTimeout);
+            gifTimeout = setTimeout(() => {
+                this.searchGifs(e.target.value.trim());
+            }, 500);
         });
 
         // Song actions
@@ -690,6 +706,69 @@ class MelodyFlow {
         
         // Auto scroll
         this.dom.chatMessages.scrollTop = this.dom.chatMessages.scrollHeight;
+    }
+
+    // Giphy API
+    get giphyApiKey() {
+        return '4B5ij3kf0IrGiOHgyNSZEFNXjC6r3YPg'; // User will fill this in
+    }
+
+    async loadTrendingGifs() {
+        if (this.giphyApiKey === 'YOUR_GIPHY_API_KEY') {
+            this.renderGifs([
+                { id: '1', images: { fixed_height: { url: 'https://media.tenor.com/PZcK3y5Qe7gAAAAC/cat-jam.gif' } } },
+                { id: '2', images: { fixed_height: { url: 'https://media.tenor.com/T0bH564F7mIAAAAC/popcat.gif' } } },
+                { id: '3', images: { fixed_height: { url: 'https://media.tenor.com/Y12D7vYvH5QAAAAC/doge.gif' } } },
+                { id: '4', images: { fixed_height: { url: 'https://media.tenor.com/2RoMB1HovvIAAAAC/pepe-dance.gif' } } },
+                { id: '5', images: { fixed_height: { url: 'https://media.tenor.com/R3U05qS_Fv0AAAAC/vibing-cat.gif' } } },
+                { id: '6', images: { fixed_height: { url: 'https://media.tenor.com/Zq12mO6-U6AAAAAC/nodders-pepe.gif' } } }
+            ]);
+            return;
+        }
+
+        try {
+            this.dom.gifGrid.innerHTML = '<div style="padding:10px;grid-column:span 3;text-align:center;color:var(--text-muted);font-size:12px;">Loading trending...</div>';
+            const res = await fetch(`https://api.giphy.com/v1/gifs/trending?api_key=${this.giphyApiKey}&limit=12&rating=g`);
+            const data = await res.json();
+            if (data.data) {
+                this.renderGifs(data.data);
+                this.gifsLoaded = true;
+            }
+        } catch (e) {
+            console.error('Failed to load trending GIFs', e);
+            this.dom.gifGrid.innerHTML = '<div style="padding:10px;grid-column:span 3;text-align:center;color:#ef4444;font-size:12px;">Error loading GIFs</div>';
+        }
+    }
+
+    async searchGifs(query) {
+        if (this.giphyApiKey === 'YOUR_GIPHY_API_KEY') return;
+        if (!query) {
+            this.loadTrendingGifs();
+            return;
+        }
+
+        try {
+            this.dom.gifGrid.innerHTML = '<div style="padding:10px;grid-column:span 3;text-align:center;color:var(--text-muted);font-size:12px;">Searching...</div>';
+            const res = await fetch(`https://api.giphy.com/v1/gifs/search?api_key=${this.giphyApiKey}&q=${encodeURIComponent(query)}&limit=12&rating=g`);
+            const data = await res.json();
+            if (data.data) {
+                this.renderGifs(data.data);
+            }
+        } catch (e) {
+            console.error('Failed to search GIFs', e);
+        }
+    }
+
+    renderGifs(gifs) {
+        if (!gifs.length) {
+            this.dom.gifGrid.innerHTML = '<div style="padding:10px;grid-column:span 3;text-align:center;color:var(--text-muted);font-size:12px;">No results</div>';
+            return;
+        }
+        
+        this.dom.gifGrid.innerHTML = gifs.map(gif => {
+            const url = gif.images.fixed_height.url;
+            return `<img src="${url}" class="gif-option" data-url="${url}" alt="GIF" loading="lazy">`;
+        }).join('');
     }
 
     updateControlPermissions() {
