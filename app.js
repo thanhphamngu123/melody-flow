@@ -1152,13 +1152,6 @@ class MelodyFlow {
                 this.currentSongIndex = state.currentIndex;
                 if (!state.isPlaying) {
                     setTimeout(() => this.player.pauseVideo(), 500);
-                } else if (!this.roomManager.isHost) {
-                    // Check if autoplay was blocked
-                    setTimeout(() => {
-                        if (this.isPlaying && !this.isPlayerPlaying()) {
-                            this.dom.syncOverlay.classList.add('visible');
-                        }
-                    }, 500);
                 }
             }
             this.updatePlayerInfo(song);
