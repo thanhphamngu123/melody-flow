@@ -1298,3 +1298,142 @@ body {
         right: 0;
     }
 }
+
+/* ============ YOUTUBE SEARCH ============ */
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    display: none;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.search-dropdown.visible {
+    display: block;
+    animation: fade-up 0.2s ease;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background var(--transition);
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: var(--bg-surface);
+}
+
+.search-result-thumb {
+    width: 90px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+}
+
+.search-result-info {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.search-result-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result-channel {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* ============ FLOATING REACTIONS ============ */
+.reaction-bar {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 8px 12px;
+    border-radius: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 50;
+}
+
+.reaction-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.1s ease;
+    user-select: none;
+    border-radius: 50%;
+}
+
+.reaction-btn:hover {
+    transform: scale(1.2);
+    background: var(--bg-surface);
+}
+
+.reaction-btn:active {
+    transform: scale(0.9);
+}
+
+.floating-reactions-container {
+    position: absolute;
+    bottom: 80px;
+    right: 24px;
+    width: 100px;
+    height: 300px;
+    pointer-events: none;
+    z-index: 49;
+    overflow: hidden;
+}
+
+.floating-emoji {
+    position: absolute;
+    bottom: 0;
+    font-size: 24px;
+    animation: floatUp 2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    user-select: none;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    10% {
+        transform: translateY(-20px) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-200px) scale(1);
+        opacity: 0;
+    }
+}

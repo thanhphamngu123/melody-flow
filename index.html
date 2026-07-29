@@ -117,19 +117,23 @@
                     </div>
                 </div>
 
-                <div class="add-song-bar">
+                <div class="add-song-bar" style="position:relative;">
                     <div class="add-song-input-wrapper">
                         <svg class="add-song-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                         </svg>
-                        <input type="text" id="songUrlInput" placeholder="Paste YouTube link to add a song..." autocomplete="off">
+                        <input type="text" id="songUrlInput" placeholder="Search YouTube or paste a link..." autocomplete="off">
                         <button class="add-song-btn" id="addSongBtn">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                                 <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                             </svg>
                             Add
                         </button>
+                    </div>
+                    
+                    <!-- Search Dropdown -->
+                    <div class="search-dropdown" id="searchDropdown">
+                        <div class="search-results-list" id="searchResultsList"></div>
                     </div>
                 </div>
 
@@ -145,6 +149,18 @@
                     <p>Paste a YouTube link above to add the first song</p>
                 </div>
             </div>
+
+            <!-- Reaction Bar -->
+            <div class="reaction-bar">
+                <button class="reaction-btn" data-emoji="❤️">❤️</button>
+                <button class="reaction-btn" data-emoji="🔥">🔥</button>
+                <button class="reaction-btn" data-emoji="😂">😂</button>
+                <button class="reaction-btn" data-emoji="👏">👏</button>
+                <button class="reaction-btn" data-emoji="🥳">🥳</button>
+            </div>
+            
+            <!-- Floating Reactions Container -->
+            <div id="floatingReactionsContainer" class="floating-reactions-container"></div>
         </main>
 
         <!-- Chat Sidebar -->

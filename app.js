@@ -207,6 +207,23 @@ class RoomManager {
         this.listeners.push({ ref, event: 'child_added' });
     }
 
+    onReactionAdded(callback) {
+        if (!this.roomRef) return;
+        const ref = this.roomRef.child('reactions');
+        ref.on('child_added', snap => callback(snap.val()));
+        this.listeners.push({ ref, event: 'child_added' });
+    }
+
+    // Write operations
+    async sendReaction(emoji) {
+        if (!this.roomRef) return;
+        const ref = this.roomRef.child('reactions').push();
+        await ref.set({
+            emoji: emoji,
+            timestamp: Date.now()
+        });
+    }
+
     // Write operations
     async sendMessage(text, isGif = false) {
         if (!this.roomRef) return;
@@ -317,6 +334,8 @@ class MelodyFlow {
             emptyPlaylistState: document.getElementById('emptyPlaylistState'),
             songUrlInput: document.getElementById('songUrlInput'),
             addSongBtn: document.getElementById('addSongBtn'),
+            searchDropdown: document.getElementById('searchDropdown'),
+            searchResultsList: document.getElementById('searchResultsList'),
             // Player
             playerBar: document.getElementById('playerBar'),
             playerThumbnail: document.getElementById('playerThumbnail'),
@@ -413,10 +432,68 @@ class MelodyFlow {
             }, 500);
         });
 
-        // Song actions
+        // YouTube Search & Add Song
         this.dom.addSongBtn.addEventListener('click', () => this.handleAddSong());
+        
+        let ytTimeout;
+        this.dom.songUrlInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            clearTimeout(ytTimeout);
+            
+            // If it's a URL, don't search, hide dropdown
+            if (val.includes('youtube.com') || val.includes('youtu.be')) {
+                this.dom.searchDropdown.classList.remove('visible');
+                return;
+            }
+
+            if (!val) {
+                this.dom.searchDropdown.classList.remove('visible');
+                return;
+            }
+
+            ytTimeout = setTimeout(() => {
+                this.searchYouTube(val);
+            }, 500);
+        });
+
         this.dom.songUrlInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') this.handleAddSong();
+            if (e.key === 'Enter') {
+                const val = e.target.value.trim();
+                if (val.includes('youtube.com') || val.includes('youtu.be')) {
+                    this.handleAddSong();
+                } else if (val) {
+                    this.searchYouTube(val);
+                }
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!this.dom.searchDropdown.contains(e.target) && e.target !== this.dom.songUrlInput) {
+                this.dom.searchDropdown.classList.remove('visible');
+            }
+        });
+
+        // Event delegation for search results
+        this.dom.searchResultsList.addEventListener('click', (e) => {
+            const item = e.target.closest('.search-result-item');
+            if (item) {
+                const videoId = item.dataset.videoId;
+                const title = item.dataset.title;
+                const thumbnail = item.dataset.thumbnail;
+                this.addSongFromSearch(videoId, title, thumbnail);
+                this.dom.searchDropdown.classList.remove('visible');
+                this.dom.songUrlInput.value = '';
+            }
+        });
+
+        // Reactions
+        document.querySelectorAll('.reaction-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const emoji = btn.dataset.emoji;
+                this.roomManager.sendReaction(emoji);
+                // Immediately spawn locally for better feel
+                this.spawnFloatingEmoji(emoji, true);
+            });
         });
 
         // Player controls
@@ -661,6 +738,15 @@ class MelodyFlow {
             if (msg) this.appendChatMessage(msg);
         });
 
+        this.roomManager.onReactionAdded((reaction) => {
+            if (!reaction) return;
+            // Only spawn if reaction is recent (less than 3 seconds ago)
+            if (Date.now() - reaction.timestamp < 3000) {
+                // We don't spawn our own reactions here since we already spawned them locally on click
+                this.spawnFloatingEmoji(reaction.emoji, false);
+            }
+        });
+
         this.roomManager.onRoomDeleted(() => {
             if (!this.roomManager.isHost) {
                 showToast('Room was closed by the host', 'info');
@@ -706,6 +792,38 @@ class MelodyFlow {
         
         // Auto scroll
         this.dom.chatMessages.scrollTop = this.dom.chatMessages.scrollHeight;
+    }
+
+    // ---- Reactions ----
+
+    spawnFloatingEmoji(emoji, isLocal = false) {
+        const container = document.getElementById('floatingReactionsContainer');
+        if (!container) return;
+
+        const el = document.createElement('div');
+        el.className = 'floating-emoji';
+        el.textContent = emoji;
+
+        // Randomize horizontal start position slightly
+        const randomX = Math.random() * 40 - 20; 
+        el.style.left = `calc(50% + ${randomX}px)`;
+
+        // Randomize size slightly
+        const randomScale = 0.8 + Math.random() * 0.4;
+        el.style.fontSize = `${24 * randomScale}px`;
+
+        // Vary animation duration slightly
+        const duration = 1.5 + Math.random() * 1;
+        el.style.animationDuration = `${duration}s`;
+
+        container.appendChild(el);
+
+        // Clean up after animation
+        setTimeout(() => {
+            if (el.parentNode === container) {
+                container.removeChild(el);
+            }
+        }, duration * 1000);
     }
 
     // Giphy API
@@ -769,6 +887,80 @@ class MelodyFlow {
             const url = gif.images.fixed_height.url;
             return `<img src="${url}" class="gif-option" data-url="${url}" alt="GIF" loading="lazy">`;
         }).join('');
+    }
+
+    // ---- YouTube Search API ----
+    get youtubeApiKey() {
+        return 'AIzaSyA3OSg8hmi5sbU0nPD4B8fk6ugUxTxTXW8'; // User will provide this
+    }
+
+    async searchYouTube(query) {
+        if (this.youtubeApiKey === 'YOUR_YOUTUBE_API_KEY') {
+            showToast('YouTube API Key is missing. Check code.', 'error');
+            return;
+        }
+
+        this.dom.searchDropdown.classList.add('visible');
+        this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
+
+        try {
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=video&key=${this.youtubeApiKey}`;
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.error) throw new Error(data.error.message);
+            if (!data.items || data.items.length === 0) {
+                this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">No results found</div>';
+                return;
+            }
+
+            this.dom.searchResultsList.innerHTML = data.items.map(item => {
+                const videoId = item.id.videoId;
+                const title = this.escapeHTML(item.snippet.title);
+                const channel = this.escapeHTML(item.snippet.channelTitle);
+                const thumb = item.snippet.thumbnails.default.url;
+
+                return `
+                    <div class="search-result-item" data-video-id="${videoId}" data-title="${title}" data-thumbnail="${thumb}">
+                        <img src="${thumb}" class="search-result-thumb" alt="" loading="lazy">
+                        <div class="search-result-info">
+                            <span class="search-result-title">${title}</span>
+                            <span class="search-result-channel">${channel}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } catch (e) {
+            console.error('YouTube search failed', e);
+            this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:#ef4444;font-size:13px;">Search failed</div>';
+        }
+    }
+
+    async addSongFromSearch(videoId, title, thumbnail) {
+        this.dom.addSongBtn.classList.add('loading');
+        this.dom.addSongBtn.innerHTML = '<div class="spinner"></div> Adding...';
+
+        const song = {
+            videoId,
+            title: title,
+            thumbnail: thumbnail,
+            addedBy: getNickname(),
+            addedAt: Date.now()
+        };
+
+        try {
+            await this.roomManager.addSong(song);
+            showToast(`"${song.title}" added`, 'success');
+        } catch (e) {
+            showToast('Failed to add song', 'error');
+        }
+
+        this.dom.addSongBtn.classList.remove('loading');
+        this.dom.addSongBtn.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Add`;
     }
 
     updateControlPermissions() {
