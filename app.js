@@ -201,13 +201,6 @@ class RoomManager {
         this.listeners.push({ ref, event: 'value' });
     }
 
-    onSkipVotesChange(callback) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('skipVotes');
-        ref.on('value', snap => callback(snap.val() || {}));
-        this.listeners.push({ ref, event: 'value' });
-    }
-
     onStateChange(callback) {
         if (!this.roomRef) return;
         const ref = this.roomRef.child('state');
@@ -292,16 +285,6 @@ class RoomManager {
     async transferHost(newHostId) {
         if (!this.roomRef || !this.isHost) return;
         await this.roomRef.child('host').set(newHostId);
-    }
-
-    async voteSkip() {
-        if (!this.roomRef) return;
-        await this.roomRef.child('skipVotes/' + this.userId).set(true);
-    }
-
-    async clearSkipVotes() {
-        if (!this.roomRef || !this.isHost) return;
-        await this.roomRef.child('skipVotes').remove();
     }
 
     async getRoomInfo() {
@@ -390,7 +373,6 @@ class MelodyFlow {
             pauseIcon: document.getElementById('pauseIcon'),
             prevBtn: document.getElementById('prevBtn'),
             nextBtn: document.getElementById('nextBtn'),
-            skipBtn: document.getElementById('skipBtn'),
             shuffleBtn: document.getElementById('shuffleBtn'),
             repeatBtn: document.getElementById('repeatBtn'),
             repeatBadge: document.getElementById('repeatBadge'),
@@ -565,15 +547,6 @@ class MelodyFlow {
         this.dom.nicknameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') this.confirmNickname();
         });
-
-        // Skip button
-        if (this.dom.skipBtn) {
-            this.dom.skipBtn.addEventListener('click', () => {
-                if (!this.skipVotes || !this.skipVotes.includes(this.roomManager.userId)) {
-                    this.roomManager.voteSkip();
-                }
-            });
-        }
 
         // Sync Overlay (Chờ người dùng click để đồng bộ)
         if (this.dom.syncConfirmBtn) {
@@ -807,26 +780,11 @@ class MelodyFlow {
 
         // Disable controls for guests
         this.updateControlPermissions();
-        this.updateSkipVoteUI();
 
         this.roomManager.onHostChange((hostId) => {
             this.updateControlPermissions();
             this.dom.hostBadge.style.display = this.roomManager.isHost ? 'flex' : 'none';
-            this.updateSkipVoteUI();
             if (this.currentUsers) this.renderUsers(this.currentUsers);
-        });
-
-        this.roomManager.onSkipVotesChange((votes) => {
-            this.skipVotes = Object.keys(votes);
-            this.updateSkipVoteUI();
-            
-            // Auto skip if majority
-            if (this.roomManager.isHost && this.currentUsers) {
-                const totalUsers = Object.keys(this.currentUsers).length;
-                if (this.skipVotes.length >= Math.ceil(totalUsers / 2) && totalUsers > 1) {
-                    this.nextSong();
-                }
-            }
         });
 
         // Mở màn hình Overlay bắt buộc tương tác đối với Guest
@@ -874,7 +832,6 @@ class MelodyFlow {
 
             this.currentUsers = users;
             this.renderUsers(users);
-            this.updateSkipVoteUI();
 
             // Host auto-syncs for new joiners
             if (isNewUser && this.roomManager.isHost && this.isPlaying && this.player && this.playerReady) {
@@ -1122,13 +1079,12 @@ class MelodyFlow {
         if (!isHost) {
             this.dom.playPauseBtn.classList.add('disabled');
             this.dom.prevBtn.classList.add('disabled');
-            this.dom.nextBtn.style.display = 'none'; // Hide next for guest, skipBtn replaces it
+            this.dom.nextBtn.classList.add('disabled');
             this.dom.shuffleBtn.classList.add('disabled');
             this.dom.repeatBtn.classList.add('disabled');
         } else {
             this.dom.playPauseBtn.classList.remove('disabled');
             this.dom.prevBtn.classList.remove('disabled');
-            this.dom.nextBtn.style.display = 'block'; // Show next for host
             this.dom.nextBtn.classList.remove('disabled');
             this.dom.shuffleBtn.classList.remove('disabled');
             this.dom.repeatBtn.classList.remove('disabled');
@@ -1431,7 +1387,6 @@ class MelodyFlow {
             }
         }
         this.playSong(nextIndex);
-        this.roomManager.clearSkipVotes();
     }
 
     prevSong() {
@@ -1717,25 +1672,6 @@ class MelodyFlow {
                     }
                 });
             });
-        }
-    }
-
-    updateSkipVoteUI() {
-        if (!this.dom.skipBtn) return;
-        const total = this.currentUsers ? Object.keys(this.currentUsers).length : 1;
-        const votes = this.skipVotes ? this.skipVotes.length : 0;
-        const required = Math.ceil(total / 2);
-        
-        if (this.roomManager.isHost) {
-            this.dom.skipBtn.style.display = 'none'; // Host uses nextBtn
-        } else {
-            this.dom.skipBtn.style.display = 'flex';
-            this.dom.skipBtn.innerHTML = `Skip (${votes}/${required})`;
-            if (this.skipVotes && this.skipVotes.includes(this.roomManager.userId)) {
-                this.dom.skipBtn.classList.add('active');
-            } else {
-                this.dom.skipBtn.classList.remove('active');
-            }
         }
     }
 
