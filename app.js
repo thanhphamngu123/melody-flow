@@ -580,6 +580,19 @@ class MelodyFlow {
         });
     }
 
+    unlockAudioContext() {
+        if (this.player && typeof this.player.playVideo === 'function') {
+            try {
+                this.player.playVideo();
+                setTimeout(() => {
+                    if (!this.isPlaying && typeof this.player.pauseVideo === 'function') {
+                        this.player.pauseVideo();
+                    }
+                }, 100);
+            } catch (e) {}
+        }
+    }
+
     setupSlider(wrapper, fill, handle, onDrag, onRelease) {
         let isDragging = false;
         const getPercent = (e) => {
@@ -621,6 +634,7 @@ class MelodyFlow {
     }
 
     confirmNickname() {
+        this.unlockAudioContext();
         const name = this.dom.nicknameInput.value.trim();
         if (!name) {
             showToast('Please enter a nickname', 'error');
@@ -648,6 +662,7 @@ class MelodyFlow {
     // ---- Room Management ----
 
     async handleCreateRoom() {
+        this.unlockAudioContext();
         if (!getNickname()) {
             this.dom.nicknameOverlay.classList.add('visible');
             return;
@@ -681,6 +696,7 @@ class MelodyFlow {
     }
 
     async handleJoinRoom() {
+        this.unlockAudioContext();
         const code = this.dom.joinCodeInput.value.trim().toUpperCase();
         if (!code || code.length < 4) {
             showToast('Please enter a valid room code', 'error');
