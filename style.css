@@ -1372,9 +1372,9 @@ body {
 
 /* ============ FLOATING REACTIONS ============ */
 .reaction-bar {
-    position: absolute;
-    bottom: 24px;
-    right: 24px;
+    position: fixed;
+    bottom: calc(var(--player-height) + 24px);
+    right: calc(320px + 24px);
     display: flex;
     gap: 8px;
     background: var(--bg-card);
@@ -1406,14 +1406,25 @@ body {
 }
 
 .floating-reactions-container {
-    position: absolute;
-    bottom: 80px;
-    right: 24px;
+    position: fixed;
+    bottom: calc(var(--player-height) + 80px);
+    right: calc(320px + 24px);
     width: 100px;
     height: 300px;
     pointer-events: none;
     z-index: 49;
     overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .reaction-bar {
+        right: 24px;
+        bottom: calc(var(--player-height) + 80px);
+    }
+    .floating-reactions-container {
+        right: 24px;
+        bottom: calc(var(--player-height) + 140px);
+    }
 }
 
 .floating-emoji {

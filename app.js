@@ -716,7 +716,7 @@ class MelodyFlow {
             this.playlist = playlist || [];
             this.renderSongs();
             if (this.latestRemoteState) {
-                this.handleRemoteStateChange(this.latestRemoteState);
+                this.handleRemoteStateChange(this.latestRemoteState, true);
             }
         });
 
@@ -985,22 +985,23 @@ class MelodyFlow {
         }
     }
 
-    handleRemoteStateChange(state) {
-        const songChanged = state.currentIndex !== this.currentSongIndex;
-
-        this.currentSongIndex = state.currentIndex;
+    handleRemoteStateChange(state, forceLoad = false) {
+        const songChanged = forceLoad || state.currentIndex !== this.currentSongIndex;
         this.isPlaying = state.isPlaying;
 
         if (songChanged && state.currentIndex >= 0 && state.currentIndex < this.playlist.length) {
             const song = this.playlist[state.currentIndex];
             if (this.player && this.playerReady) {
                 this.player.loadVideoById(song.videoId, state.seekTime || 0);
+                this.currentSongIndex = state.currentIndex;
                 if (!state.isPlaying) {
                     setTimeout(() => this.player.pauseVideo(), 500);
                 }
             }
             this.updatePlayerInfo(song);
         } else if (!songChanged && this.player && this.playerReady) {
+            this.currentSongIndex = state.currentIndex;
+
             // Sync play/pause state
             if (state.isPlaying && !this.isPlayerPlaying()) {
                 this.player.playVideo();
@@ -1091,7 +1092,7 @@ class MelodyFlow {
                         this.playerReady = true;
                         this.player.setVolume(this.volume);
                         if (this.latestRemoteState && this.playlist.length > 0) {
-                            this.handleRemoteStateChange(this.latestRemoteState);
+                            this.handleRemoteStateChange(this.latestRemoteState, true);
                         }
                     },
                     onStateChange: (event) => this.onPlayerStateChange(event),
