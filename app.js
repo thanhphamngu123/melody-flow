@@ -137,7 +137,7 @@ class RoomManager {
         // Setup presence (auto-remove on disconnect)
         this.roomRef.child('users/' + this.userId).onDisconnect().remove();
 
-        // If host disconnects, remove entire room
+        // If host disconnects initially, we try to remove the room, but onHostChange will manage this later
         this.roomRef.onDisconnect().remove();
 
         return code;
@@ -158,6 +158,7 @@ class RoomManager {
         this.roomCode = code;
         const roomData = snapshot.val();
         this.isHost = roomData.host === this.userId;
+        this.hostId = roomData.host;
 
         // Add self to users
         await this.roomRef.child('users/' + this.userId).set({
@@ -176,6 +177,34 @@ class RoomManager {
         if (!this.roomRef) return;
         const ref = this.roomRef.child('playlist');
         ref.on('value', snap => callback(snap.val() || []));
+        this.listeners.push({ ref, event: 'value' });
+    }
+
+    onHostChange(callback) {
+        if (!this.roomRef) return;
+        const ref = this.roomRef.child('host');
+        ref.on('value', snap => {
+            const hostId = snap.val();
+            if (hostId) {
+                this.isHost = hostId === this.userId;
+                this.hostId = hostId;
+                
+                if (this.isHost) {
+                    this.roomRef.onDisconnect().remove();
+                } else {
+                    this.roomRef.onDisconnect().cancel();
+                }
+                
+                callback(hostId);
+            }
+        });
+        this.listeners.push({ ref, event: 'value' });
+    }
+
+    onSkipVotesChange(callback) {
+        if (!this.roomRef) return;
+        const ref = this.roomRef.child('skipVotes');
+        ref.on('value', snap => callback(snap.val() || {}));
         this.listeners.push({ ref, event: 'value' });
     }
 
@@ -258,6 +287,21 @@ class RoomManager {
             ...state,
             updatedAt: Date.now()
         });
+    }
+
+    async transferHost(newHostId) {
+        if (!this.roomRef || !this.isHost) return;
+        await this.roomRef.child('host').set(newHostId);
+    }
+
+    async voteSkip() {
+        if (!this.roomRef) return;
+        await this.roomRef.child('skipVotes/' + this.userId).set(true);
+    }
+
+    async clearSkipVotes() {
+        if (!this.roomRef || !this.isHost) return;
+        await this.roomRef.child('skipVotes').remove();
     }
 
     async getRoomInfo() {
@@ -346,6 +390,7 @@ class MelodyFlow {
             pauseIcon: document.getElementById('pauseIcon'),
             prevBtn: document.getElementById('prevBtn'),
             nextBtn: document.getElementById('nextBtn'),
+            skipBtn: document.getElementById('skipBtn'),
             shuffleBtn: document.getElementById('shuffleBtn'),
             repeatBtn: document.getElementById('repeatBtn'),
             repeatBadge: document.getElementById('repeatBadge'),
@@ -436,12 +481,12 @@ class MelodyFlow {
 
         // YouTube Search & Add Song
         this.dom.addSongBtn.addEventListener('click', () => this.handleAddSong());
-        
+
         let ytTimeout;
         this.dom.songUrlInput.addEventListener('input', (e) => {
             const val = e.target.value.trim();
             clearTimeout(ytTimeout);
-            
+
             // If it's a URL, don't search, hide dropdown
             if (val.includes('youtube.com') || val.includes('youtu.be')) {
                 this.dom.searchDropdown.classList.remove('visible');
@@ -521,12 +566,21 @@ class MelodyFlow {
             if (e.key === 'Enter') this.confirmNickname();
         });
 
+        // Skip button
+        if (this.dom.skipBtn) {
+            this.dom.skipBtn.addEventListener('click', () => {
+                if (!this.skipVotes || !this.skipVotes.includes(this.roomManager.userId)) {
+                    this.roomManager.voteSkip();
+                }
+            });
+        }
+
         // Sync Overlay (Chờ người dùng click để đồng bộ)
         if (this.dom.syncConfirmBtn) {
             this.dom.syncConfirmBtn.addEventListener('click', () => {
                 this.isUserInteracted = true;
                 this.dom.syncOverlay.classList.remove('visible');
-                
+
                 // Ngay khi click, nếu có data chờ sẵn thì áp dụng luôn
                 if (this.latestRemoteState) {
                     this.handleRemoteStateChange(this.latestRemoteState, true);
@@ -607,7 +661,7 @@ class MelodyFlow {
                     }
                     this.player.unMute();
                 }, 150);
-            } catch (e) {}
+            } catch (e) { }
         }
     }
 
@@ -753,6 +807,27 @@ class MelodyFlow {
 
         // Disable controls for guests
         this.updateControlPermissions();
+        this.updateSkipVoteUI();
+
+        this.roomManager.onHostChange((hostId) => {
+            this.updateControlPermissions();
+            this.dom.hostBadge.style.display = this.roomManager.isHost ? 'flex' : 'none';
+            this.updateSkipVoteUI();
+            if (this.currentUsers) this.renderUsers(this.currentUsers);
+        });
+
+        this.roomManager.onSkipVotesChange((votes) => {
+            this.skipVotes = Object.keys(votes);
+            this.updateSkipVoteUI();
+            
+            // Auto skip if majority
+            if (this.roomManager.isHost && this.currentUsers) {
+                const totalUsers = Object.keys(this.currentUsers).length;
+                if (this.skipVotes.length >= Math.ceil(totalUsers / 2) && totalUsers > 1) {
+                    this.nextSong();
+                }
+            }
+        });
 
         // Mở màn hình Overlay bắt buộc tương tác đối với Guest
         if (!this.roomManager.isHost) {
@@ -797,13 +872,15 @@ class MelodyFlow {
             const isNewUser = prevUserCount > 0 && currentUserCount > prevUserCount;
             prevUserCount = currentUserCount;
 
+            this.currentUsers = users;
             this.renderUsers(users);
+            this.updateSkipVoteUI();
 
             // Host auto-syncs for new joiners
             if (isNewUser && this.roomManager.isHost && this.isPlaying && this.player && this.playerReady) {
                 this.player.pauseVideo();
                 this.syncState({ isPlaying: false, seekTime: this.getCurrentTime() });
-                
+
                 setTimeout(() => {
                     this.player.playVideo();
                     this.syncState({ isPlaying: true, seekTime: this.getCurrentTime() });
@@ -840,7 +917,7 @@ class MelodyFlow {
     }
 
     // ---- Chat ----
-    
+
     sendChatMessage() {
         const text = this.dom.chatInput.value.trim();
         if (!text) return;
@@ -852,7 +929,7 @@ class MelodyFlow {
         const isSelf = msg.userId === this.roomManager.userId;
         const msgEl = document.createElement('div');
         msgEl.className = `chat-message ${isSelf ? 'self' : 'other'}`;
-        
+
         let contentHtml = '';
         if (msg.isGif) {
             contentHtml = `<img src="${this.escapeHTML(msg.text)}" alt="GIF">`;
@@ -864,9 +941,9 @@ class MelodyFlow {
             <div class="chat-message-sender">${this.escapeHTML(msg.name)}</div>
             <div class="chat-bubble">${contentHtml}</div>
         `;
-        
+
         this.dom.chatMessages.appendChild(msgEl);
-        
+
         // Auto scroll
         this.dom.chatMessages.scrollTop = this.dom.chatMessages.scrollHeight;
     }
@@ -882,7 +959,7 @@ class MelodyFlow {
         el.textContent = emoji;
 
         // Randomize horizontal start position slightly
-        const randomX = Math.random() * 40 - 20; 
+        const randomX = Math.random() * 40 - 20;
         el.style.left = `calc(50% + ${randomX}px)`;
 
         // Randomize size slightly
@@ -959,7 +1036,7 @@ class MelodyFlow {
             this.dom.gifGrid.innerHTML = '<div style="padding:10px;grid-column:span 3;text-align:center;color:var(--text-muted);font-size:12px;">No results</div>';
             return;
         }
-        
+
         this.dom.gifGrid.innerHTML = gifs.map(gif => {
             const url = gif.images.fixed_height.url;
             return `<img src="${url}" class="gif-option" data-url="${url}" alt="GIF" loading="lazy">`;
@@ -1361,6 +1438,7 @@ class MelodyFlow {
             }
         }
         this.playSong(nextIndex);
+        this.roomManager.clearSkipVotes();
     }
 
     prevSong() {
@@ -1401,6 +1479,8 @@ class MelodyFlow {
         this.dom.playerSongTitle.textContent = 'No song playing';
         this.dom.playerPlaylistName.textContent = '';
         this.dom.playerThumbnail.classList.remove('visible');
+        const thumbWrapper = document.getElementById('playerThumbnailWrapper');
+        if (thumbWrapper) thumbWrapper.classList.remove('is-playing');
         this.dom.progressBarFill.style.width = '0%';
         this.dom.progressBarHandle.style.left = '0%';
         this.dom.currentTime.textContent = '0:00';
@@ -1527,6 +1607,15 @@ class MelodyFlow {
     updatePlayPauseUI() {
         this.dom.playIcon.style.display = this.isPlaying ? 'none' : 'block';
         this.dom.pauseIcon.style.display = this.isPlaying ? 'block' : 'none';
+        
+        const thumbWrapper = document.getElementById('playerThumbnailWrapper');
+        if (thumbWrapper) {
+            if (this.isPlaying) {
+                thumbWrapper.classList.add('is-playing');
+            } else {
+                thumbWrapper.classList.remove('is-playing');
+            }
+        }
         this.dom.playPauseBtn.title = this.isPlaying ? 'Pause' : 'Play';
         this.renderSongs();
     }
@@ -1602,19 +1691,59 @@ class MelodyFlow {
         this.dom.userCount.textContent = userEntries.length;
 
         userEntries.forEach(([userId, userData]) => {
-            const isHost = userId === this.roomManager.roomRef?.parent?.key ? false : true;
+            const isHost = userId === this.roomManager.hostId;
             const item = document.createElement('div');
             item.className = 'user-item';
             const color = getAvatarColor(userId);
             const initial = (userData.name || '?')[0].toUpperCase();
 
+            let actionsHtml = '';
+            if (this.roomManager.isHost && !isHost) {
+                actionsHtml = `<button class="make-host-btn" data-id="${userId}" title="Pass the DJ" style="background:none;border:none;cursor:pointer;opacity:0.5;font-size:16px;padding:0 4px;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5">👑</button>`;
+            }
+
             item.innerHTML = `
                 <div class="user-avatar" style="background:${color}">${initial}</div>
                 <span class="user-name">${this.escapeHTML(userData.name || 'Anonymous')}</span>
-                ${userId === this.roomManager.userId ? '<span style="font-size:10px;color:var(--text-muted)">(you)</span>' : ''}`;
+                ${isHost ? '<span style="font-size:10px;color:var(--primary);margin-left:4px;">(Host)</span>' : ''}
+                ${userId === this.roomManager.userId ? '<span style="font-size:10px;color:var(--text-muted);margin-left:4px;">(you)</span>' : ''}
+                <div style="flex:1"></div>
+                ${actionsHtml}
+            `;
 
             container.appendChild(item);
         });
+
+        // Add event listeners for Make Host buttons
+        if (this.roomManager.isHost) {
+            container.querySelectorAll('.make-host-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.id;
+                    if (confirm('Pass the DJ role to this user?')) {
+                        this.roomManager.transferHost(id);
+                    }
+                });
+            });
+        }
+    }
+
+    updateSkipVoteUI() {
+        if (!this.dom.skipBtn) return;
+        const total = this.currentUsers ? Object.keys(this.currentUsers).length : 1;
+        const votes = this.skipVotes ? this.skipVotes.length : 0;
+        const required = Math.ceil(total / 2);
+        
+        if (this.roomManager.isHost) {
+            this.dom.skipBtn.style.display = 'none'; // Host uses nextBtn
+        } else {
+            this.dom.skipBtn.style.display = 'flex';
+            this.dom.skipBtn.innerHTML = `Skip (${votes}/${required})`;
+            if (this.skipVotes && this.skipVotes.includes(this.roomManager.userId)) {
+                this.dom.skipBtn.classList.add('active');
+            } else {
+                this.dom.skipBtn.classList.remove('active');
+            }
+        }
     }
 
     // ---- Modals ----

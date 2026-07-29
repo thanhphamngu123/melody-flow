@@ -728,6 +728,41 @@ body {
 
 .player-thumbnail.visible + .player-thumbnail-placeholder { display: none; }
 
+.audio-visualizer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.is-playing .audio-visualizer {
+    opacity: 1;
+}
+
+.audio-visualizer .bar {
+    width: 4px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 2px;
+    animation: eq-bounce 0.8s ease-in-out infinite;
+}
+
+.audio-visualizer .bar:nth-child(1) { animation-delay: 0s; }
+.audio-visualizer .bar:nth-child(2) { animation-delay: 0.2s; height: 12px; }
+.audio-visualizer .bar:nth-child(3) { animation-delay: 0.4s; height: 16px; }
+.audio-visualizer .bar:nth-child(4) { animation-delay: 0.6s; height: 8px; }
+
+#skipBtn.active {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+}
+
 .player-song-details { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 
 .player-song-title {
