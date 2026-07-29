@@ -521,13 +521,16 @@ class MelodyFlow {
             if (e.key === 'Enter') this.confirmNickname();
         });
 
-        // Sync Overlay
+        // Sync Overlay (Chờ người dùng click để đồng bộ)
         if (this.dom.syncConfirmBtn) {
             this.dom.syncConfirmBtn.addEventListener('click', () => {
-                if (this.player && typeof this.player.playVideo === 'function') {
-                    this.player.playVideo();
-                }
+                this.isUserInteracted = true;
                 this.dom.syncOverlay.classList.remove('visible');
+                
+                // Ngay khi click, nếu có data chờ sẵn thì áp dụng luôn
+                if (this.latestRemoteState) {
+                    this.handleRemoteStateChange(this.latestRemoteState, true);
+                }
             });
         }
 
@@ -751,6 +754,14 @@ class MelodyFlow {
         // Disable controls for guests
         this.updateControlPermissions();
 
+        // Mở màn hình Overlay bắt buộc tương tác đối với Guest
+        if (!this.roomManager.isHost) {
+            this.isUserInteracted = false;
+            this.dom.syncOverlay.classList.add('visible');
+        } else {
+            this.isUserInteracted = true;
+        }
+
         // Listen for real-time updates
         this.roomManager.onPlaylistChange((playlist) => {
             this.playlist = playlist || [];
@@ -763,6 +774,12 @@ class MelodyFlow {
         this.roomManager.onStateChange((state) => {
             if (!state) return;
             this.latestRemoteState = state;
+
+            // NẾU GUEST CHƯA BẤM NÚT "BẮT ĐẦU NGHE", CHỈ LƯU DATA VÀ DỪNG LẠI.
+            if (!this.roomManager.isHost && !this.isUserInteracted) {
+                return;
+            }
+
             if (this.ignoreNextStateUpdate) {
                 this.ignoreNextStateUpdate = false;
                 return;
