@@ -998,10 +998,16 @@ class MelodyFlow {
         const songChanged = forceLoad || state.currentIndex !== this.currentSongIndex;
         this.isPlaying = state.isPlaying;
 
+        let targetSeekTime = state.seekTime || 0;
+        if (state.isPlaying && state.updatedAt) {
+            const elapsedSeconds = (Date.now() - state.updatedAt) / 1000;
+            targetSeekTime += Math.max(0, elapsedSeconds);
+        }
+
         if (songChanged && state.currentIndex >= 0 && state.currentIndex < this.playlist.length) {
             const song = this.playlist[state.currentIndex];
             if (this.player && this.playerReady) {
-                this.player.loadVideoById(song.videoId, state.seekTime || 0);
+                this.player.loadVideoById(song.videoId, targetSeekTime);
                 this.currentSongIndex = state.currentIndex;
                 if (!state.isPlaying) {
                     setTimeout(() => this.player.pauseVideo(), 500);
@@ -1028,8 +1034,8 @@ class MelodyFlow {
             // Sync seek if difference is > 3 seconds
             if (state.seekTime !== undefined && !this.roomManager.isHost) {
                 const currentTime = this.getCurrentTime();
-                if (Math.abs(currentTime - state.seekTime) > 3) {
-                    this.player.seekTo(state.seekTime, true);
+                if (Math.abs(currentTime - targetSeekTime) > 3) {
+                    this.player.seekTo(targetSeekTime, true);
                 }
             }
         }
