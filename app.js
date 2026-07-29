@@ -200,7 +200,25 @@ class RoomManager {
         });
     }
 
+    onChatAdded(callback) {
+        if (!this.roomRef) return;
+        const ref = this.roomRef.child('chat');
+        ref.on('child_added', snap => callback(snap.val()));
+        this.listeners.push({ ref, event: 'child_added' });
+    }
+
     // Write operations
+    async sendMessage(text, isGif = false) {
+        if (!this.roomRef) return;
+        const chatRef = this.roomRef.child('chat').push();
+        await chatRef.set({
+            userId: this.userId,
+            name: getNickname(),
+            text: text,
+            isGif: isGif,
+            timestamp: Date.now()
+        });
+    }
     async addSong(song) {
         if (!this.roomRef) return;
         const snap = await this.roomRef.child('playlist').once('value');
@@ -336,6 +354,14 @@ class MelodyFlow {
             confirmMessage: document.getElementById('confirmMessage'),
             confirmCancel: document.getElementById('confirmCancel'),
             confirmOk: document.getElementById('confirmOk'),
+            // Chat
+            chatSidebar: document.getElementById('chatSidebar'),
+            toggleChatBtn: document.getElementById('toggleChatBtn'),
+            chatMessages: document.getElementById('chatMessages'),
+            chatInput: document.getElementById('chatInput'),
+            sendChatBtn: document.getElementById('sendChatBtn'),
+            openGifBtn: document.getElementById('openGifBtn'),
+            gifPicker: document.getElementById('gifPicker'),
         };
     }
 
@@ -349,6 +375,27 @@ class MelodyFlow {
         // Room actions
         this.dom.copyCodeBtn.addEventListener('click', () => this.copyRoomCode());
         this.dom.leaveRoomBtn.addEventListener('click', () => this.handleLeaveRoom());
+
+        // Chat actions
+        this.dom.sendChatBtn.addEventListener('click', () => this.sendChatMessage());
+        this.dom.chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') this.sendChatMessage();
+        });
+        this.dom.openGifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.dom.gifPicker.classList.toggle('visible');
+        });
+        document.addEventListener('click', (e) => {
+            if (!this.dom.gifPicker.contains(e.target) && e.target !== this.dom.openGifBtn) {
+                this.dom.gifPicker.classList.remove('visible');
+            }
+        });
+        document.querySelectorAll('.gif-option').forEach(img => {
+            img.addEventListener('click', () => {
+                this.roomManager.sendMessage(img.dataset.url, true);
+                this.dom.gifPicker.classList.remove('visible');
+            });
+        });
 
         // Song actions
         this.dom.addSongBtn.addEventListener('click', () => this.handleAddSong());
@@ -594,6 +641,10 @@ class MelodyFlow {
             this.renderUsers(users);
         });
 
+        this.roomManager.onChatAdded((msg) => {
+            if (msg) this.appendChatMessage(msg);
+        });
+
         this.roomManager.onRoomDeleted(() => {
             if (!this.roomManager.isHost) {
                 showToast('Room was closed by the host', 'info');
@@ -607,6 +658,38 @@ class MelodyFlow {
                 this.dom.roomName.textContent = info.name || 'MelodyFlow Room';
             }
         });
+    }
+
+    // ---- Chat ----
+    
+    sendChatMessage() {
+        const text = this.dom.chatInput.value.trim();
+        if (!text) return;
+        this.roomManager.sendMessage(text, false);
+        this.dom.chatInput.value = '';
+    }
+
+    appendChatMessage(msg) {
+        const isSelf = msg.userId === this.roomManager.userId;
+        const msgEl = document.createElement('div');
+        msgEl.className = `chat-message ${isSelf ? 'self' : 'other'}`;
+        
+        let contentHtml = '';
+        if (msg.isGif) {
+            contentHtml = `<img src="${this.escapeHTML(msg.text)}" alt="GIF">`;
+        } else {
+            contentHtml = this.escapeHTML(msg.text);
+        }
+
+        msgEl.innerHTML = `
+            <div class="chat-message-sender">${this.escapeHTML(msg.name)}</div>
+            <div class="chat-bubble">${contentHtml}</div>
+        `;
+        
+        this.dom.chatMessages.appendChild(msgEl);
+        
+        // Auto scroll
+        this.dom.chatMessages.scrollTop = this.dom.chatMessages.scrollHeight;
     }
 
     updateControlPermissions() {
@@ -687,6 +770,7 @@ class MelodyFlow {
         this.dom.playerBar.style.display = 'none';
         this.dom.landing.style.display = 'flex';
         this.stopPlayback();
+        this.dom.chatMessages.innerHTML = '<div class="chat-welcome">Welcome to the chat! 👋</div>';
 
         // Clear URL params
         const url = new URL(window.location);
