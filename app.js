@@ -373,6 +373,8 @@ class MelodyFlow {
             confirmMessage: document.getElementById('confirmMessage'),
             confirmCancel: document.getElementById('confirmCancel'),
             confirmOk: document.getElementById('confirmOk'),
+            syncOverlay: document.getElementById('syncOverlay'),
+            syncConfirmBtn: document.getElementById('syncConfirmBtn'),
             // Chat
             chatSidebar: document.getElementById('chatSidebar'),
             toggleChatBtn: document.getElementById('toggleChatBtn'),
@@ -518,6 +520,16 @@ class MelodyFlow {
         this.dom.nicknameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') this.confirmNickname();
         });
+
+        // Sync Overlay
+        if (this.dom.syncConfirmBtn) {
+            this.dom.syncConfirmBtn.addEventListener('click', () => {
+                if (this.player && typeof this.player.playVideo === 'function') {
+                    this.player.playVideo();
+                }
+                this.dom.syncOverlay.classList.remove('visible');
+            });
+        }
 
         // Join modal
         this.dom.joinCancel.addEventListener('click', () => {
@@ -1046,6 +1058,13 @@ class MelodyFlow {
                 this.currentSongIndex = state.currentIndex;
                 if (!state.isPlaying) {
                     setTimeout(() => this.player.pauseVideo(), 500);
+                } else if (!this.roomManager.isHost) {
+                    // Check if autoplay was blocked
+                    setTimeout(() => {
+                        if (this.isPlaying && !this.isPlayerPlaying()) {
+                            this.dom.syncOverlay.classList.add('visible');
+                        }
+                    }, 500);
                 }
             }
             this.updatePlayerInfo(song);
@@ -1074,7 +1093,8 @@ class MelodyFlow {
 
     isPlayerPlaying() {
         if (!this.player || !this.playerReady) return false;
-        return this.player.getPlayerState() === YT.PlayerState.PLAYING;
+        const state = this.player.getPlayerState();
+        return state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING;
     }
 
     async handleLeaveRoom() {
