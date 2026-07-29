@@ -1119,16 +1119,16 @@ class MelodyFlow {
 
     updateControlPermissions() {
         const isHost = this.roomManager.isHost;
-        // Only host can control playback
         if (!isHost) {
             this.dom.playPauseBtn.classList.add('disabled');
             this.dom.prevBtn.classList.add('disabled');
-            this.dom.nextBtn.classList.add('disabled');
+            this.dom.nextBtn.style.display = 'none'; // Hide next for guest, skipBtn replaces it
             this.dom.shuffleBtn.classList.add('disabled');
             this.dom.repeatBtn.classList.add('disabled');
         } else {
             this.dom.playPauseBtn.classList.remove('disabled');
             this.dom.prevBtn.classList.remove('disabled');
+            this.dom.nextBtn.style.display = 'block'; // Show next for host
             this.dom.nextBtn.classList.remove('disabled');
             this.dom.shuffleBtn.classList.remove('disabled');
             this.dom.repeatBtn.classList.remove('disabled');
