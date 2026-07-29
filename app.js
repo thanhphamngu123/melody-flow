@@ -581,14 +581,17 @@ class MelodyFlow {
     }
 
     unlockAudioContext() {
-        if (this.player && typeof this.player.playVideo === 'function') {
+        if (this.player && typeof this.player.loadVideoById === 'function') {
             try {
-                this.player.playVideo();
+                // Load a short dummy video synchronously to bypass autoplay restrictions completely
+                this.player.mute();
+                this.player.loadVideoById('dQw4w9WgXcQ', 0);
                 setTimeout(() => {
-                    if (!this.isPlaying && typeof this.player.pauseVideo === 'function') {
+                    if (!this.isPlaying) {
                         this.player.pauseVideo();
                     }
-                }, 100);
+                    this.player.unMute();
+                }, 150);
             } catch (e) {}
         }
     }
