@@ -502,6 +502,15 @@ class MelodyFlow {
         this.dom.nextBtn.addEventListener('click', () => this.nextSong());
         this.dom.shuffleBtn.addEventListener('click', () => this.toggleShuffle());
         this.dom.repeatBtn.addEventListener('click', () => this.toggleRepeat());
+
+        // Autoplay unlocker for Guests
+        document.addEventListener('click', () => {
+            if (!this.roomManager.isHost && this.isPlaying && !this.isPlayerPlaying() && this.player && this.playerReady) {
+                this.player.playVideo();
+            }
+        }, { capture: true });
+
+        // Volume control
         this.dom.volumeBtn.addEventListener('click', () => this.toggleMute());
 
         // Nickname modal
@@ -996,6 +1005,13 @@ class MelodyFlow {
                 this.currentSongIndex = state.currentIndex;
                 if (!state.isPlaying) {
                     setTimeout(() => this.player.pauseVideo(), 500);
+                } else if (!this.roomManager.isHost) {
+                    // Check if autoplay was blocked
+                    setTimeout(() => {
+                        if (this.isPlaying && !this.isPlayerPlaying()) {
+                            showToast('Nhấn bất kỳ đâu trên màn hình để nghe nhạc', 'info');
+                        }
+                    }, 1000);
                 }
             }
             this.updatePlayerInfo(song);
