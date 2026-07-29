@@ -759,8 +759,24 @@ class MelodyFlow {
             this.handleRemoteStateChange(state);
         });
 
+        let prevUserCount = 0;
         this.roomManager.onUsersChange((users) => {
+            const currentUserCount = Object.keys(users).length;
+            const isNewUser = prevUserCount > 0 && currentUserCount > prevUserCount;
+            prevUserCount = currentUserCount;
+
             this.renderUsers(users);
+
+            // Host auto-syncs for new joiners
+            if (isNewUser && this.roomManager.isHost && this.isPlaying && this.player && this.playerReady) {
+                this.player.pauseVideo();
+                this.syncState({ isPlaying: false, seekTime: this.getCurrentTime() });
+                
+                setTimeout(() => {
+                    this.player.playVideo();
+                    this.syncState({ isPlaying: true, seekTime: this.getCurrentTime() });
+                }, 200);
+            }
         });
 
         this.roomManager.onChatAdded((msg) => {
