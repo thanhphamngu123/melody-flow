@@ -346,6 +346,7 @@ class MelodyFlow {
 
         this.cacheDOM();
         this.bindEvents();
+        this.setupMediaSession();
         this.initYouTubeAPI();
         this.checkNickname();
     }
@@ -973,12 +974,78 @@ class MelodyFlow {
             }
         } catch (e) { }
 
-        // Trigger player resume if already playing without loading dummy background videos
+        // Activate silent audio keeper for mobile background playback & lock screen media controls
+        const bgAudio = document.getElementById('backgroundAudioKeeper');
+        if (bgAudio) {
+            bgAudio.play().catch(() => {});
+        }
+
+        // Trigger player resume if already playing
         if (this.player && this.playerReady && this.isPlaying && typeof this.player.playVideo === 'function') {
             try {
                 this.player.playVideo();
             } catch (e) { }
         }
+    }
+
+    // ============ MOBILE BACKGROUND AUDIO & MEDIA SESSION CONTROLS ============
+    setupMediaSession() {
+        if (!('mediaSession' in navigator)) return;
+
+        try {
+            navigator.mediaSession.setActionHandler('play', () => {
+                this.unlockAudioContext();
+                if (this.roomManager.isHost) {
+                    this.togglePlay();
+                } else if (this.player && this.playerReady) {
+                    this.player.playVideo();
+                }
+            });
+
+            navigator.mediaSession.setActionHandler('pause', () => {
+                if (this.roomManager.isHost) {
+                    this.togglePlay();
+                } else if (this.player && this.playerReady) {
+                    this.player.pauseVideo();
+                }
+            });
+
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                if (this.roomManager.isHost) this.prevSong();
+            });
+
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                if (this.roomManager.isHost) this.nextSong();
+            });
+
+            try {
+                navigator.mediaSession.setActionHandler('seekto', (details) => {
+                    if (this.roomManager.isHost && details.seekTime !== undefined && this.player && this.playerReady) {
+                        this.player.seekTo(details.seekTime, true);
+                    }
+                });
+            } catch (e) { }
+        } catch (e) { }
+    }
+
+    updateMediaSession(song) {
+        if (!('mediaSession' in navigator) || !song) return;
+
+        try {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song.title || 'MelodyFlow Studio',
+                artist: song.addedBy ? `Thêm bởi ${song.addedBy}` : 'MelodyFlow Realtime',
+                album: this.roomManager.roomCode ? `Phòng ${this.roomManager.roomCode}` : 'MelodyFlow',
+                artwork: [
+                    { src: song.thumbnail || 'assets/vinyl.png', sizes: '96x96', type: 'image/jpeg' },
+                    { src: song.thumbnail || 'assets/vinyl.png', sizes: '128x128', type: 'image/jpeg' },
+                    { src: song.thumbnail || 'assets/vinyl.png', sizes: '192x192', type: 'image/jpeg' },
+                    { src: song.thumbnail || 'assets/vinyl.png', sizes: '256x256', type: 'image/jpeg' },
+                    { src: song.thumbnail || 'assets/vinyl.png', sizes: '512x512', type: 'image/jpeg' }
+                ]
+            });
+            navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
+        } catch (e) { }
     }
 
     setupSlider(wrapper, fill, handle, onDrag, onRelease) {
@@ -1978,6 +2045,7 @@ class MelodyFlow {
         this.dom.playerThumbnail.src = song.thumbnail;
         this.dom.playerThumbnail.classList.add('visible');
         document.title = `${song.title} - MelodyFlow`;
+        this.updateMediaSession(song);
     }
 
     updatePlayPauseUI() {
@@ -1993,6 +2061,22 @@ class MelodyFlow {
             }
         }
         this.dom.playPauseBtn.title = this.isPlaying ? 'Pause' : 'Play';
+
+        if ('mediaSession' in navigator) {
+            try {
+                navigator.mediaSession.playbackState = this.isPlaying ? 'playing' : 'paused';
+            } catch (e) { }
+        }
+
+        const bgAudio = document.getElementById('backgroundAudioKeeper');
+        if (bgAudio) {
+            if (this.isPlaying) {
+                bgAudio.play().catch(() => {});
+            } else {
+                bgAudio.pause();
+            }
+        }
+
         this.renderSongs();
     }
 
