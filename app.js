@@ -2202,10 +2202,17 @@ class MelodyFlow {
         const userEntries = Object.entries(users);
         this.dom.userCount.textContent = userEntries.length;
 
+        // Host always at the top position
+        userEntries.sort(([idA], [idB]) => {
+            if (idA === this.roomManager.hostId) return -1;
+            if (idB === this.roomManager.hostId) return 1;
+            return 0;
+        });
+
         userEntries.forEach(([userId, userData]) => {
             const isHost = userId === this.roomManager.hostId;
             const item = document.createElement('div');
-            item.className = 'user-item';
+            item.className = `user-item ${isHost ? 'is-host-item' : ''}`;
             const color = getAvatarColor(userId);
             const initial = (userData.name || '?')[0].toUpperCase();
 
@@ -2230,9 +2237,10 @@ class MelodyFlow {
 
             item.innerHTML = `
                 <div class="user-avatar" style="background:${color}">${initial}</div>
-                <span class="user-name">${this.escapeHTML(userData.name || 'Anonymous')}</span>
-                ${isHost ? '<span style="font-size:10px;color:var(--primary);margin-left:4px;">(Host)</span>' : ''}
-                ${userId === this.roomManager.userId ? '<span style="font-size:10px;color:var(--text-muted);margin-left:4px;">(you)</span>' : ''}
+                <div class="user-info-col">
+                    ${isHost ? '<span class="user-host-label">HOST</span>' : ''}
+                    <span class="user-name">${this.escapeHTML(userData.name || 'Anonymous')}</span>
+                </div>
                 <div style="flex:1"></div>
                 ${actionsHtml}
             `;
