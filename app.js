@@ -343,7 +343,6 @@ class MelodyFlow {
         this.ignoreNextStateUpdate = false;
         this.lastStateUpdate = 0;
 
-        this.youtubeApiKey = 'AIzaSyA3OSg8hmi5sbU0nPD4B8fk6ugUxTxTXW8';
 
         this.cacheDOM();
         this.bindEvents();
@@ -1030,7 +1029,7 @@ class MelodyFlow {
 
     // ---- YouTube Search API ----
     get youtubeApiKey() {
-        return 'AIzaSyA3OSg8hmi5sbU0nPD4B8fk6ugUxTxTXW8'; // User will provide this
+        return 'AIzaSyA3OSg8hmi5sbU0nPD4B8fk6ugUxTxTXW8';
     }
 
     async searchYouTube(query) {
