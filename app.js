@@ -964,17 +964,19 @@ class MelodyFlow {
     }
 
     unlockAudioContext() {
-        if (this.player && typeof this.player.loadVideoById === 'function') {
+        try {
+            if (!this.audioCtx) {
+                this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                this.audioCtx.resume();
+            }
+        } catch (e) { }
+
+        // Trigger player resume if already playing without loading dummy background videos
+        if (this.player && this.playerReady && this.isPlaying && typeof this.player.playVideo === 'function') {
             try {
-                // Load a short dummy video synchronously to bypass autoplay restrictions completely
-                this.player.mute();
-                this.player.loadVideoById('dQw4w9WgXcQ', 0);
-                setTimeout(() => {
-                    if (!this.isPlaying) {
-                        this.player.pauseVideo();
-                    }
-                    this.player.unMute();
-                }, 150);
+                this.player.playVideo();
             } catch (e) { }
         }
     }
@@ -1773,6 +1775,7 @@ class MelodyFlow {
     }
 
     togglePlay() {
+        this.unlockAudioContext();
         if (!this.roomManager.isHost) return;
 
         if (this.currentSongIndex < 0 && this.playlist.length > 0) {
