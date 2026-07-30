@@ -424,6 +424,7 @@ class MelodyFlow {
             // Responsive buttons
             openSidebarBtn: document.getElementById('openSidebarBtn'),
             openChatBtn: document.getElementById('openChatBtn'),
+            chatBadge: document.getElementById('chatBadge'),
             openGifBtn: document.getElementById('openGifBtn'),
             gifPicker: document.getElementById('gifPicker'),
             gifSearchInput: document.getElementById('gifSearchInput'),
@@ -553,6 +554,9 @@ class MelodyFlow {
         if (this.dom.openChatBtn) {
             this.dom.openChatBtn.addEventListener('click', () => {
                 this.dom.chatSidebar.classList.toggle('open');
+                if (this.dom.chatBadge) {
+                    this.dom.chatBadge.style.display = 'none';
+                }
             });
         }
 
@@ -911,7 +915,16 @@ class MelodyFlow {
         });
 
         this.roomManager.onChatAdded((msg) => {
-            if (msg) this.appendChatMessage(msg);
+            if (msg) {
+                this.appendChatMessage(msg);
+                // Show red dot if sidebar is closed and it's a new message
+                if (this.dom.chatSidebar && !this.dom.chatSidebar.classList.contains('open')) {
+                    // Only show badge if the window is small enough to have the mobile chat button
+                    if (window.innerWidth <= 1000 && this.dom.chatBadge) {
+                        this.dom.chatBadge.style.display = 'block';
+                    }
+                }
+            }
         });
 
         this.roomManager.onReactionAdded((reaction) => {

@@ -1622,3 +1622,15 @@ body {
 .primary-btn:active {
     transform: translateY(0) scale(0.98);
 }
+
+.chat-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger);
+    border-radius: 50%;
+    border: 2px solid var(--bg-primary);
+    pointer-events: none;
+}
