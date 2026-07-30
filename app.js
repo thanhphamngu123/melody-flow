@@ -463,6 +463,26 @@ class MelodyFlow {
             revealElements.forEach(el => el.classList.add('is-visible'));
         }
 
+        // Landing Demo Music Selector
+        document.querySelectorAll('.demo-song-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.demo-song-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                const title = card.dataset.title;
+                const artist = card.dataset.artist;
+                const img = card.dataset.img;
+
+                const titleEl = document.getElementById('demoCurrentTitle');
+                const artistEl = document.getElementById('demoCurrentArtist');
+                const imgEl = document.getElementById('demoCoverImg');
+
+                if (titleEl) titleEl.textContent = title;
+                if (artistEl) artistEl.textContent = artist;
+                if (imgEl && img) imgEl.src = img;
+            });
+        });
+
         // Landing buttons
         document.querySelectorAll('#createRoomBtn, .btn-create-room').forEach(btn => {
             btn.addEventListener('click', () => this.handleCreateRoom());

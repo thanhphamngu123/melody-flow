@@ -60,25 +60,26 @@
             </div>
         </header>
 
-        <!-- HERO SECTION (SPLIT LAYOUT) -->
+        <!-- HERO SECTION (SPLIT LAYOUT WITH 3D VINYL PLAYER) -->
         <section class="landing-hero" data-reveal>
             <div class="landing-container hero-split-grid">
                 <!-- Left Column: Copy & Actions -->
                 <div class="hero-copy-col">
-                    <span class="hero-eyebrow">⚡ REALTIME MUSIC ROOM</span>
-                    <h1 class="hero-main-title">Giai điệu kết nối, <span class="hero-title-highlight">không khoảng cách.</span></h1>
-                    <p class="hero-subtext">Tạo phòng nghe nhạc YouTube cùng bạn bè, đồng bộ phát chuẩn từng giây, chat &amp; thả GIF sôi nổi mà không cần đăng ký tài khoản.</p>
+                    <span class="hero-eyebrow">🎵 NỀN TẢNG NGHE NHẠC NHÓM REALTIME #1</span>
+                    <h1 class="hero-main-title">Cùng chill giai điệu, <span class="hero-title-highlight">quẩy nhạc thời gian thực.</span></h1>
+                    <p class="hero-subtext">Tạo phòng nghe nhạc YouTube với bạn bè, đồng bộ phát chuẩn từng mili-giây, chat &amp; thả GIF nhộn nhịp mà không cần đăng ký tài khoản.</p>
 
                     <div class="hero-actions">
                         <button class="cta-button primary-cta btn-create-room" id="createRoomBtn">
                             <span class="cta-glow"></span>
-                            <div class="cta-icon-wrapper">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                            <div class="cta-icon-wrapper vinyl-icon-spin">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                                    <circle cx="12" cy="12" r="3" fill="currentColor"/>
                                 </svg>
                             </div>
                             <div class="cta-text">
-                                <span class="cta-title">Tạo phòng ngay</span>
+                                <span class="cta-title">Tạo phòng nghe nhạc ngay</span>
                                 <span class="cta-badge">Miễn phí · Không cần tài khoản</span>
                             </div>
                         </button>
@@ -99,46 +100,38 @@
                     </div>
 
                     <div class="trust-pills">
-                        <span class="trust-pill">⚡ Đồng bộ chuẩn 0.1s</span>
+                        <span class="trust-pill">⚡ Đồng bộ chuẩn 0.05s</span>
                         <span class="trust-pill">🎵 Nhạc YouTube không giới hạn</span>
                         <span class="trust-pill">💬 Chat &amp; Thả GIF sôi động</span>
                     </div>
                 </div>
 
-                <!-- Right Column: Interactive Hero Mockup Card -->
+                <!-- Right Column: Interactive 3D Vinyl Player Deck -->
                 <div class="hero-visual-col">
-                    <div class="hero-player-card">
-                        <div class="card-glow-bg"></div>
-                        <div class="card-header">
-                            <div class="card-room-badge">
-                                <span class="live-dot"></span>
-                                <span class="room-code-txt">ROOM: #MELODY</span>
-                            </div>
-                            <div class="listeners-avatars">
-                                <span class="avatar av-1">A</span>
-                                <span class="avatar av-2">B</span>
-                                <span class="avatar av-3">+3</span>
-                            </div>
+                    <div class="vinyl-player-deck">
+                        <div class="deck-glow"></div>
+                        <div class="vinyl-disc-wrapper">
+                            <img src="assets/vinyl.png" alt="Spinning Vinyl Record" class="vinyl-disc-img spinning">
+                            <div class="vinyl-center-hole"></div>
                         </div>
 
-                        <div class="card-album-art">
-                            <img src="assets/vibe.png" alt="Now Playing" class="album-img">
-                            <div class="equalizer-bars">
-                                <span class="bar bar-1"></span>
-                                <span class="bar bar-2"></span>
-                                <span class="bar bar-3"></span>
-                                <span class="bar bar-4"></span>
-                                <span class="bar bar-5"></span>
+                        <!-- Floating Live Reactions -->
+                        <div class="floating-reaction reaction-1">🔥 Nhạc cuốn vãi!</div>
+                        <div class="floating-reaction reaction-2">❤️ Sơn Tùng đỉnh quá</div>
+
+                        <div class="deck-controls">
+                            <div class="deck-song-info">
+                                <span class="deck-live-tag">● REALTIME SYNC</span>
+                                <h4 class="deck-song-title">Chúng Ta Của Tương Lai</h4>
+                                <p class="deck-song-artist">Sơn Tùng M-TP • 5 thành viên đang nghe</p>
                             </div>
-                        </div>
-
-                        <div class="card-song-meta">
-                            <h4 class="song-name">Chúng Ta Của Tương Lai</h4>
-                            <p class="artist-name">Sơn Tùng M-TP • Synced Realtime</p>
-                        </div>
-
-                        <div class="card-scrubber">
-                            <div class="scrubber-progress"></div>
+                            <div class="deck-eq-wave">
+                                <span class="bar b1"></span>
+                                <span class="bar b2"></span>
+                                <span class="bar b3"></span>
+                                <span class="bar b4"></span>
+                                <span class="bar b5"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -167,16 +160,54 @@
             </div>
         </div>
 
-        <!-- INTERACTIVE SHOWCASE SECTION -->
+        <!-- INTERACTIVE LIVE MUSIC ROOM SIMULATOR -->
         <section class="landing-showcase-section" id="showcaseSection" data-reveal>
             <div class="landing-container">
                 <div class="showcase-header">
                     <h2 class="section-title">Trải nghiệm nghe nhạc nhóm hoàn hảo</h2>
-                    <p class="section-desc">Giao diện hiện đại, tối giản và mượt mà. Đưa mọi người đến gần nhau hơn qua từng giai điệu.</p>
+                    <p class="section-desc">Click nghe thử các bài hát dưới đây để xem cách MelodyFlow đồng bộ và phát nhạc trực tiếp trong phòng!</p>
                 </div>
-                <div class="showcase-frame">
-                    <div class="showcase-glow"></div>
-                    <img src="assets/showcase.png" alt="MelodyFlow Player Showcase" class="showcase-img" loading="lazy">
+
+                <!-- Interactive Demo Player Widget -->
+                <div class="music-demo-widget">
+                    <div class="demo-sidebar-songs">
+                        <div class="demo-song-card active" data-song="1" data-title="Chúng Ta Của Tương Lai" data-artist="Sơn Tùng M-TP" data-img="assets/vibe.png">
+                            <span class="demo-track-num">01</span>
+                            <div class="demo-track-meta">
+                                <span class="demo-track-title">Chúng Ta Của Tương Lai</span>
+                                <span class="demo-track-artist">Sơn Tùng M-TP</span>
+                            </div>
+                            <span class="demo-playing-icon">▶</span>
+                        </div>
+
+                        <div class="demo-song-card" data-song="2" data-title="Trốn Tìm" data-artist="Đen Vâu ft. MTV" data-img="assets/showcase.png">
+                            <span class="demo-track-num">02</span>
+                            <div class="demo-track-meta">
+                                <span class="demo-track-title">Trốn Tìm</span>
+                                <span class="demo-track-artist">Đen Vâu ft. MTV</span>
+                            </div>
+                        </div>
+
+                        <div class="demo-song-card" data-song="3" data-title="Thiên Lý Ơi" data-artist="Jack (J97)" data-img="assets/vibe.png">
+                            <span class="demo-track-num">03</span>
+                            <div class="demo-track-meta">
+                                <span class="demo-track-title">Thiên Lý Ơi</span>
+                                <span class="demo-track-artist">Jack (J97)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="demo-display-screen">
+                        <div class="demo-screen-glow"></div>
+                        <img src="assets/showcase.png" id="demoCoverImg" alt="Demo Room Screen" class="demo-screen-img">
+                        <div class="demo-screen-overlay">
+                            <div class="demo-now-playing-box">
+                                <span class="demo-synced-badge">⚡ REALTIME SYNC (6 NGƯỜI)</span>
+                                <h3 class="demo-current-title" id="demoCurrentTitle">Chúng Ta Của Tương Lai</h3>
+                                <p class="demo-current-artist" id="demoCurrentArtist">Sơn Tùng M-TP</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -185,7 +216,7 @@
         <section class="landing-stats-section" data-reveal>
             <div class="landing-container stats-grid">
                 <div class="stat-card" data-reveal>
-                    <div class="stat-value">&lt; 0.1s</div>
+                    <div class="stat-value">&lt; 0.05s</div>
                     <div class="stat-label">Độ trễ đồng bộ âm thanh</div>
                 </div>
                 <div class="stat-card" data-reveal>
@@ -214,10 +245,10 @@
                 <div class="bento-grid">
                     <!-- Hero Bento Cell -->
                     <div class="bento-card bento-hero-card" data-reveal>
-                        <div class="bento-card-bg" style="background-image: url('assets/vibe.png');"></div>
+                        <div class="bento-card-bg" style="background-image: url('assets/vinyl.png');"></div>
                         <div class="bento-card-overlay"></div>
                         <div class="bento-card-content">
-                            <span class="bento-tag">REALTIME SYNC ENGINE</span>
+                            <span class="bento-tag">REALTIME AUDIO ENGINE</span>
                             <h3 class="bento-title">Đồng bộ phát nhạc chính xác</h3>
                             <p class="bento-desc">Khi Host bật, dừng hoặc tua bài hát, tất cả thành viên trong phòng sẽ được nghe chuẩn xác cùng một khoảnh khắc.</p>
                         </div>
