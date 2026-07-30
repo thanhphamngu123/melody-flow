@@ -1707,6 +1707,9 @@ class MelodyFlow {
                 container.querySelectorAll('.user-action-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
+                container.querySelectorAll('.user-item').forEach(item => {
+                    item.style.zIndex = '';
+                });
             };
 
             document.addEventListener('click', closeAllMenus, { once: true }); // Need a better way, let's just do it on capture phase or on window
@@ -1724,6 +1727,7 @@ class MelodyFlow {
                     if (!isVisible) {
                         menu.classList.add('visible');
                         btn.classList.add('active');
+                        item.style.zIndex = '10';
                         // Add listener to close this menu
                         document.addEventListener('click', closeAllMenus, { once: true });
                     }
