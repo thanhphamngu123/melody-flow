@@ -458,6 +458,29 @@ class MelodyFlow {
                   .from('.hero-actions .cta-button', { opacity: 0, y: 30, scale: 0.85, duration: 0.6, stagger: 0.15, ease: 'back.out(1.7)' }, '-=0.4')
                   .from('#vinylDeck', { opacity: 0, x: 80, rotationY: -35, scale: 0.8, duration: 1.1, ease: 'power4.out' }, '-=0.8');
 
+            // Scroll-driven Hero Parallax Scrubbing
+            gsap.to('.hero-copy-col', {
+                scrollTrigger: {
+                    trigger: '.landing-hero',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1
+                },
+                y: -50,
+                opacity: 0.7
+            });
+
+            gsap.to('#vinylDeck', {
+                scrollTrigger: {
+                    trigger: '.landing-hero',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1
+                },
+                y: 60,
+                rotationX: 12
+            });
+
             // Scroll-driven Continuous Vinyl Spin (Scrubbing with scroll)
             gsap.to('.vinyl-disc-img', {
                 scrollTrigger: {
@@ -470,20 +493,14 @@ class MelodyFlow {
                 ease: 'none'
             });
 
-            // Bento Cards & Stats & Storytelling Reveal
-            gsap.utils.toArray('.stat-card, .bento-card, .step-card, .music-demo-widget, .comparison-card, .usecase-card, .faq-item, .grand-cta-box').forEach(card => {
-                gsap.from(card, {
-                    scrollTrigger: {
-                        trigger: card,
-                        start: 'top 88%',
-                        toggleActions: 'play none none reverse'
-                    },
-                    opacity: 0,
-                    y: 40,
-                    scale: 0.95,
-                    duration: 0.8,
-                    ease: 'power3.out'
-                });
+            // GSAP Batch Reveal with Stagger Wave
+            ScrollTrigger.batch('.stat-card, .bento-card, .step-card, .music-demo-widget, .comparison-card, .usecase-card, .faq-item, .grand-cta-box', {
+                onEnter: batch => gsap.fromTo(batch, 
+                    { opacity: 0, y: 50, scale: 0.94 },
+                    { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out', overwrite: 'auto' }
+                ),
+                onLeaveBack: batch => gsap.to(batch, { opacity: 0, y: 30, scale: 0.96, duration: 0.4, overwrite: 'auto' }),
+                start: 'top 88%'
             });
         }
 
