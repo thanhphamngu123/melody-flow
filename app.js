@@ -972,6 +972,16 @@ class MelodyFlow {
             if (this.audioCtx && this.audioCtx.state === 'suspended') {
                 this.audioCtx.resume();
             }
+            // Keep inaudible Web Audio oscillator running to keep mobile OS audio engine active
+            if (!this.keepAliveOsc) {
+                const osc = this.audioCtx.createOscillator();
+                const gain = this.audioCtx.createGain();
+                gain.gain.value = 0.0001;
+                osc.connect(gain);
+                gain.connect(this.audioCtx.destination);
+                osc.start();
+                this.keepAliveOsc = osc;
+            }
         } catch (e) { }
 
         // Activate silent audio keeper for mobile background playback & lock screen media controls
@@ -990,6 +1000,15 @@ class MelodyFlow {
 
     // ============ MOBILE BACKGROUND AUDIO & MEDIA SESSION CONTROLS ============
     setupMediaSession() {
+        // Handle mobile OS tab/app switching
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && this.isPlaying && this.player && this.playerReady) {
+                try {
+                    this.player.playVideo();
+                } catch (e) {}
+            }
+        });
+
         if (!('mediaSession' in navigator)) return;
 
         try {
@@ -1716,6 +1735,15 @@ class MelodyFlow {
                 this.tryUpdateSongTitle();
                 break;
             case YT.PlayerState.PAUSED:
+                // Prevent mobile OS from killing playback when screen is locked or app is switched
+                if (document.hidden && this.isPlaying) {
+                    setTimeout(() => {
+                        if (this.player && typeof this.player.playVideo === 'function' && this.isPlaying) {
+                            try { this.player.playVideo(); } catch (e) {}
+                        }
+                    }, 100);
+                    return;
+                }
                 this.isPlaying = false;
                 this.updatePlayPauseUI();
                 this.stopProgressUpdate();
