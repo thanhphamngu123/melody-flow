@@ -1908,8 +1908,10 @@ class MelodyFlow {
         if (this.volume > 0) {
             this._prevVolume = this.volume;
             this.setVolume(0);
+            showToast('Đã tắt âm thanh 🔇', 'info');
         } else {
             this.setVolume(this._prevVolume || 80);
+            showToast('Đã bật âm thanh 🔊', 'info');
         }
     }
 

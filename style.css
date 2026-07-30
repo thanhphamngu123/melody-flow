@@ -2586,10 +2586,9 @@ body.in-room {
     .playlist-header { padding: 20px 16px 10px; }
     .add-song-bar { padding: 8px 16px 16px; }
     .song-list { padding: 0 12px 20px; }
-    .player-song-info { width: auto; flex: 0 0 auto; }
-    .player-song-details { display: none; }
-    .player-extra-controls { width: auto; display: flex; align-items: center; gap: 8px; }
-    .volume-slider-wrapper { display: flex !important; width: 75px; opacity: 1 !important; visibility: visible !important; }
+    .player-extra-controls { width: auto; display: flex; align-items: center; justify-content: center; }
+    .volume-slider-wrapper { display: none !important; }
+    #volumeBtn { display: flex !important; width: 36px; height: 36px; align-items: center; justify-content: center; cursor: pointer; }
 }
 
 /* ============ SELECTION ============ */
