@@ -343,6 +343,8 @@ class MelodyFlow {
         this.ignoreNextStateUpdate = false;
         this.lastStateUpdate = 0;
 
+        this.youtubeApiKey = 'AIzaSyA3OSg8hmi5sbU0nPD4B8fk6ugUxTxTXW8';
+
         this.cacheDOM();
         this.bindEvents();
         this.initYouTubeAPI();
