@@ -258,30 +258,67 @@
                 </div>
 
                 <div class="organic-feature-canvas">
-                    <!-- Feature Card 1 (Hero Float) -->
-                    <div class="organic-feature-card f-hero" data-fly="left">
+                    <!-- Feature Card 1: Realtime Audio Engine (Hero Span) -->
+                    <div class="organic-feature-card f-card-grid f-hero" data-fly="left">
                         <div class="card-bg-glow"></div>
-                        <span class="feature-tag">REALTIME AUDIO ENGINE</span>
-                        <h3 class="feature-title">Đồng bộ phát nhạc chính xác 0.05s</h3>
-                        <p class="feature-desc">Khi Host bật, dừng hoặc tua bài hát, tất cả thành viên trong phòng sẽ được nghe chuẩn xác cùng một khoảnh khắc.</p>
+                        <div class="f-card-content">
+                            <span class="feature-tag">REALTIME AUDIO ENGINE</span>
+                            <h3 class="feature-title">Đồng bộ phát nhạc chính xác 0.05 giây</h3>
+                            <p class="feature-desc">WebSocket Realtime Engine tự động khớp từng mili-giây giữa tất cả các trình duyệt. Khi Host ấn Bật, Tua hoặc Chuyển bài, toàn bộ thành viên hòa chung giai điệu không hề bị lệch nhịp.</p>
+                        </div>
+                        <div class="f-card-widget">
+                            <div class="mini-eq-stage">
+                                <span class="eq-bar b1"></span>
+                                <span class="eq-bar b2"></span>
+                                <span class="eq-bar b3"></span>
+                                <span class="eq-bar b4"></span>
+                                <span class="eq-bar b5"></span>
+                            </div>
+                            <span class="widget-live-pill">LIVE SYNC ON</span>
+                        </div>
                     </div>
 
-                    <!-- Feature Card 2 (Tilt Float) -->
-                    <div class="organic-feature-card f-side-1" data-fly="right">
-                        <h3 class="feature-title">Tìm kiếm &amp; Thêm hàng loạt</h3>
-                        <p class="feature-desc">Tích hợp API tìm kiếm YouTube riêng tốc độ cao. Tick chọn nhiều bài hát và thêm vào danh sách chờ chỉ với 1 click.</p>
+                    <!-- Feature Card 2: YouTube API Batch Search -->
+                    <div class="organic-feature-card f-card-grid" data-fly="right">
+                        <div class="f-card-content">
+                            <h3 class="feature-title">Tìm kiếm &amp; Thêm hàng loạt từ YouTube</h3>
+                            <p class="feature-desc">Không còn thao tác copy link từng bài rườm rà. Tích hợp API tìm kiếm YouTube tốc độ cao giúp bạn chọn nhiều bài hát và cho vào hàng chờ phát ngay lập tức.</p>
+                        </div>
+                        <div class="f-card-widget">
+                            <div class="batch-search-pill">SEARCH API SPEED</div>
+                            <div class="batch-search-tags">
+                                <span class="search-tag">1-Click Batch</span>
+                                <span class="search-tag">Auto Queue</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Feature Card 3 (Tilt Float) -->
-                    <div class="organic-feature-card f-side-2" data-fly="left">
-                        <h3 class="feature-title">Trò chuyện &amp; GIF sôi nổi</h3>
-                        <p class="feature-desc">Trò chuyện trực tiếp trong phòng nghe nhạc. Gửi GIF hài hước từ Giphy để cùng chill và chia sẻ cảm xúc.</p>
+                    <!-- Feature Card 3: Live Chat & GIF Reactions -->
+                    <div class="organic-feature-card f-card-grid" data-fly="left">
+                        <div class="f-card-content">
+                            <h3 class="feature-title">Trò chuyện &amp; Thả GIF sôi nổi</h3>
+                            <p class="feature-desc">Phòng nghe nhạc tích hợp khung Chat thời gian thực cùng kho Sticker GIF phong phú. Vừa chill nhạc vừa bộc lộ cảm xúc cùng hội bạn thân mà không cần dùng ứng dụng phụ.</p>
+                        </div>
+                        <div class="f-card-widget">
+                            <div class="chat-bubble-preview">
+                                <span class="c-bubble b-left">Nhạc cháy quá ông ơi!</span>
+                                <span class="c-bubble b-right">Bật bài tiếp theo đi</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Feature Card 4 (Tilt Float) -->
-                    <div class="organic-feature-card f-side-3" data-fly="right">
-                        <h3 class="feature-title">Phòng riêng tư 5 ký tự</h3>
-                        <p class="feature-desc">Chỉ ai có mã 5 ký tự mới vào được phòng. Host có toàn quyền chuyển đổi vị trí hoặc nhượng quyền làm chủ phòng.</p>
+                    <!-- Feature Card 4: Private Room & Host Permissions -->
+                    <div class="organic-feature-card f-card-grid" data-fly="right">
+                        <div class="f-card-content">
+                            <h3 class="feature-title">Phòng riêng tư &amp; Phân quyền Host</h3>
+                            <p class="feature-desc">Mỗi phòng sở hữu mã bảo mật 5 ký tự riêng biệt. Chủ phòng (Host) giữ quyền điều khiển danh sách phát, tua bài hoặc chuyển nhượng quyền quản trị linh hoạt.</p>
+                        </div>
+                        <div class="f-card-widget">
+                            <div class="passcode-key-badge">
+                                <span class="key-label">ROOM CODE</span>
+                                <span class="key-val">PJHX7K</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -424,6 +461,21 @@
                         <div class="faq-answer">
                             <p>Hệ thống tự động chuyển giao quyền Host cho thành viên kế tiếp trong phòng để đảm bảo nhạc luôn tiếp tục phát không ngừng.</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FINAL GRAND CTA BANNER -->
+        <section class="landing-grand-cta">
+            <div class="landing-container">
+                <div class="grand-cta-box" data-fly="zoom">
+                    <div class="grand-cta-glow"></div>
+                    <h2 class="grand-cta-title">Sẵn sàng đắm chìm vào giai điệu?</h2>
+                    <p class="grand-cta-desc">Tạo phòng nghe nhạc của riêng bạn chỉ trong 3 giây. Hoàn toàn miễn phí.</p>
+                    <div class="grand-cta-actions">
+                        <button class="cta-button primary-cta btn-create-room">Tạo phòng nghe ngay</button>
+                        <button class="cta-button secondary-cta btn-join-room">Nhập mã phòng</button>
                     </div>
                 </div>
             </div>
