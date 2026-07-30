@@ -1221,6 +1221,14 @@ class MelodyFlow {
         this.dom.roomApp.style.display = 'flex';
         this.dom.playerBar.style.display = 'flex';
 
+        // GSAP Room Entrance Choreography
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(this.dom.roomApp, { opacity: 0, scale: 0.98 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' });
+            gsap.fromTo('.sidebar', { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, delay: 0.1, ease: 'power3.out' });
+            gsap.fromTo('.chat-sidebar', { x: 30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, delay: 0.1, ease: 'power3.out' });
+            gsap.fromTo('.player-bar', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, delay: 0.2, ease: 'back.out(1.2)' });
+        }
+
         // Display room code
         this.dom.roomCodeDisplay.textContent = code;
         this.dom.hostBadge.style.display = this.roomManager.isHost ? 'flex' : 'none';
@@ -2170,6 +2178,13 @@ class MelodyFlow {
 
             container.appendChild(item);
         });
+
+        if (typeof gsap !== 'undefined' && container.children.length > 0) {
+            gsap.fromTo(container.children,
+                { opacity: 0, y: 14 },
+                { opacity: 1, y: 0, duration: 0.35, stagger: 0.03, ease: 'power2.out' }
+            );
+        }
     }
 
     renderUsers(users) {
