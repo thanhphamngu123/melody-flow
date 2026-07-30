@@ -402,7 +402,8 @@ class MelodyFlow {
             confirmOk: document.getElementById('confirmOk'),
             syncOverlay: document.getElementById('syncOverlay'),
             syncConfirmBtn: document.getElementById('syncConfirmBtn'),
-            // Chat
+            // Chat & Layout
+            sidebar: document.getElementById('sidebar'),
             chatSidebar: document.getElementById('chatSidebar'),
             toggleChatBtn: document.getElementById('toggleChatBtn'),
             chatMessages: document.getElementById('chatMessages'),
