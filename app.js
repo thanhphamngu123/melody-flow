@@ -1052,16 +1052,16 @@ class MelodyFlow {
 
             const data = await res.json();
             if (data.error) throw new Error(data.error);
-            if (!data.items || data.items.length === 0) {
+            if (!Array.isArray(data) || data.length === 0) {
                 this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">No results found</div>';
                 return;
             }
 
-            this.dom.searchResultsList.innerHTML = data.items.map(item => {
-                const videoId = item.id.videoId;
-                const title = this.escapeHTML(item.snippet.title);
-                const channel = this.escapeHTML(item.snippet.channelTitle);
-                const thumb = item.snippet.thumbnails.default.url;
+            this.dom.searchResultsList.innerHTML = data.map(video => {
+                const videoId = video.id;
+                const title = this.escapeHTML(video.title);
+                const channel = this.escapeHTML(video.author);
+                const thumb = video.thumbnail;
 
                 return `
                     <div class="search-result-item" data-video-id="${videoId}" data-title="${title}" data-thumbnail="${thumb}">
