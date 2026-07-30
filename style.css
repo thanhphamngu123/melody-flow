@@ -933,7 +933,7 @@ body.in-room {
     font-size: 13px;
     font-weight: 700;
     color: var(--accent);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.04em;
 }
 
 .marquee-track .dot {
@@ -3233,7 +3233,7 @@ body.in-room {
     color: var(--accent);
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
     margin-bottom: 8px;
 }
 
@@ -3668,10 +3668,13 @@ body.in-room {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 16px;
     overflow: hidden;
-    transition: border-color 0.3s ease;
+    display: grid;
+    grid-template-rows: auto 0fr;
+    transition: grid-template-rows 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
 }
 
 .faq-item.open {
+    grid-template-rows: auto 1fr;
     border-color: rgba(16, 185, 129, 0.4);
 }
 
@@ -3702,17 +3705,11 @@ body.in-room {
 }
 
 .faq-answer {
-    max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s ease, padding 0.4s ease;
-}
-
-.faq-item.open .faq-answer {
-    max-height: 200px;
-    padding: 0 24px 22px;
 }
 
 .faq-answer p {
+    padding: 0 24px 22px;
     font-size: 15px;
     color: var(--text-secondary);
     line-height: 1.6;
