@@ -1007,15 +1007,16 @@ class MelodyFlow {
 
     checkNickname() {
         const name = getNickname();
-        if (!name) {
-            this.dom.nicknameOverlay.classList.add('visible');
-            setTimeout(() => this.dom.nicknameInput.focus(), 100);
-        }
         // Check URL for room code
         const params = new URLSearchParams(window.location.search);
         const roomCode = params.get('room');
-        if (roomCode && name) {
-            this.autoJoinRoom(roomCode);
+        if (roomCode) {
+            if (!name) {
+                this.dom.nicknameOverlay.classList.add('visible');
+                setTimeout(() => this.dom.nicknameInput.focus(), 100);
+            } else {
+                this.autoJoinRoom(roomCode);
+            }
         }
     }
 
@@ -1023,11 +1024,22 @@ class MelodyFlow {
         this.unlockAudioContext();
         const name = this.dom.nicknameInput.value.trim();
         if (!name) {
-            showToast('Please enter a nickname', 'error');
+            showToast('Vui lòng nhập biệt danh của bạn', 'error');
             return;
         }
         setNickname(name);
         this.dom.nicknameOverlay.classList.remove('visible');
+
+        // Execute pending action automatically after setting nickname
+        if (this._pendingAction === 'create') {
+            this._pendingAction = null;
+            this.handleCreateRoom();
+            return;
+        } else if (this._pendingAction === 'join') {
+            this._pendingAction = null;
+            this.showJoinModal();
+            return;
+        }
 
         // Check if there's a room code in URL
         const params = new URLSearchParams(window.location.search);
@@ -1050,31 +1062,41 @@ class MelodyFlow {
     async handleCreateRoom() {
         this.unlockAudioContext();
         if (!getNickname()) {
+            this._pendingAction = 'create';
             this.dom.nicknameOverlay.classList.add('visible');
+            setTimeout(() => this.dom.nicknameInput.focus(), 100);
             return;
         }
         if (!this.roomManager.isReady()) {
-            showToast('Firebase not configured. Check firebase-config.js', 'error');
-            return;
+            this.roomManager.initFirebase();
+            if (!this.roomManager.isReady()) {
+                showToast('Không thể kết nối máy chủ. Vui lòng thử lại sau giây lát.', 'error');
+                return;
+            }
         }
 
         try {
             const code = await this.roomManager.createRoom('MelodyFlow Room', getNickname());
             this.enterRoom(code);
-            showToast(`Room created! Code: ${code}`, 'success');
+            showToast(`Đã tạo phòng! Mã: ${code}`, 'success');
         } catch (e) {
-            showToast('Failed to create room: ' + e.message, 'error');
+            showToast('Lỗi khi tạo phòng: ' + e.message, 'error');
         }
     }
 
     showJoinModal() {
         if (!getNickname()) {
+            this._pendingAction = 'join';
             this.dom.nicknameOverlay.classList.add('visible');
+            setTimeout(() => this.dom.nicknameInput.focus(), 100);
             return;
         }
         if (!this.roomManager.isReady()) {
-            showToast('Firebase not configured. Check firebase-config.js', 'error');
-            return;
+            this.roomManager.initFirebase();
+            if (!this.roomManager.isReady()) {
+                showToast('Không thể kết nối máy chủ. Vui lòng thử lại sau giây lát.', 'error');
+                return;
+            }
         }
         this.dom.joinCodeInput.value = '';
         this.dom.joinOverlay.classList.add('visible');
