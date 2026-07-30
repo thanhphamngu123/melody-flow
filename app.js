@@ -450,10 +450,10 @@ class MelodyFlow {
         if (typeof gsap !== 'undefined') {
             gsap.registerPlugin(ScrollTrigger);
 
-            // Hero Timeline Choreography with Word Wave
+            // Hero Timeline Choreography
             const heroTl = gsap.timeline({ delay: 2.3 });
             heroTl.from('.hero-eyebrow', { opacity: 0, y: -20, duration: 0.6, ease: 'back.out(1.7)' })
-                  .from('.gsap-split-text .word', { opacity: 0, y: 35, scale: 0.8, duration: 0.7, stagger: 0.05, ease: 'back.out(2)' }, '-=0.3')
+                  .from('.hero-main-title', { opacity: 0, y: 35, duration: 0.8, ease: 'power4.out' }, '-=0.3')
                   .from('.hero-subtext', { opacity: 0, y: 25, duration: 0.7, ease: 'power3.out' }, '-=0.4')
                   .from('.hero-actions .cta-button', { opacity: 0, y: 30, scale: 0.85, duration: 0.6, stagger: 0.15, ease: 'back.out(1.7)' }, '-=0.4')
                   .from('#vinylDeck', { opacity: 0, x: 80, rotationY: -35, scale: 0.8, duration: 1.1, ease: 'power4.out' }, '-=0.8');
@@ -470,49 +470,19 @@ class MelodyFlow {
                 ease: 'none'
             });
 
-            // Story Module Card Parallax Scale Up
-            gsap.utils.toArray('.story-module-card, .music-demo-widget, .dual-card').forEach(card => {
+            // Bento Cards & Stats Reveal
+            gsap.utils.toArray('.stat-card, .bento-card, .step-card, .music-demo-widget').forEach(card => {
                 gsap.from(card, {
                     scrollTrigger: {
                         trigger: card,
-                        start: 'top 85%',
+                        start: 'top 88%',
                         toggleActions: 'play none none reverse'
                     },
                     opacity: 0,
-                    y: 60,
-                    scale: 0.9,
-                    duration: 1,
-                    ease: 'power3.out'
-                });
-            });
-
-            // Glowing Timeline Laser Growth on Scroll
-            gsap.fromTo('.glowing-timeline-laser', 
-                { height: '0%' },
-                {
-                    scrollTrigger: {
-                        trigger: '.story-timeline-section',
-                        start: 'top center',
-                        end: 'bottom center',
-                        scrub: 1
-                    },
-                    height: '100%',
-                    ease: 'none'
-                }
-            );
-
-            // Step Nodes Stagger Reveal
-            gsap.utils.toArray('.journey-node').forEach((node, i) => {
-                gsap.from(node, {
-                    scrollTrigger: {
-                        trigger: node,
-                        start: 'top 80%',
-                        toggleActions: 'play none none reverse'
-                    },
-                    opacity: 0,
-                    x: i % 2 === 0 ? -50 : 50,
+                    y: 40,
+                    scale: 0.95,
                     duration: 0.8,
-                    ease: 'back.out(1.4)'
+                    ease: 'power3.out'
                 });
             });
         }

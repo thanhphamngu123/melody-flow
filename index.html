@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MelodyFlow - Listen Together</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <!-- GSAP & ScrollTrigger CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -34,15 +34,6 @@
 
     <!-- GLOWING CURSOR FOLLOWER -->
     <div class="cursor-glow-aura" id="cursorGlow"></div>
-
-    <!-- LEFT EDGE SCROLL EQUALIZER BEAM -->
-    <div class="left-edge-eq-beam">
-        <span class="beam-bar b1"></span>
-        <span class="beam-bar b2"></span>
-        <span class="beam-bar b3"></span>
-        <span class="beam-bar b4"></span>
-        <span class="beam-bar b5"></span>
-    </div>
 
     <!-- ========== LANDING PAGE ========== -->
     <div class="landing" id="landing">
@@ -78,14 +69,14 @@
             </div>
         </header>
 
-         <!-- HERO SECTION (CINEMATIC AUDIO STAGE) -->
+        <!-- HERO SECTION (SPLIT LAYOUT WITH 3D MOCKUP) -->
         <section class="landing-hero">
             <div class="landing-container hero-split-grid">
                 <!-- Left Column: Copy & Actions -->
                 <div class="hero-copy-col" data-fly="left">
-                    <span class="hero-eyebrow">🎵 NỀN TẢNG NGHE NHẠC NHÓM REALTIME #1</span>
-                    <h1 class="hero-main-title gsap-split-text"><span class="word">Khi</span> <span class="word">âm</span> <span class="word">nhạc</span> <span class="word">cất</span> <span class="word">lời,</span> <br><span class="hero-title-highlight word">mọi</span> <span class="hero-title-highlight word">khoảng</span> <span class="hero-title-highlight word">cách</span> <span class="hero-title-highlight word">tan</span> <span class="hero-title-highlight word">biến.</span></h1>
-                    <p class="hero-subtext">Dù cách xa hàng trăm cây số, MelodyFlow đưa bạn và những người thân yêu về chung một phòng studio—cùng nghe một bài hát, cùng vỡ òa một khoảnh khắc.</p>
+                    <span class="hero-eyebrow">⚡ REALTIME YOUTUBE MUSIC ROOM</span>
+                    <h1 class="hero-main-title">Cùng nghe nhạc YouTube với bạn bè, <span class="hero-title-highlight">đồng bộ phát chuẩn từng giây.</span></h1>
+                    <p class="hero-subtext">Tạo phòng phát nhạc thời gian thực, tìm kiếm &amp; thêm hàng loạt bài hát từ YouTube, trò chuyện &amp; thả GIF sôi nổi mà không cần đăng ký tài khoản.</p>
 
                     <div class="hero-actions">
                         <button class="cta-button primary-cta btn-create-room" id="createRoomBtn">
@@ -97,7 +88,7 @@
                                 </svg>
                             </div>
                             <div class="cta-text">
-                                <span class="cta-title">Vào phòng nghe nhạc ngay</span>
+                                <span class="cta-title">Tạo phòng miễn phí</span>
                                 <span class="cta-badge">Miễn phí · Không cần tài khoản</span>
                             </div>
                         </button>
@@ -178,49 +169,34 @@
             </div>
         </div>
 
-        <!-- STORY MODULE 1: THE SYNCHRONIZED PULSE -->
-        <section class="story-module-section" id="showcaseSection">
-            <div class="landing-container">
-                <div class="story-module-card" data-fly="zoom">
-                    <div class="module-backdrop" style="background-image: url('assets/soundwave_bg.png');"></div>
-                    <div class="module-overlay"></div>
-                    <div class="module-grid">
-                        <div class="module-text-content" data-fly="left">
-                            <span class="module-tag">REALTIME AUDIO ENGINE</span>
-                            <h2 class="module-title">Đồng bộ từng nhịp đập — Thăng hoa trong cùng một tần số.</h2>
-                            <p class="module-desc">Không giật lag, không lệch tone. Bật Play ở Hà Nội, lắng nghe ở Sài Gòn hay bất kỳ đâu trên thế giới. Nhịp trống vừa cất lên, tất cả cùng phiêu một khoảnh khắc.</p>
-                            <div class="module-metrics">
-                                <div class="metric-item">
-                                    <span class="metric-num">&lt; 0.05s</span>
-                                    <span class="metric-lbl">Độ trễ truyền tải</span>
-                                </div>
-                                <div class="metric-item">
-                                    <span class="metric-num">100%</span>
-                                    <span class="metric-lbl">Đồng bộ YouTube</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="module-visual-content" data-fly="right">
-                            <div class="live-radar-box">
-                                <div class="radar-ping"></div>
-                                <div class="radar-center-avatar">🎵</div>
-                                <div class="radar-peer p1">Lan</div>
-                                <div class="radar-peer p2">Minh</div>
-                                <div class="radar-peer p3">Hùng</div>
-                                <div class="radar-peer p4">Trang</div>
-                            </div>
-                        </div>
-                    </div>
+        <!-- LIVE METRIC STATS STRIP -->
+        <section class="landing-stats-section">
+            <div class="landing-container stats-grid">
+                <div class="stat-card" data-fly="zoom">
+                    <div class="stat-value">&lt; 0.05s</div>
+                    <div class="stat-label">Độ trễ đồng bộ phát nhạc</div>
+                </div>
+                <div class="stat-card" data-fly="zoom">
+                    <div class="stat-value">100%</div>
+                    <div class="stat-label">Nhạc YouTube chất lượng cao</div>
+                </div>
+                <div class="stat-card" data-fly="zoom">
+                    <div class="stat-value">0đ</div>
+                    <div class="stat-label">Miễn phí &amp; Không quảng cáo</div>
+                </div>
+                <div class="stat-card" data-fly="zoom">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Tài khoản cần đăng ký</div>
                 </div>
             </div>
         </section>
 
-        <!-- STORY MODULE 2: INTERACTIVE MUSIC ROOM SIMULATOR -->
-        <section class="story-module-section">
+        <!-- INTERACTIVE APP SHOWCASE SECTION -->
+        <section class="landing-showcase-section" id="showcaseSection">
             <div class="landing-container">
-                <div class="story-header" data-fly="zoom">
-                    <h2 class="section-title">Chủ động làm chủ giai điệu — Thử phát nhạc trực tiếp</h2>
-                    <p class="section-desc">Click chọn bài hát bên dưới để cảm nhận tốc độ chuyển bài mượt mà trong studio phòng nghe.</p>
+                <div class="showcase-header" data-fly="zoom">
+                    <h2 class="section-title">Trải nghiệm nghe nhạc nhóm hoàn hảo</h2>
+                    <p class="section-desc">Giao diện hiện đại, tối giản và mượt mà. Click thử bài hát bên dưới để xem giao diện chuyển đổi trực tiếp.</p>
                 </div>
 
                 <!-- Interactive Demo Player Widget -->
@@ -267,31 +243,88 @@
             </div>
         </section>
 
-        <!-- STORY MODULE 3: FULL-BLEED CHAT & BATCH ADD EXPERIENCE -->
-        <section class="story-module-section" id="featuresSection">
+        <!-- BENTO GRID FEATURES SECTION -->
+        <section class="landing-features-section" id="featuresSection">
             <div class="landing-container">
-                <div class="story-dual-grid">
-                    <!-- Dual Card 1: Batch Search & Queue -->
-                    <div class="dual-card" data-fly="left">
-                        <div class="dual-card-icon">🚀</div>
-                        <h3 class="dual-card-title">Kho Nhạc YouTube Vô Tận &amp; Thêm Bài Hát 1-Click</h3>
-                        <p class="dual-card-desc">API YouTube riêng tốc độ cao. Tìm kiếm bất kỳ ca sĩ, album hay danh sách phát nào. Tick chọn cùng lúc 10 bài và quẩy xuyên đêm.</p>
-                        <div class="dual-pill-stack">
-                            <span class="d-pill">✓ Multi-Select Checkboxes</span>
-                            <span class="d-pill">✓ Auto Next Track</span>
-                            <span class="d-pill">✓ No Ads Interrupt</span>
+                <div class="features-header" data-fly="zoom">
+                    <h2 class="section-title">Tính năng vượt trội</h2>
+                    <p class="section-desc">Mọi công cụ bạn cần để tận hưởng âm nhạc cùng hội bạn thân.</p>
+                </div>
+
+                <div class="bento-grid">
+                    <!-- Hero Bento Cell -->
+                    <div class="bento-card bento-hero-card" data-fly="left">
+                        <div class="bento-card-bg" style="background-image: url('assets/vibe.png');"></div>
+                        <div class="bento-card-overlay"></div>
+                        <div class="bento-card-content">
+                            <span class="bento-tag">REALTIME AUDIO ENGINE</span>
+                            <h3 class="bento-title">Đồng bộ phát nhạc chính xác</h3>
+                            <p class="bento-desc">Khi Host bật, dừng hoặc tua bài hát, tất cả thành viên trong phòng sẽ được nghe chuẩn xác cùng một khoảnh khắc.</p>
                         </div>
                     </div>
 
-                    <!-- Dual Card 2: Chat Stream & GIF Expressions -->
-                    <div class="dual-card" data-fly="right">
-                        <div class="dual-card-icon">💬</div>
-                        <h3 class="dual-card-title">Bữa Tiệc Cảm Xúc Với Chat Trực Tiếp &amp; Thả GIF</h3>
-                        <p class="dual-card-desc">Không chỉ nghe nhạc, hãy cùng nhau tạo nên những bữa tiệc âm thanh nhộn nhịp nhất với hàng ngàn sticker GIF sinh động từ Giphy.</p>
-                        <div class="dual-chat-preview">
-                            <div class="chat-row r1"><strong>Minh:</strong> Bài này đỉnh quá bro ơi! 🔥</div>
-                            <div class="chat-row r2"><strong>Trang:</strong> Thả tim nè ❤️</div>
+                    <!-- Bento Cell 2 -->
+                    <div class="bento-card" data-fly="right">
+                        <div class="bento-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
                         </div>
+                        <h3 class="bento-title">Tìm kiếm &amp; Thêm hàng loạt</h3>
+                        <p class="bento-desc">Tích hợp API tìm kiếm YouTube riêng tốc độ cao. Tick chọn nhiều bài hát và thêm vào danh sách chờ chỉ với 1 click.</p>
+                    </div>
+
+                    <!-- Bento Cell 3 -->
+                    <div class="bento-card" data-fly="left">
+                        <div class="bento-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title">Trò chuyện &amp; GIF sôi nổi</h3>
+                        <p class="bento-desc">Trò chuyện trực tiếp trong phòng nghe nhạc. Gửi GIF hài hước từ Giphy để cùng chill và chia sẻ cảm xúc.</p>
+                    </div>
+
+                    <!-- Bento Cell 4 -->
+                    <div class="bento-card" data-fly="right">
+                        <div class="bento-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title">Phòng riêng tư &amp; Phân quyền Host</h3>
+                        <p class="bento-desc">Chỉ ai có mã 5 ký tự mới vào được phòng. Host có toàn quyền chuyển đổi vị trí hoặc nhượng quyền làm chủ phòng.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3-STEP HOW IT WORKS SECTION -->
+        <section class="landing-steps-section" id="stepsSection">
+            <div class="landing-container">
+                <div class="steps-header" data-fly="zoom">
+                    <h2 class="section-title">Bắt đầu chỉ trong 3 bước</h2>
+                    <p class="section-desc">Không cần cài đặt phức tạp, không cần đăng ký tài khoản.</p>
+                </div>
+
+                <div class="steps-grid">
+                    <div class="step-card" data-fly="left">
+                        <div class="step-number">01</div>
+                        <h3 class="step-title">Tạo phòng nghe nhạc</h3>
+                        <p class="step-desc">Bấm nút Tạo phòng, nhập tên hiển thị của bạn và hệ thống sẽ cấp mã phòng 5 ký tự duy nhất.</p>
+                    </div>
+
+                    <div class="step-card" data-fly="zoom">
+                        <div class="step-number">02</div>
+                        <h3 class="step-title">Chia sẻ với bạn bè</h3>
+                        <p class="step-desc">Sao chép đường link phòng hoặc gửi mã phòng cho bạn bè qua Messenger, Zalo hay Discord.</p>
+                    </div>
+
+                    <div class="step-card" data-fly="right">
+                        <div class="step-number">03</div>
+                        <h3 class="step-title">Cùng nghe &amp; Thưởng thức</h3>
+                        <p class="step-desc">Thêm bài hát từ YouTube vào danh sách và cùng tận hưởng giai điệu thời gian thực!</p>
                     </div>
                 </div>
             </div>
