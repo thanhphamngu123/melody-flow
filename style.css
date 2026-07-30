@@ -1394,7 +1394,7 @@ body {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
     z-index: 200;
     display: none;
-    max-height: 350px;
+    max-height: 450px;
     overflow-y: auto;
     pointer-events: auto;
 }
@@ -1452,6 +1452,66 @@ body {
     color: var(--text-muted);
 }
 
+/* ---- Search Multi-Select ---- */
+.search-actions-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+}
+
+.search-select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-secondary);
+    user-select: none;
+}
+
+.search-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.search-add-selected-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+
+.search-add-selected-btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+.search-add-selected-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.search-result-item .search-checkbox {
+    margin-left: 2px;
+}
 
 /* ============ USER ACTION MENU ============ */
 .user-item {

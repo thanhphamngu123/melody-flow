@@ -1037,15 +1037,9 @@ class MelodyFlow {
         this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
 
         try {
-            // Gọi API riêng trên Vercel (repo my-youtube-api)
-            const url = `https://my-youtube-api-nine.vercel.app/api/search?q=${encodeURIComponent(query)}`;
+            const url = `https://my-youtube-api-nine.vercel.app/api/search?q=${encodeURIComponent(query)}&limit=15`;
             const res = await fetch(url);
-            
-            if (!res.ok) {
-                // If Vercel API fails (e.g. running on GitHub pages but haven't deployed to Vercel yet)
-                // We could fallback, but since you want your own API, we will just throw an error.
-                throw new Error('Vercel API request failed with status: ' + res.status);
-            }
+            if (!res.ok) throw new Error('API request failed: ' + res.status);
 
             const data = await res.json();
             if (data.error) throw new Error(data.error);
@@ -1054,26 +1048,109 @@ class MelodyFlow {
                 return;
             }
 
-            this.dom.searchResultsList.innerHTML = data.map(video => {
+            this.lastSearchResults = data;
+
+            let html = `
+                <div class="search-actions-bar">
+                    <label class="search-select-all-label">
+                        <input type="checkbox" id="searchSelectAll" class="search-checkbox">
+                        <span>Chọn tất cả</span>
+                    </label>
+                    <button class="search-add-selected-btn" id="addSelectedBtn" disabled>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Thêm đã chọn (<span id="selectedCount">0</span>)
+                    </button>
+                </div>
+            `;
+
+            html += data.map((video, index) => {
                 const videoId = video.id;
                 const title = this.escapeHTML(video.title);
                 const channel = this.escapeHTML(video.author);
                 const thumb = video.thumbnail;
+                const duration = video.duration || '';
 
                 return `
-                    <div class="search-result-item" data-video-id="${videoId}" data-title="${title}" data-thumbnail="${thumb}">
+                    <div class="search-result-item" data-video-id="${videoId}" data-title="${title}" data-thumbnail="${thumb}" data-index="${index}">
+                        <input type="checkbox" class="search-checkbox search-item-check" data-index="${index}" onclick="event.stopPropagation()">
                         <img src="${thumb}" class="search-result-thumb" alt="" loading="lazy">
                         <div class="search-result-info">
                             <span class="search-result-title">${title}</span>
-                            <span class="search-result-channel">${channel}</span>
+                            <span class="search-result-channel">${channel}${duration ? ' · ' + duration : ''}</span>
                         </div>
                     </div>
                 `;
             }).join('');
+
+            this.dom.searchResultsList.innerHTML = html;
+            this.bindSearchMultiSelect();
+
         } catch (e) {
             console.error('YouTube search failed', e);
             this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:#ef4444;font-size:13px;">Search failed</div>';
         }
+    }
+
+    bindSearchMultiSelect() {
+        const selectAllBox = document.getElementById('searchSelectAll');
+        const addSelectedBtn = document.getElementById('addSelectedBtn');
+        const selectedCountEl = document.getElementById('selectedCount');
+        if (!selectAllBox || !addSelectedBtn) return;
+
+        const updateCount = () => {
+            const checked = this.dom.searchResultsList.querySelectorAll('.search-item-check:checked');
+            selectedCountEl.textContent = checked.length;
+            addSelectedBtn.disabled = checked.length === 0;
+        };
+
+        selectAllBox.addEventListener('change', () => {
+            this.dom.searchResultsList.querySelectorAll('.search-item-check').forEach(cb => cb.checked = selectAllBox.checked);
+            updateCount();
+        });
+
+        this.dom.searchResultsList.addEventListener('change', (e) => {
+            if (e.target.classList.contains('search-item-check')) {
+                updateCount();
+                const allBoxes = this.dom.searchResultsList.querySelectorAll('.search-item-check');
+                selectAllBox.checked = [...allBoxes].every(cb => cb.checked);
+            }
+        });
+
+        addSelectedBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const checked = this.dom.searchResultsList.querySelectorAll('.search-item-check:checked');
+            if (checked.length === 0) return;
+
+            addSelectedBtn.disabled = true;
+            addSelectedBtn.innerHTML = '<div class="spinner"></div> Đang thêm...';
+
+            let addedCount = 0;
+            for (const cb of checked) {
+                const idx = parseInt(cb.dataset.index);
+                const video = this.lastSearchResults[idx];
+                if (video) {
+                    try {
+                        await this.addSongSilent(video.id, video.title, video.thumbnail);
+                        addedCount++;
+                    } catch (err) { /* skip */ }
+                }
+            }
+
+            showToast(`Đã thêm ${addedCount} bài hát!`, 'success');
+            this.dom.searchDropdown.classList.remove('visible');
+            this.dom.songUrlInput.value = '';
+        });
+    }
+
+    async addSongSilent(videoId, title, thumbnail) {
+        const song = {
+            videoId,
+            title,
+            thumbnail,
+            addedBy: getNickname(),
+            addedAt: Date.now()
+        };
+        await this.roomManager.addSong(song);
     }
 
     async addSongFromSearch(videoId, title, thumbnail) {
