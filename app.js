@@ -1710,10 +1710,14 @@ class MelodyFlow {
             });
 
             container.querySelectorAll('.make-host-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
+                btn.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     const id = btn.dataset.id;
-                    if (confirm('Bạn có chắc muốn chuyển quyền Trưởng phòng cho người này không?')) {
+                    const confirmed = await this.showConfirmModal(
+                        'Chuyển Trưởng phòng',
+                        'Bạn có chắc muốn chuyển quyền Trưởng phòng cho người này không?'
+                    );
+                    if (confirmed) {
                         this.roomManager.transferHost(id);
                     }
                     closeAllMenus();
