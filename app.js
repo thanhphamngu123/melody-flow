@@ -1715,7 +1715,8 @@ class MelodyFlow {
                     const id = btn.dataset.id;
                     const confirmed = await this.showConfirmModal(
                         'Chuyển Trưởng phòng',
-                        'Bạn có chắc muốn chuyển quyền Trưởng phòng cho người này không?'
+                        'Bạn có chắc muốn chuyển quyền Trưởng phòng cho người này không?',
+                        { okText: 'Yes', isDanger: false }
                     );
                     if (confirmed) {
                         this.roomManager.transferHost(id);
@@ -1728,11 +1729,23 @@ class MelodyFlow {
 
     // ---- Modals ----
 
-    showConfirmModal(title, message) {
+    showConfirmModal(title, message, options = {}) {
         return new Promise((resolve) => {
             this.dom.confirmTitle.textContent = title;
             this.dom.confirmMessage.textContent = message;
-            this.dom.confirmOk.textContent = this.roomManager.isHost ? 'Close Room' : 'Leave';
+            
+            let okText = options.okText;
+            if (!okText) {
+                okText = this.roomManager.isHost ? 'Close Room' : 'Leave';
+            }
+            this.dom.confirmOk.textContent = okText;
+            
+            if (options.isDanger === false) {
+                this.dom.confirmOk.classList.remove('danger');
+            } else {
+                this.dom.confirmOk.classList.add('danger');
+            }
+            
             this.dom.confirmOverlay.classList.add('visible');
 
             const cleanup = () => {
