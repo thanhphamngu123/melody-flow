@@ -1713,12 +1713,14 @@ class MelodyFlow {
                 height: '180',
                 width: '320',
                 playerVars: {
-                    autoplay: 0,
+                    autoplay: 1,
                     controls: 0,
                     disablekb: 1,
                     fs: 0,
                     rel: 0,
-                    modestbranding: 1
+                    modestbranding: 1,
+                    enablejsapi: 1,
+                    origin: window.location.origin
                 },
                 events: {
                     onReady: () => {
@@ -1726,6 +1728,9 @@ class MelodyFlow {
                         this.player.setVolume(this.volume);
                         if (this.latestRemoteState && this.playlist.length > 0) {
                             this.handleRemoteStateChange(this.latestRemoteState, true);
+                        } else if (this.currentSongIndex >= 0 && this.currentSongIndex < this.playlist.length) {
+                            const song = this.playlist[this.currentSongIndex];
+                            try { this.player.loadVideoById(song.videoId); } catch (e) {}
                         }
                     },
                     onStateChange: (event) => this.onPlayerStateChange(event),
@@ -1855,6 +1860,7 @@ class MelodyFlow {
     // ---- Playback ----
 
     playSong(index) {
+        this.unlockAudioContext();
         if (!this.roomManager.isHost) return;
         if (index < 0 || index >= this.playlist.length) return;
 
@@ -1864,9 +1870,11 @@ class MelodyFlow {
         this.updatePlayerInfo(song);
 
         if (this.player && this.playerReady) {
-            this.player.loadVideoById(song.videoId);
-            this.isPlaying = true;
-            this.updatePlayPauseUI();
+            try {
+                this.player.loadVideoById(song.videoId);
+                this.isPlaying = true;
+                this.updatePlayPauseUI();
+            } catch (e) { }
         }
 
         this.syncState({

@@ -8,23 +8,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 :root {
-    --bg-primary: #040806;
-    --bg-surface: #0a0f0d;
-    --bg-card: rgba(14, 22, 18, 0.65);
-    --bg-card-hover: rgba(14, 22, 18, 0.95);
-    --bg-elevated: #121c17;
-    --border: rgba(255, 255, 255, 0.08);
-    --border-light: rgba(16, 185, 129, 0.25);
-    --text-primary: #ffffff;
+    --bg-primary: #080c0a;
+    --bg-surface: #0e1411;
+    --bg-card: rgba(18, 26, 22, 0.7);
+    --bg-card-hover: rgba(24, 34, 28, 0.95);
+    --bg-elevated: #16201b;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-light: rgba(52, 211, 153, 0.2);
+    --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-muted: #94a3b8;
-    --accent: #10b981;
-    --accent-hover: #059669;
+    --accent: #34d399;
+    --accent-hover: #10b981;
     --danger: #ef4444;
     --danger-hover: #dc2626;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    --success: #34d399;
+    --warning: #fbbf24;
+    --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     --sidebar-width: 260px;
     --player-height: 80px;
     --radius-sm: 8px;
@@ -2453,17 +2453,17 @@ body.in-room {
     width: 44px;
     height: 44px;
     background: var(--accent);
-    color: #040806 !important;
+    color: #080c0a !important;
     border-radius: 50%;
     margin: 0 10px;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), 0 4px 14px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .play-pause-btn:hover { 
-    background: #34d399; 
-    transform: scale(1.06);
-    box-shadow: 0 0 28px rgba(16, 185, 129, 0.7);
+    background: #6ee7b7; 
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 .play-pause-btn:active { transform: scale(0.95); }
 
