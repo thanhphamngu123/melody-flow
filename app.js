@@ -1727,7 +1727,7 @@ class MelodyFlow {
                     if (!isVisible) {
                         menu.classList.add('visible');
                         btn.classList.add('active');
-                        item.style.zIndex = '10';
+                        btn.closest('.user-item').style.zIndex = '10';
                         // Add listener to close this menu
                         document.addEventListener('click', closeAllMenus, { once: true });
                     }
