@@ -684,6 +684,13 @@ class MelodyFlow {
                 const artistEl = document.getElementById('demoCurrentArtist');
                 const imgEl = document.getElementById('demoCoverImg');
 
+                if (typeof gsap !== 'undefined') {
+                    gsap.fromTo('.demo-display-screen', 
+                        { opacity: 0.4, scale: 0.97 },
+                        { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out' }
+                    );
+                }
+
                 if (titleEl) titleEl.textContent = title;
                 if (artistEl) artistEl.textContent = artist;
                 if (imgEl && img) imgEl.src = img;
