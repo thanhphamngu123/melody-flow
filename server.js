@@ -217,12 +217,6 @@ function handleRequest(req, res) {
     });
 }
 
-// Auto-shutdown: if no heartbeat for 15 seconds, server exits
-setInterval(() => {
-    if (Date.now() - lastHeartbeat > 15000) {
-        process.exit(0);
-    }
-}, 5000);
 
 function startServerOnPort(port) {
     const srv = http.createServer(handleRequest);

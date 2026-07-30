@@ -548,7 +548,6 @@ body {
 
 .add-song-btn:hover {
     background: var(--accent-hover);
-    transform: translateY(-1px);
 }
 
 .add-song-btn:active { transform: translateY(0) scale(0.97); }
@@ -577,7 +576,6 @@ body {
 .song-item:hover { 
     background: var(--bg-card-hover);
     border-color: var(--border-light);
-    transform: translateX(4px);
 }
 .song-item:active { transform: scale(0.98); }
 .song-item.playing { 
@@ -846,7 +844,6 @@ body {
 
 .play-pause-btn:hover { 
     background: white; 
-    transform: scale(1.02);
 }
 .play-pause-btn:active { transform: scale(0.96); }
 
@@ -1069,11 +1066,11 @@ body {
 
 .modal-btn:active { transform: scale(0.98); }
 .modal-btn.cancel { background: var(--bg-elevated); color: var(--text-secondary); }
-.modal-btn.cancel:hover { background: var(--bg-card-hover); color: var(--text-primary); transform: translateY(-1px); }
+.modal-btn.cancel:hover { background: var(--bg-card-hover); color: var(--text-primary); }
 .modal-btn.confirm { background: var(--accent); color: white; }
-.modal-btn.confirm:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.modal-btn.confirm:hover { background: var(--accent-hover); }
 .modal-btn.confirm.danger { background: var(--danger); }
-.modal-btn.confirm.danger:hover { transform: translateY(-1px); background: var(--danger-hover); }
+.modal-btn.confirm.danger:hover { background: var(--danger-hover); }
 
 /* ============ SPINNER ============ */
 .spinner {
@@ -1541,7 +1538,6 @@ body {
 
 .primary-btn:hover {
     background: var(--accent-hover);
-    transform: translateY(-1px);
 }
 
 .primary-btn:active {
