@@ -1032,16 +1032,11 @@ class MelodyFlow {
     }
 
     async searchYouTube(query) {
-        if (this.youtubeApiKey === 'YOUR_YOUTUBE_API_KEY') {
-            showToast('YouTube API Key is missing. Check code.', 'error');
-            return;
-        }
-
         this.dom.searchDropdown.classList.add('visible');
         this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
 
         try {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=video&key=${this.youtubeApiKey}`;
+            const url = `/api/search?q=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             const data = await res.json();
 

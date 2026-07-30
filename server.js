@@ -28,6 +28,13 @@ try {
     console.error('ytdl-core not found');
 }
 
+let play;
+try {
+    play = require('play-dl');
+} catch (e) {
+    console.error('play-dl not found');
+}
+
 const DIR = __dirname;
 let lastHeartbeat = Date.now();
 
@@ -106,6 +113,33 @@ function handleRequest(req, res) {
             });
             return;
         }
+    }
+
+    // YouTube Search Proxy Endpoint
+    if (urlPath === '/api/search') {
+        const query = parsedUrl.query.q;
+        if (!query || !play) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Missing query or play-dl not installed' }));
+            return;
+        }
+
+        play.search(query, { limit: 5 }).then(results => {
+            const items = results.map(v => ({
+                id: { videoId: v.id },
+                snippet: {
+                    title: v.title,
+                    channelTitle: v.channel?.name || 'Unknown Channel',
+                    thumbnails: { default: { url: v.thumbnails[0]?.url || '' } }
+                }
+            }));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ items }));
+        }).catch(err => {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        });
+        return;
     }
 
     // Audio stream proxy endpoint for 8D Audio processing
