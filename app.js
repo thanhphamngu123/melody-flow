@@ -532,18 +532,6 @@ class MelodyFlow {
             }
         });
 
-        // Reactions
-        document.querySelectorAll('.reaction-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const emoji = btn.dataset.emoji;
-               if (this.roomManager && this.roomManager.roomRef) {
-                this.roomManager.sendReaction(emoji);
-            }
-                // Immediately spawn locally for better feel
-                this.spawnFloatingEmoji(emoji, true);
-            });
-        });
-
         // Responsive Sidebar Toggles
         if (this.dom.openSidebarBtn) {
             this.dom.openSidebarBtn.addEventListener('click', () => {
@@ -927,14 +915,6 @@ class MelodyFlow {
             }
         });
 
-        this.roomManager.onReactionAdded((reaction) => {
-            if (!reaction) return;
-            // Only spawn if reaction is recent (less than 3 seconds ago)
-            if (Date.now() - reaction.timestamp < 3000) {
-                // We don't spawn our own reactions here since we already spawned them locally on click
-                this.spawnFloatingEmoji(reaction.emoji, false);
-            }
-        });
 
         this.roomManager.onRoomDeleted(() => {
             if (!this.roomManager.isHost) {
@@ -981,38 +961,6 @@ class MelodyFlow {
 
         // Auto scroll
         this.dom.chatMessages.scrollTop = this.dom.chatMessages.scrollHeight;
-    }
-
-    // ---- Reactions ----
-
-    spawnFloatingEmoji(emoji, isLocal = false) {
-        const container = document.getElementById('floatingReactionsContainer');
-        if (!container) return;
-
-        const el = document.createElement('div');
-        el.className = 'floating-emoji';
-        el.textContent = emoji;
-
-        // Randomize horizontal start position slightly
-        const randomX = Math.random() * 40 - 20;
-        el.style.left = `calc(50% + ${randomX}px)`;
-
-        // Randomize size slightly
-        const randomScale = 0.8 + Math.random() * 0.4;
-        el.style.fontSize = `${24 * randomScale}px`;
-
-        // Vary animation duration slightly
-        const duration = 1.5 + Math.random() * 1;
-        el.style.animationDuration = `${duration}s`;
-
-        container.appendChild(el);
-
-        // Clean up after animation
-        setTimeout(() => {
-            if (el.parentNode === container) {
-                container.removeChild(el);
-            }
-        }, duration * 1000);
     }
 
     // Giphy API
