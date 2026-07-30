@@ -1037,15 +1037,22 @@ class MelodyFlow {
         this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
 
         if (!this.youtubeApiKey || this.youtubeApiKey === 'YOUR_YOUTUBE_API_KEY') {
-            this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--danger);font-size:13px;">Lỗi: Bạn chưa cấu hình YouTube API Key trong file app.js. Xem hướng dẫn để lấy Key miễn phí.</div>';
+            // No API key provided, go straight to fallback
+            await this.searchWithFallback(query);
             return;
         }
 
         try {
             const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=video&key=${this.youtubeApiKey}`;
             const res = await fetch(url);
-            const data = await res.json();
+            
+            if (res.status === 429 || res.status === 403) {
+                // Quota exceeded, fallback
+                await this.searchWithFallback(query);
+                return;
+            }
 
+            const data = await res.json();
             if (data.error) throw new Error(data.error.message);
             if (!data.items || data.items.length === 0) {
                 this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">No results found</div>';
@@ -1069,9 +1076,53 @@ class MelodyFlow {
                 `;
             }).join('');
         } catch (e) {
-            console.error('YouTube search failed', e);
-            this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:#ef4444;font-size:13px;">Search failed</div>';
+            console.error('YouTube search failed, trying fallback...', e);
+            await this.searchWithFallback(query);
         }
+    }
+
+    async searchWithFallback(query) {
+        const instances = [
+            'https://invidious.protokolla.fi',
+            'https://inv.nadeko.net',
+            'https://invidious.nerdvpn.de',
+            'https://yt.artemislena.eu'
+        ];
+
+        for (const instance of instances) {
+            try {
+                const res = await fetch(`${instance}/api/v1/search?q=${encodeURIComponent(query)}`, { signal: AbortSignal.timeout(4000) });
+                if (!res.ok) continue;
+                
+                const data = await res.json();
+                if (!data || data.length === 0) continue;
+
+                // We got results!
+                this.dom.searchResultsList.innerHTML = data.slice(0, 5).map(item => {
+                    const videoId = item.videoId;
+                    const title = this.escapeHTML(item.title);
+                    const channel = this.escapeHTML(item.author || 'Unknown Channel');
+                    const thumb = item.videoThumbnails ? item.videoThumbnails[0].url : '';
+
+                    return `
+                        <div class="search-result-item" data-video-id="${videoId}" data-title="${title}" data-thumbnail="${thumb}">
+                            <img src="${thumb}" class="search-result-thumb" alt="" loading="lazy">
+                            <div class="search-result-info">
+                                <span class="search-result-title">${title}</span>
+                                <span class="search-result-channel">${channel}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                return; // Success, exit the fallback loop
+            } catch (e) {
+                // Try next instance
+                console.warn(`Fallback ${instance} failed`);
+            }
+        }
+        
+        // If all fallbacks fail
+        this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:#ef4444;font-size:13px;">Hệ thống đang quá tải, vui lòng thử lại sau!</div>';
     }
 
     async addSongFromSearch(videoId, title, thumbnail) {
