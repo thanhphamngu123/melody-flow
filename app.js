@@ -493,7 +493,7 @@ class MelodyFlow {
             });
 
             // GSAP Batch Reveal with Stagger Wave (Failsafe Permanent Visibility)
-            ScrollTrigger.batch('.stat-capsule, .organic-feature-card, .step-card, .music-demo-widget, .comparison-card, .usecase-card, .faq-item, .grand-cta-box', {
+            ScrollTrigger.batch('.stat-capsule, .organic-feature-card, .step-card, .music-demo-widget, .comparison-card, .usecase-card, .faq-item, .grand-cta-pill', {
                 onEnter: batch => gsap.fromTo(batch, 
                     { opacity: 0.3, y: 30, scale: 0.96 },
                     { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: 'power2.out', overwrite: 'auto' }
