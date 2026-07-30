@@ -1680,6 +1680,7 @@ class MelodyFlow {
                     fs: 0,
                     rel: 0,
                     modestbranding: 1,
+                    iv_load_policy: 3,
                     enablejsapi: 1,
                     origin: window.location.origin
                 },
