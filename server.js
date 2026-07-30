@@ -119,7 +119,10 @@ function handleRequest(req, res) {
     if (urlPath === '/api/search') {
         const query = parsedUrl.query.q;
         if (!query || !play) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.writeHead(400, { 
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            });
             res.end(JSON.stringify({ error: 'Missing query or play-dl not installed' }));
             return;
         }
@@ -133,10 +136,16 @@ function handleRequest(req, res) {
                     thumbnails: { default: { url: v.thumbnails[0]?.url || '' } }
                 }
             }));
-            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.writeHead(200, { 
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            });
             res.end(JSON.stringify({ items }));
         }).catch(err => {
-            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.writeHead(500, { 
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            });
             res.end(JSON.stringify({ error: err.message }));
         });
         return;

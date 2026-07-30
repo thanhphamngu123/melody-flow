@@ -1036,7 +1036,10 @@ class MelodyFlow {
         this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
 
         try {
-            const url = `/api/search?q=${encodeURIComponent(query)}`;
+            const baseUrl = (window.location.protocol === 'file:' || window.location.port === '5500') 
+                ? 'http://localhost:3000' 
+                : '';
+            const url = `${baseUrl}/api/search?q=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             const data = await res.json();
 
