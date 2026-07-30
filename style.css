@@ -3808,35 +3808,40 @@ body.in-room {
 
     /* Floating Pill Header Mobile */
     .floating-pill-nav {
-        width: 90%;
-        max-width: 400px;
+        width: 85%;
+        max-width: 260px;
+        margin: 12px auto 16px;
         padding: 0 16px;
-        top: 12px;
-        left: 50%;
-        transform: translateX(-50%);
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
     }
 
-    .nav-inner {
-        height: 50px;
+    .floating-pill-nav .nav-inner {
+        height: 46px;
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        padding: 0;
     }
 
-    .logo {
+    .floating-pill-nav .logo {
         margin: 0 auto;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
     }
 
-    .logo-text {
-        font-size: 17px;
+    .floating-pill-nav .logo-text {
+        font-size: 16px;
         font-weight: 800;
         letter-spacing: -0.02em;
     }
 
-    .nav-actions {
+    .floating-pill-nav .nav-actions {
         display: none !important;
     }
 
