@@ -3714,6 +3714,67 @@ body.in-room {
     line-height: 1.6;
 }
 
+/* ============ GRAND CTA BANNER (COMPACT SLEEK PILL STAGE) ============ */
+.landing-grand-cta {
+    padding: 20px 0 30px;
+}
+
+.grand-cta-box {
+    max-width: 840px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(14, 22, 18, 0.9) 0%, rgba(6, 14, 10, 0.95) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 100px;
+    padding: 24px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(16, 185, 129, 0.18);
+    backdrop-filter: blur(24px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.grand-cta-box:hover {
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(16, 185, 129, 0.6);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.9), 0 0 50px rgba(16, 185, 129, 0.3);
+}
+
+.grand-cta-glow {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.grand-cta-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -0.03em;
+    position: relative;
+    z-index: 2;
+}
+
+.grand-cta-desc {
+    font-size: 14px;
+    color: #e2e8f0;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+    font-weight: 500;
+}
+
+.grand-cta-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+}
+
 /* ============ LANDING FOOTER ============ */
 .landing-footer {
     padding: 40px 0;
@@ -3738,13 +3799,210 @@ body.in-room {
     color: var(--text-muted);
 }
 
+/* ============ COMPREHENSIVE RESPONSIVE STYLES (MOBILE & TABLET) ============ */
 @media (max-width: 900px) {
-    .comparison-grid, .usecases-grid {
-        grid-template-columns: 1fr;
+    .landing-container {
+        width: 94%;
+        padding: 0 10px;
     }
+
+    /* Floating Pill Header Mobile */
+    .floating-pill-nav {
+        width: 95%;
+        padding: 0 14px;
+        top: 10px;
+    }
+
+    .nav-inner {
+        height: 54px;
+    }
+
+    .logo-text {
+        font-size: 16px;
+    }
+
+    .ambient-txt {
+        display: none;
+    }
+
+    .nav-actions {
+        gap: 8px;
+    }
+
+    .nav-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* Hero Section Mobile */
+    .hero-split-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 10px 0 20px;
+        text-align: center;
+    }
+
+    .hero-copy-col {
+        text-align: center;
+    }
+
+    .hero-main-title {
+        font-size: 28px;
+        line-height: 1.25;
+    }
+
+    .hero-subtext {
+        font-size: 15px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 24px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .cta-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .vinyl-player-deck {
+        max-width: 310px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .vinyl-disc-wrapper {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 16px;
+    }
+
+    .vinyl-disc-img {
+        width: 200px;
+        height: 200px;
+    }
+
+    .floating-reaction {
+        font-size: 11px;
+        padding: 4px 10px;
+    }
+
+    /* Organic Feature Canvas Mobile */
+    .organic-feature-canvas {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .f-hero {
+        grid-column: span 1;
+    }
+
+    .organic-feature-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+        gap: 16px;
+    }
+
+    .feature-title {
+        font-size: 19px;
+    }
+
+    .feature-desc {
+        font-size: 14px;
+    }
+
+    .f-card-widget {
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    /* Demo Widget Mobile */
+    .music-demo-widget {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .demo-sidebar-songs {
+        max-height: 220px;
+    }
+
+    .demo-display-screen {
+        min-height: 220px;
+    }
+
+    .demo-current-title {
+        font-size: 18px;
+    }
+
+    /* Grids & Cards Mobile */
+    .steps-grid, .comparison-grid, .usecases-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .step-card, .comparison-card, .usecase-card {
+        padding: 20px;
+    }
+
+    /* Grand CTA Banner Mobile */
+    .grand-cta-box {
+        border-radius: 24px;
+        padding: 24px 18px;
+        width: 95%;
+    }
+
+    .grand-cta-title {
+        font-size: 22px;
+    }
+
+    .grand-cta-desc {
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    .grand-cta-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .grand-cta-actions .cta-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Footer Mobile */
     .footer-inner {
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
         text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-title {
+        font-size: 24px;
+    }
+
+    .hero-main-title {
+        font-size: 23px;
+    }
+
+    .stat-capsule {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+
+    .capsule-num {
+        font-size: 16px;
+    }
+
+    .capsule-txt {
+        font-size: 11px;
     }
 }
