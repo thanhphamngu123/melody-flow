@@ -1655,6 +1655,112 @@ body.in-room {
                 #040705;
 }
 
+.room-ambient-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.6;
+}
+
+/* ============ INDIE CHILL DECK BANNER ============ */
+.indie-deck-banner {
+    margin: 0 32px 16px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(10, 15, 12, 0.8) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.indie-deck-banner:hover {
+    border-color: rgba(16, 185, 129, 0.45);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.75), 0 0 25px rgba(16, 185, 129, 0.15);
+}
+
+.indie-deck-vinyl {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vinyl-disc {
+    width: 64px;
+    height: 64px;
+    background: radial-gradient(circle at center, #181818 0%, #0d0d0d 60%, #000000 100%);
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 255, 255, 0.05);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vinyl-grooves {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.vinyl-center {
+    width: 22px;
+    height: 22px;
+    background: radial-gradient(circle at center, #10b981 0%, #059669 100%);
+    border-radius: 50%;
+    border: 3px solid #080d09;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.indie-deck-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.indie-deck-tag {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+}
+
+.indie-deck-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.indie-deck-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #34d399;
+    margin-top: 3px;
+}
+
+.pulse-indicator {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+}
+
 .lofi-vibe-badge {
     display: inline-flex;
     align-items: center;

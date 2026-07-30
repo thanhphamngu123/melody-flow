@@ -556,7 +556,10 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
+        <!-- Ambient Dark Chill Particle Canvas -->
+        <canvas id="roomAmbientCanvas" class="room-ambient-canvas"></canvas>
+
+        <!-- ========== MAIN CONTENT ========== -->
         <main class="main-content" id="mainContent">
             <div class="playlist-view" id="playlistView">
                 <div class="playlist-header">
@@ -570,7 +573,7 @@
                     <div class="playlist-header-info">
                         <div class="lofi-vibe-badge">
                             <span class="lofi-pulse-dot"></span>
-                            <span>Lofi Study & Focus Space</span>
+                            <span>☕ Indie Lofi Study & Focus Space</span>
                         </div>
                         <h1 id="roomName">Room</h1>
                         <div class="mobile-logo-brand" id="mobileLogoBrand" style="display:none;">
@@ -590,6 +593,24 @@
                         </svg>
                         <span class="chat-badge" id="chatBadge" style="display: none;"></span>
                     </button>
+                </div>
+
+                <!-- Indie Chill Vinyl Deck Banner -->
+                <div class="indie-deck-banner" id="indieDeckBanner">
+                    <div class="indie-deck-vinyl">
+                        <div class="vinyl-disc" id="indieVinylDisc">
+                            <div class="vinyl-grooves"></div>
+                            <div class="vinyl-center"></div>
+                        </div>
+                    </div>
+                    <div class="indie-deck-details">
+                        <div class="indie-deck-tag">☕ INDIE LOFI LOUNGE • STUDY TOGETHER</div>
+                        <div class="indie-deck-title" id="indieDeckTitle">Deep Focus & Chill Beats</div>
+                        <div class="indie-deck-status">
+                            <span class="pulse-indicator"></span>
+                            <span id="indieDeckStatusText">Ready for focus session</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="add-song-bar" style="position:relative;">

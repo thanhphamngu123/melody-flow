@@ -349,6 +349,7 @@ class MelodyFlow {
         this.setupMediaSession();
         this.initYouTubeAPI();
         this.checkNickname();
+        this.initRoomAmbientCanvas();
     }
 
     // ---- DOM Cache ----
@@ -2075,12 +2076,59 @@ class MelodyFlow {
 
     // ---- UI ----
 
+    initRoomAmbientCanvas() {
+        const canvas = document.getElementById('roomAmbientCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = Array.from({ length: 35 }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 2 + 0.8,
+            color: Math.random() > 0.35 ? 'rgba(16, 185, 129, ' : 'rgba(99, 102, 241, ',
+            alpha: Math.random() * 0.45 + 0.1,
+            speedY: -Math.random() * 0.35 - 0.1,
+            speedX: (Math.random() - 0.5) * 0.25
+        }));
+
+        const animate = () => {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                if (p.y < -10) p.y = height + 10;
+                if (p.x < -10) p.x = width + 10;
+                if (p.x > width + 10) p.x = -10;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `${p.color}${p.alpha})`;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#10b981';
+                ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        };
+        animate();
+    }
+
     updatePlayerInfo(song) {
         this.dom.playerSongTitle.textContent = song.title;
         this.dom.playerPlaylistName.textContent = this.roomManager.roomCode ? `Room ${this.roomManager.roomCode}` : '';
         this.dom.playerThumbnail.src = song.thumbnail;
         this.dom.playerThumbnail.classList.add('visible');
         document.title = `${song.title} - MelodyFlow`;
+
+        const deckTitle = document.getElementById('indieDeckTitle');
+        if (deckTitle) deckTitle.textContent = song.title;
+
         this.updateMediaSession(song);
     }
 
@@ -2097,6 +2145,23 @@ class MelodyFlow {
             }
         }
         this.dom.playPauseBtn.title = this.isPlaying ? 'Pause' : 'Play';
+
+        const statusText = document.getElementById('indieDeckStatusText');
+        if (statusText) {
+            statusText.textContent = this.isPlaying ? 'Now Playing • Lofi Focus Flow' : 'Paused • Focus Break';
+        }
+
+        // GSAP Vinyl Disc Rotation Physics
+        if (typeof gsap !== 'undefined') {
+            const vinyl = document.getElementById('indieVinylDisc');
+            if (vinyl) {
+                if (this.isPlaying) {
+                    gsap.to(vinyl, { rotation: '+=360', duration: 10, repeat: -1, ease: 'none', overwrite: 'auto' });
+                } else {
+                    gsap.killTweensOf(vinyl);
+                }
+            }
+        }
 
         if ('mediaSession' in navigator) {
             try {
