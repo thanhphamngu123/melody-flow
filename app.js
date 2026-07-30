@@ -437,8 +437,12 @@ class MelodyFlow {
 
     bindEvents() {
         // Landing buttons
-        this.dom.createRoomBtn.addEventListener('click', () => this.handleCreateRoom());
-        this.dom.joinRoomBtn.addEventListener('click', () => this.showJoinModal());
+        document.querySelectorAll('#createRoomBtn, .btn-create-room').forEach(btn => {
+            btn.addEventListener('click', () => this.handleCreateRoom());
+        });
+        document.querySelectorAll('#joinRoomBtn, .btn-join-room').forEach(btn => {
+            btn.addEventListener('click', () => this.showJoinModal());
+        });
 
         // Room actions
         this.dom.copyCodeBtn.addEventListener('click', () => this.copyRoomCode());

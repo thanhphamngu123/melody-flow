@@ -12,47 +12,206 @@
     <!-- ========== LANDING PAGE ========== -->
     <div class="landing" id="landing">
         <div class="cinematic-backdrop"></div>
-        <div class="landing-inner">
-            <div class="cinematic-logo-wrapper">
-                <div class="cinematic-aura"></div>
-                <div class="landing-logo">
-                    <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="1.8" opacity="0.6"/>
-                        <circle cx="12" cy="12" r="3" fill="#10b981"/>
-                        <path d="M12 2a10 10 0 0 1 0 20" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
-                    </svg>
+
+        <!-- HERO SECTION -->
+        <section class="landing-hero">
+            <div class="landing-inner">
+                <div class="cinematic-logo-wrapper">
+                    <div class="cinematic-aura"></div>
+                    <div class="landing-logo">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="1.8" opacity="0.6"/>
+                            <circle cx="12" cy="12" r="3" fill="#10b981"/>
+                            <path d="M12 2a10 10 0 0 1 0 20" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="cinematic-title-wrapper">
+                    <h1 class="landing-title" data-text="MelodyFlow">MelodyFlow</h1>
+                    <div class="cinematic-light-sweep"></div>
+                </div>
+                <p class="landing-subtitle">Thưởng thức âm nhạc cùng bạn bè theo thời gian thực — Không khoảng cách.</p>
+
+                <!-- Hero Action Buttons Redesigned -->
+                <div class="hero-actions">
+                    <button class="cta-button primary-cta btn-create-room" id="createRoomBtn">
+                        <span class="cta-glow"></span>
+                        <div class="cta-icon-wrapper">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                        </div>
+                        <div class="cta-text">
+                            <span class="cta-title">Tạo phòng ngay</span>
+                            <span class="cta-badge">Miễn phí · Không cần tài khoản</span>
+                        </div>
+                    </button>
+
+                    <button class="cta-button secondary-cta btn-join-room" id="joinRoomBtn">
+                        <div class="cta-icon-wrapper">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                                <polyline points="10 17 15 12 10 7"/>
+                                <line x1="15" y1="12" x2="3" y2="12"/>
+                            </svg>
+                        </div>
+                        <div class="cta-text">
+                            <span class="cta-title">Tham gia bằng mã</span>
+                            <span class="cta-sub">Nhập mã phòng 5 ký tự</span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Trust Micro Pills -->
+                <div class="trust-pills">
+                    <span class="trust-pill">⚡ Đồng bộ chuẩn mili-giây</span>
+                    <span class="trust-pill">🎵 Nhạc YouTube không giới hạn</span>
+                    <span class="trust-pill">💬 Chat &amp; Thả GIF sôi động</span>
                 </div>
             </div>
-            <div class="cinematic-title-wrapper">
-                <h1 class="landing-title" data-text="MelodyFlow">MelodyFlow</h1>
-                <div class="cinematic-light-sweep"></div>
-            </div>
-            <p class="landing-subtitle">Listen to music together, in real-time</p>
+        </section>
 
-            <div class="landing-cards">
-                <button class="landing-card" id="createRoomBtn">
-                    <div class="landing-card-icon">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                    </div>
-                    <span class="landing-card-title">Create Room</span>
-                    <span class="landing-card-desc">Start a session and invite friends</span>
-                </button>
-
-                <button class="landing-card" id="joinRoomBtn">
-                    <div class="landing-card-icon">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                            <polyline points="10 17 15 12 10 7"/>
-                            <line x1="15" y1="12" x2="3" y2="12"/>
-                        </svg>
-                    </div>
-                    <span class="landing-card-title">Join Room</span>
-                    <span class="landing-card-desc">Enter a room code to join</span>
-                </button>
+        <!-- INTERACTIVE SHOWCASE SECTION -->
+        <section class="landing-showcase-section">
+            <div class="landing-container">
+                <div class="showcase-header">
+                    <h2 class="section-title">Trải nghiệm nghe nhạc nhóm hoàn hảo</h2>
+                    <p class="section-desc">Giao diện hiện đại, tối giản và mượt mà. Đưa mọi người đến gần nhau hơn qua từng giai điệu.</p>
+                </div>
+                <div class="showcase-frame">
+                    <div class="showcase-glow"></div>
+                    <img src="assets/showcase.png" alt="MelodyFlow Player Showcase" class="showcase-img" loading="lazy">
+                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- BENTO GRID FEATURES SECTION -->
+        <section class="landing-features-section">
+            <div class="landing-container">
+                <div class="features-header">
+                    <h2 class="section-title">Tính năng vượt trội</h2>
+                    <p class="section-desc">Mọi công cụ bạn cần để tận hưởng âm nhạc cùng hội bạn thân.</p>
+                </div>
+
+                <div class="bento-grid">
+                    <!-- Hero Bento Cell -->
+                    <div class="bento-card bento-hero-card">
+                        <div class="bento-card-bg" style="background-image: url('assets/vibe.png');"></div>
+                        <div class="bento-card-overlay"></div>
+                        <div class="bento-card-content">
+                            <span class="bento-tag">REALTIME SYNC</span>
+                            <h3 class="bento-title">Đồng bộ phát nhạc chính xác</h3>
+                            <p class="bento-desc">Khi Host bật, dừng hoặc tua bài hát, tất cả thành viên trong phòng sẽ được nghe chuẩn xác cùng một khoảnh khắc.</p>
+                        </div>
+                    </div>
+
+                    <!-- Bento Cell 2 -->
+                    <div class="bento-card">
+                        <div class="bento-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
+                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title">Tìm kiếm &amp; Thêm hàng loạt</h3>
+                        <p class="bento-desc">Tích hợp API tìm kiếm YouTube riêng không giới hạn. Tick chọn nhiều bài hát và thêm vào danh sách chờ chỉ với 1 click.</p>
+                    </div>
+
+                    <!-- Bento Cell 3 -->
+                    <div class="bento-card">
+                        <div class="bento-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title">Trò chuyện &amp; GIF sôi nổi</h3>
+                        <p class="bento-desc">Trò chuyện trực tiếp trong phòng nghe nhạc. Gửi GIF hài hước từ Giphy để cùng chill và chia sẻ cảm xúc.</p>
+                    </div>
+
+                    <!-- Bento Cell 4 -->
+                    <div class="bento-card">
+                        <div class="bento-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                        </div>
+                        <h3 class="bento-title">Phòng riêng tư &amp; Phân quyền Host</h3>
+                        <p class="bento-desc">Chỉ ai có mã 5 ký tự mới vào được phòng. Host có toàn quyền chuyển đổi vị trí hoặc nhượng quyền làm chủ phòng.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3-STEP HOW IT WORKS SECTION -->
+        <section class="landing-steps-section">
+            <div class="landing-container">
+                <div class="steps-header">
+                    <h2 class="section-title">Bắt đầu chỉ trong 3 bước</h2>
+                    <p class="section-desc">Không cần cài đặt phức tạp, không cần đăng ký tài khoản.</p>
+                </div>
+
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+                        <h3 class="step-title">Tạo phòng nghe nhạc</h3>
+                        <p class="step-desc">Bấm nút Tạo phòng, nhập tên hiển thị của bạn và hệ thống sẽ cấp mã phòng 5 ký tự duy nhất.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+                        <h3 class="step-title">Chia sẻ với bạn bè</h3>
+                        <p class="step-desc">Sao chép đường link phòng hoặc gửi mã phòng cho bạn bè qua Messenger, Zalo hay Discord.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+                        <h3 class="step-title">Cùng nghe &amp; Thưởng thức</h3>
+                        <p class="step-desc">Thêm bài hát từ YouTube vào danh sách và cùng tận hưởng giai điệu thời gian thực!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BOTTOM CALL TO ACTION -->
+        <section class="landing-cta-section">
+            <div class="landing-container">
+                <div class="cta-box">
+                    <div class="cta-box-glow"></div>
+                    <h2 class="cta-box-title">Sẵn sàng quẩy nhạc cùng bạn bè?</h2>
+                    <p class="cta-box-desc">Tạo phòng nghe nhạc ngay bây giờ và tạo nên những phút giây thư giãn tuyệt vời.</p>
+                    <div class="cta-box-actions">
+                        <button class="cta-button primary-cta btn-create-room">
+                            <span class="cta-glow"></span>
+                            <span class="cta-title">Tạo phòng miễn phí</span>
+                        </button>
+                        <button class="cta-button secondary-cta btn-join-room">
+                            <span class="cta-title">Tham gia bằng mã</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="landing-footer">
+            <div class="landing-container footer-inner">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="2"/>
+                                <circle cx="12" cy="12" r="3" fill="#10b981"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text">MelodyFlow</span>
+                    </div>
+                    <p class="footer-copy">&copy; 2026 MelodyFlow. Real-time YouTube Music Room.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#landing" class="footer-link">Về đầu trang</a>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- ========== ROOM VIEW ========== -->
