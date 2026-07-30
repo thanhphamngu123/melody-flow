@@ -1673,6 +1673,7 @@ class MelodyFlow {
             this.player = new YT.Player('ytPlayer', {
                 height: '180',
                 width: '320',
+                host: 'https://www.youtube-nocookie.com',
                 playerVars: {
                     autoplay: 1,
                     controls: 0,
@@ -1702,7 +1703,23 @@ class MelodyFlow {
         };
     }
 
+    trySkipAd() {
+        if (!this.player || !this.playerReady) return;
+        try {
+            const videoData = typeof this.player.getVideoData === 'function' ? this.player.getVideoData() : null;
+            const duration = typeof this.player.getDuration === 'function' ? this.player.getDuration() : 0;
+            if (videoData && videoData.isAd) {
+                this.player.mute();
+                if (duration > 0) this.player.seekTo(duration, true);
+                setTimeout(() => {
+                    if (this.player) this.player.unMute();
+                }, 800);
+            }
+        } catch (e) {}
+    }
+
     onPlayerStateChange(event) {
+        this.trySkipAd();
         switch (event.data) {
             case YT.PlayerState.PLAYING:
                 this.isPlaying = true;
