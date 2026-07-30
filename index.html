@@ -40,8 +40,8 @@
         <div class="cinematic-backdrop"></div>
         <canvas id="audioVisualizerCanvas" class="audio-bg-canvas"></canvas>
 
-        <!-- TOP NAVIGATION BAR -->
-        <header class="landing-nav">
+        <!-- TOP NAVIGATION BAR (FLOATING GLASS PILL) -->
+        <header class="landing-nav floating-pill-nav">
             <div class="landing-container nav-inner">
                 <div class="logo">
                     <div class="logo-icon">
@@ -63,7 +63,7 @@
             </div>
         </header>
 
-        <!-- HERO SECTION (SPLIT LAYOUT WITH 3D MOCKUP) -->
+        <!-- HERO SECTION (CINEMATIC AUDIO STAGE) -->
         <section class="landing-hero">
             <div class="landing-container hero-split-grid">
                 <!-- Left Column: Copy & Actions -->
@@ -163,24 +163,24 @@
             </div>
         </div>
 
-        <!-- LIVE METRIC STATS STRIP -->
+        <!-- ORGANIC FLOATING METRICS CAPSULES (NO GRID) -->
         <section class="landing-stats-section">
-            <div class="landing-container stats-grid">
-                <div class="stat-card" data-fly="zoom">
-                    <div class="stat-value">&lt; 0.05s</div>
-                    <div class="stat-label">Độ trễ đồng bộ phát nhạc</div>
+            <div class="landing-container organic-stats-wrapper">
+                <div class="stat-capsule" data-fly="zoom">
+                    <span class="capsule-num">&lt; 0.05s</span>
+                    <span class="capsule-txt">Độ trễ đồng bộ phát nhạc</span>
                 </div>
-                <div class="stat-card" data-fly="zoom">
-                    <div class="stat-value">100%</div>
-                    <div class="stat-label">Nhạc YouTube chất lượng cao</div>
+                <div class="stat-capsule" data-fly="zoom">
+                    <span class="capsule-num">100%</span>
+                    <span class="capsule-txt">Nhạc YouTube chất lượng cao</span>
                 </div>
-                <div class="stat-card" data-fly="zoom">
-                    <div class="stat-value">0đ</div>
-                    <div class="stat-label">Miễn phí &amp; Không quảng cáo</div>
+                <div class="stat-capsule" data-fly="zoom">
+                    <span class="capsule-num">0đ</span>
+                    <span class="capsule-txt">Miễn phí &amp; Không quảng cáo</span>
                 </div>
-                <div class="stat-card" data-fly="zoom">
-                    <div class="stat-value">0</div>
-                    <div class="stat-label">Tài khoản cần đăng ký</div>
+                <div class="stat-capsule" data-fly="zoom">
+                    <span class="capsule-num">0</span>
+                    <span class="capsule-txt">Tài khoản cần đăng ký</span>
                 </div>
             </div>
         </section>
@@ -237,7 +237,7 @@
             </div>
         </section>
 
-        <!-- BENTO GRID FEATURES SECTION -->
+        <!-- ORGANIC FLOATING FEATURE CANVAS (NO GRID) -->
         <section class="landing-features-section" id="featuresSection">
             <div class="landing-container">
                 <div class="features-header" data-fly="zoom">
@@ -245,50 +245,34 @@
                     <p class="section-desc">Mọi công cụ bạn cần để tận hưởng âm nhạc cùng hội bạn thân.</p>
                 </div>
 
-                <div class="bento-grid">
-                    <!-- Hero Bento Cell -->
-                    <div class="bento-card bento-hero-card" data-fly="left">
-                        <div class="bento-card-bg" style="background-image: url('assets/vibe.png');"></div>
-                        <div class="bento-card-overlay"></div>
-                        <div class="bento-card-content">
-                            <span class="bento-tag">REALTIME AUDIO ENGINE</span>
-                            <h3 class="bento-title">Đồng bộ phát nhạc chính xác</h3>
-                            <p class="bento-desc">Khi Host bật, dừng hoặc tua bài hát, tất cả thành viên trong phòng sẽ được nghe chuẩn xác cùng một khoảnh khắc.</p>
-                        </div>
+                <div class="organic-feature-canvas">
+                    <!-- Feature Card 1 (Hero Float) -->
+                    <div class="organic-feature-card f-hero" data-fly="left">
+                        <div class="card-bg-glow"></div>
+                        <span class="feature-tag">REALTIME AUDIO ENGINE</span>
+                        <h3 class="feature-title">Đồng bộ phát nhạc chính xác 0.05s</h3>
+                        <p class="feature-desc">Khi Host bật, dừng hoặc tua bài hát, tất cả thành viên trong phòng sẽ được nghe chuẩn xác cùng một khoảnh khắc.</p>
                     </div>
 
-                    <!-- Bento Cell 2 -->
-                    <div class="bento-card" data-fly="right">
-                        <div class="bento-card-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
-                                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                            </svg>
-                        </div>
-                        <h3 class="bento-title">Tìm kiếm &amp; Thêm hàng loạt</h3>
-                        <p class="bento-desc">Tích hợp API tìm kiếm YouTube riêng tốc độ cao. Tick chọn nhiều bài hát và thêm vào danh sách chờ chỉ với 1 click.</p>
+                    <!-- Feature Card 2 (Tilt Float) -->
+                    <div class="organic-feature-card f-side-1" data-fly="right">
+                        <div class="feature-icon-box">🚀</div>
+                        <h3 class="feature-title">Tìm kiếm &amp; Thêm hàng loạt</h3>
+                        <p class="feature-desc">Tích hợp API tìm kiếm YouTube riêng tốc độ cao. Tick chọn nhiều bài hát và thêm vào danh sách chờ chỉ với 1 click.</p>
                     </div>
 
-                    <!-- Bento Cell 3 -->
-                    <div class="bento-card" data-fly="left">
-                        <div class="bento-card-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                            </svg>
-                        </div>
-                        <h3 class="bento-title">Trò chuyện &amp; GIF sôi nổi</h3>
-                        <p class="bento-desc">Trò chuyện trực tiếp trong phòng nghe nhạc. Gửi GIF hài hước từ Giphy để cùng chill và chia sẻ cảm xúc.</p>
+                    <!-- Feature Card 3 (Tilt Float) -->
+                    <div class="organic-feature-card f-side-2" data-fly="left">
+                        <div class="feature-icon-box">💬</div>
+                        <h3 class="feature-title">Trò chuyện &amp; GIF sôi nổi</h3>
+                        <p class="feature-desc">Trò chuyện trực tiếp trong phòng nghe nhạc. Gửi GIF hài hước từ Giphy để cùng chill và chia sẻ cảm xúc.</p>
                     </div>
 
-                    <!-- Bento Cell 4 -->
-                    <div class="bento-card" data-fly="right">
-                        <div class="bento-card-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round">
-                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                            </svg>
-                        </div>
-                        <h3 class="bento-title">Phòng riêng tư &amp; Phân quyền Host</h3>
-                        <p class="bento-desc">Chỉ ai có mã 5 ký tự mới vào được phòng. Host có toàn quyền chuyển đổi vị trí hoặc nhượng quyền làm chủ phòng.</p>
+                    <!-- Feature Card 4 (Tilt Float) -->
+                    <div class="organic-feature-card f-side-3" data-fly="right">
+                        <div class="feature-icon-box">🛡️</div>
+                        <h3 class="feature-title">Phòng riêng tư 5 ký tự</h3>
+                        <p class="feature-desc">Chỉ ai có mã 5 ký tự mới vào được phòng. Host có toàn quyền chuyển đổi vị trí hoặc nhượng quyền làm chủ phòng.</p>
                     </div>
                 </div>
             </div>
