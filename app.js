@@ -1036,17 +1036,22 @@ class MelodyFlow {
         this.dom.searchDropdown.classList.add('visible');
         this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
 
-        if (!this.youtubeApiKey || this.youtubeApiKey === 'YOUR_YOUTUBE_API_KEY') {
-            this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--danger);font-size:13px;">Lỗi: Bạn chưa cấu hình YouTube API Key trong file app.js. Xem hướng dẫn để lấy Key miễn phí.</div>';
-            return;
-        }
-
         try {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=video&key=${this.youtubeApiKey}`;
+            // First try calling our new Vercel serverless API
+            let url = `/api/search?q=${encodeURIComponent(query)}`;
+            
+            // If running locally on Live Server (port 5500) or file://, you need to deploy to Vercel first
+            // Or you can run `vercel dev` locally to test the API.
             const res = await fetch(url);
-            const data = await res.json();
+            
+            if (!res.ok) {
+                // If Vercel API fails (e.g. running on GitHub pages but haven't deployed to Vercel yet)
+                // We could fallback, but since you want your own API, we will just throw an error.
+                throw new Error('Vercel API request failed with status: ' + res.status);
+            }
 
-            if (data.error) throw new Error(data.error.message);
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
             if (!data.items || data.items.length === 0) {
                 this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">No results found</div>';
                 return;
