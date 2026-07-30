@@ -825,10 +825,20 @@ class MelodyFlow {
         // Disable controls for guests
         this.updateControlPermissions();
 
+        let previousHostId = this.roomManager.hostId;
         this.roomManager.onHostChange((hostId) => {
             this.updateControlPermissions();
             this.dom.hostBadge.style.display = this.roomManager.isHost ? 'flex' : 'none';
             if (this.currentUsers) this.renderUsers(this.currentUsers);
+            
+            if (previousHostId && previousHostId !== this.roomManager.userId && this.roomManager.isHost) {
+                this.showConfirmModal(
+                    'Chúc mừng!',
+                    'Bạn đã được chuyển quyền làm Chủ phòng! Bạn hiện có toàn quyền điều khiển phòng nghe nhạc này.',
+                    { okText: 'Đóng', isDanger: false, hideCancel: true }
+                );
+            }
+            previousHostId = hostId;
         });
 
         // Mở màn hình Overlay bắt buộc tương tác đối với Guest
@@ -1788,6 +1798,12 @@ class MelodyFlow {
                 this.dom.confirmOk.classList.remove('danger');
             } else {
                 this.dom.confirmOk.classList.add('danger');
+            }
+            
+            if (options.hideCancel) {
+                this.dom.confirmCancel.style.display = 'none';
+            } else {
+                this.dom.confirmCancel.style.display = 'block';
             }
             
             this.dom.confirmOverlay.classList.add('visible');
