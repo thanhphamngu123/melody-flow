@@ -8,23 +8,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 :root {
-    --bg-primary: #080c0a;
-    --bg-surface: #0e1411;
-    --bg-card: rgba(18, 26, 22, 0.7);
-    --bg-card-hover: rgba(24, 34, 28, 0.95);
-    --bg-elevated: #16201b;
-    --border: rgba(255, 255, 255, 0.07);
-    --border-light: rgba(52, 211, 153, 0.2);
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
-    --accent: #34d399;
-    --accent-hover: #10b981;
+    --bg-primary: #09090b;
+    --bg-surface: #121215;
+    --bg-card: #18181b;
+    --bg-card-hover: #27272a;
+    --bg-elevated: #202024;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-light: rgba(255, 255, 255, 0.15);
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --accent: #e4e4e7;
+    --accent-hover: #ffffff;
     --danger: #ef4444;
     --danger-hover: #dc2626;
-    --success: #34d399;
+    --success: #a1a1aa;
     --warning: #fbbf24;
-    --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    --glass-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
     --sidebar-width: 260px;
     --player-height: 80px;
     --radius-sm: 8px;
@@ -1650,106 +1650,7 @@ body.in-room {
 .room-app {
     display: flex;
     height: 100dvh;
-    background: radial-gradient(ellipse at 50% 0%, rgba(16, 185, 129, 0.07) 0%, transparent 65%),
-                radial-gradient(ellipse at 85% 90%, rgba(99, 102, 241, 0.05) 0%, transparent 60%),
-                #040705;
-}
-
-/* ============ INDIE CHILL DECK BANNER ============ */
-.indie-deck-banner {
-    margin: 0 32px 16px;
-    padding: 14px 18px;
-    background: #111814;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.indie-deck-banner:hover {
-    border-color: rgba(52, 211, 153, 0.3);
-    transform: translateY(-1px);
-}
-
-.indie-deck-vinyl {
-    width: 64px;
-    height: 64px;
-    flex-shrink: 0;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.vinyl-disc {
-    width: 64px;
-    height: 64px;
-    background: radial-gradient(circle at center, #181818 0%, #0d0d0d 60%, #000000 100%);
-    border-radius: 50%;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 255, 255, 0.05);
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.vinyl-grooves {
-    position: absolute;
-    inset: 4px;
-    border-radius: 50%;
-    border: 1px dashed rgba(255, 255, 255, 0.12);
-}
-
-.vinyl-center {
-    width: 22px;
-    height: 22px;
-    background: radial-gradient(circle at center, #10b981 0%, #059669 100%);
-    border-radius: 50%;
-    border: 3px solid #080d09;
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-}
-
-.indie-deck-details {
-    flex: 1;
-    min-width: 0;
-}
-
-.indie-deck-tag {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-    margin-bottom: 3px;
-    text-transform: uppercase;
-}
-
-.indie-deck-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: #ffffff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.indie-deck-status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #34d399;
-    margin-top: 3px;
-}
-
-.pulse-indicator {
-    width: 6px;
-    height: 6px;
-    background: #10b981;
-    border-radius: 50%;
-    box-shadow: 0 0 8px #10b981;
+    background: #09090b;
 }
 
 .lofi-vibe-badge {
@@ -1757,31 +1658,28 @@ body.in-room {
     align-items: center;
     gap: 8px;
     padding: 5px 14px;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 100px;
     font-size: 11.5px;
     font-weight: 700;
-    color: #34d399;
+    color: #a1a1aa;
     letter-spacing: 0.02em;
     margin-bottom: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .lofi-pulse-dot {
-    width: 7px;
-    height: 7px;
-    background: #10b981;
+    width: 6px;
+    height: 6px;
+    background: #e4e4e7;
     border-radius: 50%;
-    box-shadow: 0 0 10px #10b981;
-    animation: pulse-online 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* ============ SIDEBAR ============ */
 .sidebar {
     width: var(--sidebar-width);
     height: 100%;
-    background: #0c110e;
+    background: #0f0f12;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
@@ -2169,21 +2067,21 @@ body.in-room {
 }
 
 .song-item:hover { 
-    background: rgba(16, 185, 129, 0.06);
-    border-color: rgba(16, 185, 129, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
     transform: translateX(4px);
 }
 
 .song-item:active { transform: scale(0.98); }
 
 .song-item.playing { 
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(14, 22, 18, 0.9) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.45);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.12);
+    background: #1e1e24;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .song-item.playing .song-title {
-    color: #34d399;
+    color: #ffffff;
     font-weight: 700;
 }
 
@@ -2214,9 +2112,8 @@ body.in-room {
 
 .equalizer-bar {
     width: 3px;
-    background: #10b981;
+    background: #f4f4f5;
     border-radius: 2px;
-    box-shadow: 0 0 8px #10b981;
     animation: eq-bounce 0.8s ease-in-out infinite;
 }
 
@@ -2439,8 +2336,8 @@ body.in-room {
 .play-pause-btn {
     width: 44px;
     height: 44px;
-    background: var(--accent);
-    color: #080c0a !important;
+    background: #f4f4f5;
+    color: #09090b !important;
     border-radius: 50%;
     margin: 0 10px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
@@ -2448,7 +2345,7 @@ body.in-room {
 }
 
 .play-pause-btn:hover { 
-    background: #6ee7b7; 
+    background: #ffffff; 
     transform: scale(1.05);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
