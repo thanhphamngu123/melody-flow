@@ -2586,9 +2586,11 @@ body.in-room {
     .playlist-header { padding: 20px 16px 10px; }
     .add-song-bar { padding: 8px 16px 16px; }
     .song-list { padding: 0 12px 20px; }
+    .song-actions { opacity: 1 !important; }
     .player-extra-controls { width: auto; display: flex; align-items: center; justify-content: center; }
     .volume-slider-wrapper { display: none !important; }
     #volumeBtn { display: flex !important; width: 36px; height: 36px; align-items: center; justify-content: center; cursor: pointer; }
+    .control-btn { min-width: 38px; min-height: 38px; display: flex; align-items: center; justify-content: center; }
 }
 
 /* ============ SELECTION ============ */

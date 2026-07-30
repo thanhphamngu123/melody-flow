@@ -1751,18 +1751,29 @@ class MelodyFlow {
     // ---- Playback ----
 
     playSong(index) {
-        if (!this.roomManager.isHost) return;
+        if (!this.roomManager.isHost) {
+            showToast('Chỉ Chủ phòng (Host) mới có quyền chuyển bài!', 'info');
+            return;
+        }
         if (index < 0 || index >= this.playlist.length) return;
 
+        this.unlockAudioContext();
         this.currentSongIndex = index;
         const song = this.playlist[index];
 
         this.updatePlayerInfo(song);
+        this.isPlaying = true;
+        this.updatePlayPauseUI();
 
-        if (this.player && this.playerReady) {
-            this.player.loadVideoById(song.videoId);
-            this.isPlaying = true;
-            this.updatePlayPauseUI();
+        if (this.player) {
+            try {
+                if (typeof this.player.loadVideoById === 'function') {
+                    this.player.loadVideoById(song.videoId, 0);
+                }
+                if (typeof this.player.playVideo === 'function') {
+                    this.player.playVideo();
+                }
+            } catch (e) { console.error('playSong player error:', e); }
         }
 
         this.syncState({
@@ -1776,7 +1787,10 @@ class MelodyFlow {
 
     togglePlay() {
         this.unlockAudioContext();
-        if (!this.roomManager.isHost) return;
+        if (!this.roomManager.isHost) {
+            showToast('Chỉ Chủ phòng (Host) mới có quyền bật/tắt nhạc!', 'info');
+            return;
+        }
 
         if (this.currentSongIndex < 0 && this.playlist.length > 0) {
             this.playSong(0);
@@ -1795,41 +1809,31 @@ class MelodyFlow {
     }
 
     nextSong() {
-        if (!this.roomManager.isHost) return;
+        if (!this.roomManager.isHost) {
+            showToast('Chỉ Chủ phòng (Host) mới có quyền chuyển bài!', 'info');
+            return;
+        }
         if (this.playlist.length === 0) return;
 
-        let nextIndex;
+        let nextIdx;
         if (this.isShuffle) {
-            nextIndex = this.getShuffleIndex();
+            nextIdx = this.getShuffleIndex();
         } else {
-            nextIndex = this.currentSongIndex + 1;
-            if (nextIndex >= this.playlist.length) {
-                if (this.repeatMode === 'all') {
-                    nextIndex = 0;
-                } else {
-                    this.stopPlayback();
-                    return;
-                }
-            }
+            nextIdx = (this.currentSongIndex + 1) % this.playlist.length;
         }
-        this.playSong(nextIndex);
+        this.playSong(nextIdx);
     }
 
     prevSong() {
-        if (!this.roomManager.isHost) return;
-        if (this.playlist.length === 0) return;
-
-        if (this.getCurrentTime() > 3) {
-            if (this.player && this.playerReady) this.player.seekTo(0, true);
-            this.syncState({ seekTime: 0 });
+        if (!this.roomManager.isHost) {
+            showToast('Chỉ Chủ phòng (Host) mới có quyền chuyển bài!', 'info');
             return;
         }
+        if (this.playlist.length === 0) return;
 
-        let prevIndex = this.currentSongIndex - 1;
-        if (prevIndex < 0) {
-            prevIndex = this.repeatMode === 'all' ? this.playlist.length - 1 : 0;
-        }
-        this.playSong(prevIndex);
+        let prevIdx = this.currentSongIndex - 1;
+        if (prevIdx < 0) prevIdx = this.playlist.length - 1;
+        this.playSong(prevIdx);
     }
 
     onSongEnded() {
@@ -2043,7 +2047,11 @@ class MelodyFlow {
 
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.song-actions')) return;
-                if (this.roomManager.isHost) this.playSong(index);
+                if (!this.roomManager.isHost) {
+                    showToast('Chỉ Chủ phòng (Host) mới có quyền chọn bài!', 'info');
+                    return;
+                }
+                this.playSong(index);
             });
 
             item.querySelectorAll('.song-action-btn').forEach(btn => {
