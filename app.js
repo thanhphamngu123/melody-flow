@@ -86,6 +86,17 @@ class RoomManager {
         this.isHost = false;
         this.listeners = [];
         this.initFirebase();
+
+        // Ensure user is removed from DB immediately if tab is closed without hitting Leave
+        window.addEventListener('beforeunload', () => {
+            if (this.roomRef) {
+                if (this.isHost) {
+                    this.roomRef.remove();
+                } else {
+                    this.roomRef.child('users/' + this.userId).remove();
+                }
+            }
+        });
     }
 
     initFirebase() {
