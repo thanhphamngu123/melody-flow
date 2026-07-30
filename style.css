@@ -1063,6 +1063,31 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ============ RESPONSIVE ============ */
+@media (max-width: 1000px) {
+    .chat-sidebar {
+        position: fixed;
+        right: -320px;
+        top: 0;
+        bottom: 0;
+        z-index: 50;
+        transition: right var(--transition-slow);
+        box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    }
+    .chat-sidebar.open {
+        right: 0;
+    }
+    #toggleChatBtn {
+        display: flex !important;
+    }
+    #openChatBtn {
+        display: flex !important;
+    }
+    .playlist-header {
+        display: flex;
+        align-items: center;
+    }
+}
+
 @media (max-width: 900px) {
     .sidebar { width: 220px; }
     .player-song-info { width: 180px; }
@@ -1082,6 +1107,9 @@ body {
         transition: left var(--transition-slow);
     }
     .sidebar.open { left: 0; box-shadow: 10px 0 40px rgba(0, 0, 0, 0.5); }
+    #openSidebarBtn {
+        display: flex !important;
+    }
     .main-content { width: 100%; }
     .playlist-header { padding: 20px 16px 10px; }
     .add-song-bar { padding: 8px 16px 16px; }

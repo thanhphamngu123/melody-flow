@@ -111,10 +111,22 @@
         <main class="main-content" id="mainContent">
             <div class="playlist-view" id="playlistView">
                 <div class="playlist-header">
+                    <button class="icon-btn mobile-menu-btn" id="openSidebarBtn" title="Menu" style="display:none; margin-right: 12px; color: var(--text-primary);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
                     <div class="playlist-header-info">
                         <h1 id="roomName">Room</h1>
                         <span class="song-count" id="songCount">0 songs</span>
                     </div>
+                    <button class="icon-btn mobile-chat-btn" id="openChatBtn" title="Chat" style="display:none; margin-left: auto; color: var(--text-primary);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </button>
                 </div>
 
                 <div class="add-song-bar" style="position:relative;">

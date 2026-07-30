@@ -408,6 +408,10 @@ class MelodyFlow {
             chatMessages: document.getElementById('chatMessages'),
             chatInput: document.getElementById('chatInput'),
             sendChatBtn: document.getElementById('sendChatBtn'),
+            
+            // Responsive buttons
+            openSidebarBtn: document.getElementById('openSidebarBtn'),
+            openChatBtn: document.getElementById('openChatBtn'),
             openGifBtn: document.getElementById('openGifBtn'),
             gifPicker: document.getElementById('gifPicker'),
             gifSearchInput: document.getElementById('gifSearchInput'),
@@ -519,10 +523,49 @@ class MelodyFlow {
         document.querySelectorAll('.reaction-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const emoji = btn.dataset.emoji;
+               if (this.roomManager && this.roomManager.roomRef) {
                 this.roomManager.sendReaction(emoji);
+            }
                 // Immediately spawn locally for better feel
                 this.spawnFloatingEmoji(emoji, true);
             });
+        });
+
+        // Responsive Sidebar Toggles
+        if (this.dom.openSidebarBtn) {
+            this.dom.openSidebarBtn.addEventListener('click', () => {
+                this.dom.sidebar.classList.toggle('open');
+            });
+        }
+        
+        if (this.dom.openChatBtn) {
+            this.dom.openChatBtn.addEventListener('click', () => {
+                this.dom.chatSidebar.classList.toggle('open');
+            });
+        }
+
+        if (this.dom.toggleChatBtn) {
+            this.dom.toggleChatBtn.addEventListener('click', () => {
+                this.dom.chatSidebar.classList.remove('open');
+            });
+        }
+        
+        // Close sidebars on outside click for mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 1000) {
+                if (this.dom.chatSidebar.classList.contains('open') && 
+                    !this.dom.chatSidebar.contains(e.target) && 
+                    !this.dom.openChatBtn.contains(e.target)) {
+                    this.dom.chatSidebar.classList.remove('open');
+                }
+            }
+            if (window.innerWidth <= 700) {
+                if (this.dom.sidebar.classList.contains('open') && 
+                    !this.dom.sidebar.contains(e.target) && 
+                    !this.dom.openSidebarBtn.contains(e.target)) {
+                    this.dom.sidebar.classList.remove('open');
+                }
+            }
         });
 
         // Player controls
