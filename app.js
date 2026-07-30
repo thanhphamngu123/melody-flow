@@ -653,9 +653,32 @@ class MelodyFlow {
                 requestAnimationFrame(drawWaves);
             };
             drawWaves();
+           // 3D Mouse Parallax Tilt for Hero Vinyl Deck
+        const heroSection = document.querySelector('.landing-hero');
+        const vinylDeck = document.querySelector('#vinylDeck');
+        if (heroSection && vinylDeck && typeof gsap !== 'undefined') {
+            heroSection.addEventListener('mousemove', (e) => {
+                const rect = heroSection.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                gsap.to(vinylDeck, {
+                    rotationY: x * 16,
+                    rotationX: -y * 16,
+                    duration: 0.5,
+                    ease: 'power2.out'
+                });
+            });
+            heroSection.addEventListener('mouseleave', () => {
+                gsap.to(vinylDeck, {
+                    rotationY: -8,
+                    rotationX: 5,
+                    duration: 0.8,
+                    ease: 'power2.out'
+                });
+            });
         }
 
-        // Landing Demo Music Selector
+        // Demo song switcher choreography
         document.querySelectorAll('.demo-song-card').forEach(card => {
             card.addEventListener('click', () => {
                 document.querySelectorAll('.demo-song-card').forEach(c => c.classList.remove('active'));
@@ -670,17 +693,23 @@ class MelodyFlow {
                 const imgEl = document.getElementById('demoCoverImg');
 
                 if (typeof gsap !== 'undefined') {
-                    gsap.fromTo('.demo-display-screen', 
-                        { opacity: 0.4, scale: 0.97 },
-                        { opacity: 1, scale: 1, duration: 0.4, ease: 'power2.out' }
-                    );
+                    gsap.timeline()
+                        .to('#demoCoverImg', { opacity: 0.3, scale: 0.95, duration: 0.15, ease: 'power1.in' })
+                        .add(() => {
+                            if (titleEl) titleEl.textContent = title;
+                            if (artistEl) artistEl.textContent = artist;
+                            if (imgEl && img) imgEl.src = img;
+                        })
+                        .to('#demoCoverImg', { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(1.5)' })
+                        .fromTo('.demo-synced-badge', { scale: 0.8, opacity: 0.5 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'power2.out' }, '-=0.2');
+                } else {
+                    if (titleEl) titleEl.textContent = title;
+                    if (artistEl) artistEl.textContent = artist;
+                    if (imgEl && img) imgEl.src = img;
                 }
-
-                if (titleEl) titleEl.textContent = title;
-                if (artistEl) artistEl.textContent = artist;
-                if (imgEl && img) imgEl.src = img;
             });
         });
+        }
 
         // Landing buttons
         document.querySelectorAll('#createRoomBtn, .btn-create-room').forEach(btn => {

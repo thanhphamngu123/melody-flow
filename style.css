@@ -277,6 +277,24 @@ body.in-room {
     color: #fff;
     border: none;
     box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.primary-nav-btn::before, .primary-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.primary-nav-btn:hover::before, .primary-cta:hover::before {
+    left: 140%;
 }
 
 .primary-nav-btn:hover {
