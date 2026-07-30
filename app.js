@@ -450,13 +450,13 @@ class MelodyFlow {
         if (typeof gsap !== 'undefined') {
             gsap.registerPlugin(ScrollTrigger);
 
-            // Hero Timeline Choreography
-            const heroTl = gsap.timeline({ delay: 2.3 });
-            heroTl.from('.hero-eyebrow', { opacity: 0, y: -20, duration: 0.6, ease: 'back.out(1.7)' })
-                  .from('.hero-main-title', { opacity: 0, y: 35, duration: 0.8, ease: 'power4.out' }, '-=0.3')
-                  .from('.hero-subtext', { opacity: 0, y: 25, duration: 0.7, ease: 'power3.out' }, '-=0.4')
-                  .from('.hero-actions .cta-button', { opacity: 0, y: 30, scale: 0.85, duration: 0.6, stagger: 0.15, ease: 'back.out(1.7)' }, '-=0.4')
-                  .from('#vinylDeck', { opacity: 0, x: 80, rotationY: -35, scale: 0.8, duration: 1.1, ease: 'power4.out' }, '-=0.8');
+            // Hero Timeline Choreography (Instant Failsafe Visibility)
+            const heroTl = gsap.timeline();
+            heroTl.from('.hero-eyebrow', { y: -15, duration: 0.5, ease: 'back.out(1.7)' })
+                  .from('.hero-main-title', { y: 20, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+                  .from('.hero-subtext', { y: 15, duration: 0.5, ease: 'power2.out' }, '-=0.3')
+                  .from('.hero-actions .cta-button', { y: 20, scale: 0.95, duration: 0.5, stagger: 0.1, ease: 'back.out(1.5)' }, '-=0.3')
+                  .from('#vinylDeck', { x: 40, rotationY: -15, scale: 0.9, duration: 0.8, ease: 'power3.out' }, '-=0.5');
 
             // Scroll-driven Hero Parallax Scrubbing
             gsap.to('.hero-copy-col', {

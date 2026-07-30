@@ -421,11 +421,13 @@ body.in-room {
 }
 
 .hero-subtext {
-    font-size: 17px;
-    color: var(--text-muted);
+    font-size: 18px;
+    color: #e2e8f0;
     line-height: 1.6;
-    margin-bottom: 36px;
-    max-width: 540px;
+    margin-bottom: 32px;
+    max-width: 580px;
+    font-weight: 500;
+    opacity: 1 !important;
 }
 
 /* ============ 3D VINYL PLAYER DECK ============ */
