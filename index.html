@@ -9,70 +9,142 @@
 </head>
 <body>
 
+    <!-- ========== MARVEL INTRO SPLASH OVERLAY ========== -->
+    <div class="marvel-intro-overlay" id="marvelIntro">
+        <div class="marvel-intro-backdrop"></div>
+        <div class="marvel-intro-content">
+            <div class="marvel-intro-logo-box">
+                <svg width="72" height="72" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="2" opacity="0.6"/>
+                    <circle cx="12" cy="12" r="3.5" fill="#10b981"/>
+                    <path d="M12 2a10 10 0 0 1 0 20" stroke="#34d399" stroke-width="2" stroke-linecap="round" opacity="0.9"/>
+                </svg>
+            </div>
+            <div class="marvel-intro-title-box">
+                <h1 class="marvel-intro-title">MELODYFLOW</h1>
+                <div class="marvel-intro-flare"></div>
+            </div>
+            <p class="marvel-intro-tagline">STUDIO SYNC PRESENTS</p>
+        </div>
+    </div>
+
     <!-- ========== LANDING PAGE ========== -->
     <div class="landing" id="landing">
         <div class="cinematic-backdrop"></div>
 
-        <!-- HERO SECTION -->
-        <section class="landing-hero">
-            <div class="landing-inner">
-                <div class="cinematic-logo-wrapper">
-                    <div class="cinematic-aura"></div>
-                    <div class="landing-logo">
-                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="1.8" opacity="0.6"/>
+        <!-- TOP NAVIGATION BAR -->
+        <header class="landing-nav">
+            <div class="landing-container nav-inner">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="2"/>
                             <circle cx="12" cy="12" r="3" fill="#10b981"/>
-                            <path d="M12 2a10 10 0 0 1 0 20" stroke="#34d399" stroke-width="1.8" stroke-linecap="round" opacity="0.8"/>
                         </svg>
                     </div>
-                </div>
-                <div class="cinematic-title-wrapper">
-                    <h1 class="landing-title" data-text="MelodyFlow">MelodyFlow</h1>
-                    <div class="cinematic-light-sweep"></div>
-                </div>
-                <p class="landing-subtitle">Thưởng thức âm nhạc cùng bạn bè theo thời gian thực — Không khoảng cách.</p>
-
-                <!-- Hero Action Buttons Redesigned -->
-                <div class="hero-actions">
-                    <button class="cta-button primary-cta btn-create-room" id="createRoomBtn">
-                        <span class="cta-glow"></span>
-                        <div class="cta-icon-wrapper">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                            </svg>
-                        </div>
-                        <div class="cta-text">
-                            <span class="cta-title">Tạo phòng ngay</span>
-                            <span class="cta-badge">Miễn phí · Không cần tài khoản</span>
-                        </div>
-                    </button>
-
-                    <button class="cta-button secondary-cta btn-join-room" id="joinRoomBtn">
-                        <div class="cta-icon-wrapper">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
-                                <polyline points="10 17 15 12 10 7"/>
-                                <line x1="15" y1="12" x2="3" y2="12"/>
-                            </svg>
-                        </div>
-                        <div class="cta-text">
-                            <span class="cta-title">Tham gia bằng mã</span>
-                            <span class="cta-sub">Nhập mã phòng 5 ký tự</span>
-                        </div>
-                    </button>
+                    <span class="logo-text">MelodyFlow</span>
                 </div>
 
-                <!-- Trust Micro Pills -->
-                <div class="trust-pills">
-                    <span class="trust-pill">⚡ Đồng bộ chuẩn mili-giây</span>
-                    <span class="trust-pill">🎵 Nhạc YouTube không giới hạn</span>
-                    <span class="trust-pill">💬 Chat &amp; Thả GIF sôi động</span>
+                <nav class="nav-menu">
+                    <a href="#showcaseSection" class="nav-link">Trải nghiệm</a>
+                    <a href="#featuresSection" class="nav-link">Tính năng</a>
+                    <a href="#stepsSection" class="nav-link">Cách hoạt động</a>
+                </nav>
+
+                <div class="nav-actions">
+                    <button class="nav-btn secondary-nav-btn btn-join-room">Tham gia bằng mã</button>
+                    <button class="nav-btn primary-nav-btn btn-create-room">Tạo phòng ngay</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- HERO SECTION (SPLIT LAYOUT) -->
+        <section class="landing-hero">
+            <div class="landing-container hero-split-grid">
+                <!-- Left Column: Copy & Actions -->
+                <div class="hero-copy-col">
+                    <span class="hero-eyebrow">⚡ REALTIME MUSIC ROOM</span>
+                    <h1 class="hero-main-title">Giai điệu kết nối, <span class="hero-title-highlight">không khoảng cách.</span></h1>
+                    <p class="hero-subtext">Tạo phòng nghe nhạc YouTube cùng bạn bè, đồng bộ phát chuẩn từng giây, chat &amp; thả GIF sôi nổi mà không cần đăng ký tài khoản.</p>
+
+                    <div class="hero-actions">
+                        <button class="cta-button primary-cta btn-create-room" id="createRoomBtn">
+                            <span class="cta-glow"></span>
+                            <div class="cta-icon-wrapper">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                                </svg>
+                            </div>
+                            <div class="cta-text">
+                                <span class="cta-title">Tạo phòng ngay</span>
+                                <span class="cta-badge">Miễn phí · Không cần tài khoản</span>
+                            </div>
+                        </button>
+
+                        <button class="cta-button secondary-cta btn-join-room" id="joinRoomBtn">
+                            <div class="cta-icon-wrapper">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                                    <polyline points="10 17 15 12 10 7"/>
+                                    <line x1="15" y1="12" x2="3" y2="12"/>
+                                </svg>
+                            </div>
+                            <div class="cta-text">
+                                <span class="cta-title">Tham gia bằng mã</span>
+                                <span class="cta-sub">Nhập mã phòng 5 ký tự</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="trust-pills">
+                        <span class="trust-pill">⚡ Đồng bộ chuẩn 0.1s</span>
+                        <span class="trust-pill">🎵 Nhạc YouTube không giới hạn</span>
+                        <span class="trust-pill">💬 Chat &amp; Thả GIF sôi động</span>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Hero Mockup Card -->
+                <div class="hero-visual-col">
+                    <div class="hero-player-card">
+                        <div class="card-glow-bg"></div>
+                        <div class="card-header">
+                            <div class="card-room-badge">
+                                <span class="live-dot"></span>
+                                <span class="room-code-txt">ROOM: #MELODY</span>
+                            </div>
+                            <div class="listeners-avatars">
+                                <span class="avatar av-1">A</span>
+                                <span class="avatar av-2">B</span>
+                                <span class="avatar av-3">+3</span>
+                            </div>
+                        </div>
+
+                        <div class="card-album-art">
+                            <img src="assets/vibe.png" alt="Now Playing" class="album-img">
+                            <div class="equalizer-bars">
+                                <span class="bar bar-1"></span>
+                                <span class="bar bar-2"></span>
+                                <span class="bar bar-3"></span>
+                                <span class="bar bar-4"></span>
+                                <span class="bar bar-5"></span>
+                            </div>
+                        </div>
+
+                        <div class="card-song-meta">
+                            <h4 class="song-name">Chúng Ta Của Tương Lai</h4>
+                            <p class="artist-name">Sơn Tùng M-TP • Synced Realtime</p>
+                        </div>
+
+                        <div class="card-scrubber">
+                            <div class="scrubber-progress"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- INTERACTIVE SHOWCASE SECTION -->
-        <section class="landing-showcase-section">
+        <section class="landing-showcase-section" id="showcaseSection">
             <div class="landing-container">
                 <div class="showcase-header">
                     <h2 class="section-title">Trải nghiệm nghe nhạc nhóm hoàn hảo</h2>
@@ -86,7 +158,7 @@
         </section>
 
         <!-- BENTO GRID FEATURES SECTION -->
-        <section class="landing-features-section">
+        <section class="landing-features-section" id="featuresSection">
             <div class="landing-container">
                 <div class="features-header">
                     <h2 class="section-title">Tính năng vượt trội</h2>
@@ -143,7 +215,7 @@
         </section>
 
         <!-- 3-STEP HOW IT WORKS SECTION -->
-        <section class="landing-steps-section">
+        <section class="landing-steps-section" id="stepsSection">
             <div class="landing-container">
                 <div class="steps-header">
                     <h2 class="section-title">Bắt đầu chỉ trong 3 bước</h2>

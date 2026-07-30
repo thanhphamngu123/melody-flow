@@ -436,6 +436,15 @@ class MelodyFlow {
     // ---- Events ----
 
     bindEvents() {
+        // Marvel Intro Overlay dismissal
+        setTimeout(() => {
+            const intro = document.getElementById('marvelIntro');
+            if (intro) {
+                intro.classList.add('fade-out');
+                setTimeout(() => intro.style.display = 'none', 800);
+            }
+        }, 2200);
+
         // Landing buttons
         document.querySelectorAll('#createRoomBtn, .btn-create-room').forEach(btn => {
             btn.addEventListener('click', () => this.handleCreateRoom());
