@@ -450,9 +450,10 @@ class MelodyFlow {
         if (typeof gsap !== 'undefined') {
             gsap.registerPlugin(ScrollTrigger);
 
-            // Hero Timeline Choreography
-            const heroTl = gsap.timeline({ delay: 2.3 });
-            heroTl.from('.hero-eyebrow', { opacity: 0, y: -20, duration: 0.6, ease: 'back.out(1.7)' })
+            // Hero Timeline Choreography with Floating Nav Entrance
+            const heroTl = gsap.timeline({ delay: 2.1 });
+            heroTl.from('.landing-nav', { y: -60, opacity: 0, duration: 0.8, ease: 'power3.out' })
+                  .from('.hero-eyebrow', { opacity: 0, y: -20, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.4')
                   .from('.hero-main-title', { opacity: 0, y: 35, duration: 0.8, ease: 'power4.out' }, '-=0.3')
                   .from('.hero-subtext', { opacity: 0, y: 25, duration: 0.7, ease: 'power3.out' }, '-=0.4')
                   .from('.hero-actions .cta-button', { opacity: 0, y: 30, scale: 0.85, duration: 0.6, stagger: 0.15, ease: 'back.out(1.7)' }, '-=0.4')
