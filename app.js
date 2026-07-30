@@ -826,6 +826,7 @@ class MelodyFlow {
 
     enterRoom(code) {
         // Switch UI
+        document.body.classList.add('in-room');
         this.dom.landing.style.display = 'none';
         this.dom.roomApp.style.display = 'flex';
         this.dom.playerBar.style.display = 'flex';
@@ -1274,9 +1275,10 @@ class MelodyFlow {
     }
 
     exitToLanding() {
+        document.body.classList.remove('in-room');
         this.dom.roomApp.style.display = 'none';
         this.dom.playerBar.style.display = 'none';
-        this.dom.landing.style.display = 'flex';
+        this.dom.landing.style.display = 'block';
         this.stopPlayback();
         this.dom.chatMessages.innerHTML = '<div class="chat-welcome">Welcome to the chat! 👋</div>';
 
