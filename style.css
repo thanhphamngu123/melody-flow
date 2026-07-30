@@ -2570,8 +2570,8 @@ body.in-room {
     .song-list { padding: 0 12px 20px; }
     .player-song-info { width: auto; flex: 0 0 auto; }
     .player-song-details { display: none; }
-    .player-extra-controls { width: auto; }
-    .volume-slider-wrapper { display: none; }
+    .player-extra-controls { width: auto; display: flex; align-items: center; gap: 8px; }
+    .volume-slider-wrapper { display: flex !important; width: 75px; opacity: 1 !important; visibility: visible !important; }
 }
 
 /* ============ SELECTION ============ */
@@ -3856,11 +3856,16 @@ body.in-room {
 
     .hero-copy-col {
         text-align: center;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     .hero-main-title {
         font-size: 28px;
         line-height: 1.25;
+        text-align: center;
     }
 
     .hero-subtext {
@@ -3868,11 +3873,15 @@ body.in-room {
         margin-left: auto;
         margin-right: auto;
         margin-bottom: 24px;
+        text-align: center;
+        max-width: 100%;
     }
 
     .hero-actions {
         flex-direction: column;
         width: 100%;
+        max-width: 360px;
+        margin: 0 auto;
         gap: 12px;
     }
 
@@ -3901,6 +3910,30 @@ body.in-room {
     .floating-reaction {
         font-size: 11px;
         padding: 4px 10px;
+    }
+
+    /* Organic Stats Capsules Mobile - Equal Width Straight Alignment & Centering */
+    .organic-stats-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        max-width: 380px;
+        margin: 0 auto;
+        padding: 0 10px;
+        box-sizing: border-box;
+    }
+
+    .stat-capsule {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 14px 22px;
+        border-radius: 100px;
+        box-sizing: border-box;
     }
 
     /* Organic Feature Canvas Mobile */
