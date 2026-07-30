@@ -2583,7 +2583,31 @@ body.in-room {
         display: flex !important;
     }
     .main-content { width: 100%; }
-    .playlist-header { padding: 20px 16px 10px; }
+    .playlist-header { padding: 16px 16px 10px; }
+    .playlist-header-info {
+        text-align: center;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .playlist-header-info #roomName {
+        display: none !important;
+    }
+    .mobile-logo-brand {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .mobile-logo-brand .logo-text {
+        font-size: 17px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff 30%, #10b981 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
     .add-song-bar { padding: 8px 16px 16px; }
     .song-list { padding: 0 12px 20px; }
     .player-extra-controls { width: auto; display: flex; align-items: center; justify-content: center; }
