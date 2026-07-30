@@ -437,6 +437,7 @@ class MelodyFlow {
 
     bindEvents() {
         // Marvel Intro Overlay dismissal
+        // Marvel Intro Overlay dismissal
         setTimeout(() => {
             const intro = document.getElementById('marvelIntro');
             if (intro) {
@@ -444,6 +445,23 @@ class MelodyFlow {
                 setTimeout(() => intro.style.display = 'none', 800);
             }
         }, 2200);
+
+        // Scroll Reveal Observer for [data-reveal]
+        const revealElements = document.querySelectorAll('[data-reveal]');
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+
+            revealElements.forEach(el => observer.observe(el));
+        } else {
+            revealElements.forEach(el => el.classList.add('is-visible'));
+        }
 
         // Landing buttons
         document.querySelectorAll('#createRoomBtn, .btn-create-room').forEach(btn => {

@@ -647,6 +647,98 @@ body.in-room {
     backdrop-filter: blur(8px);
 }
 
+/* ============ SCROLL REVEAL OBSERVER ============ */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(35px) scale(0.96);
+    filter: blur(8px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+    will-change: opacity, transform, filter;
+}
+
+[data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+}
+
+/* ============ KINETIC MARQUEE ============ */
+.kinetic-marquee {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(16, 185, 129, 0.05);
+    border-top: 1px solid rgba(16, 185, 129, 0.2);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+    padding: 16px 0;
+    margin: 20px 0 40px;
+    position: relative;
+}
+
+.marquee-track {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    white-space: nowrap;
+    animation: marquee-slide 22s linear infinite;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+}
+
+.marquee-track .dot {
+    opacity: 0.4;
+    color: var(--text-muted);
+}
+
+@keyframes marquee-slide {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* ============ LIVE STATS STRIP ============ */
+.landing-stats-section {
+    padding: 40px 0 80px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--radius-xl);
+    padding: 28px 20px;
+    text-align: center;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: rgba(16, 185, 129, 0.4);
+    transform: translateY(-4px);
+    background: rgba(16, 185, 129, 0.06);
+}
+
+.stat-value {
+    font-family: var(--font-heading);
+    font-size: 36px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #ffffff 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
 /* SECTION COMMON STYLES */
 .section-title {
     font-family: var(--font-heading);
@@ -2409,5 +2501,8 @@ body.in-room {
     }
     .marvel-intro-title {
         font-size: 40px;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
