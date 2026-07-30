@@ -452,8 +452,7 @@ class MelodyFlow {
 
             // Hero Timeline Choreography (Instant Failsafe Visibility)
             const heroTl = gsap.timeline();
-            heroTl.from('.hero-eyebrow', { y: -15, duration: 0.5, ease: 'back.out(1.7)' })
-                  .from('.hero-main-title', { y: 20, duration: 0.6, ease: 'power3.out' }, '-=0.3')
+            heroTl.from('.hero-main-title', { y: 20, duration: 0.6, ease: 'power3.out' })
                   .from('.hero-subtext', { y: 15, duration: 0.5, ease: 'power2.out' }, '-=0.3')
                   .from('.hero-actions .cta-button', { y: 20, scale: 0.95, duration: 0.5, stagger: 0.1, ease: 'back.out(1.5)' }, '-=0.3')
                   .from('#vinylDeck', { x: 40, rotationY: -15, scale: 0.9, duration: 0.8, ease: 'power3.out' }, '-=0.5');
