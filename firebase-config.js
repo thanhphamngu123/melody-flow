@@ -7,5 +7,6 @@ const firebaseConfig = {
   storageBucket: "thanhphamngu123.firebasestorage.app",
   messagingSenderId: "738210291342",
   appId: "1:738210291342:web:8a71837bb139b630ae33df",
-  measurementId: "G-WRN4L77CQD"
+  measurementId: "G-WRN4L77CQD",
+  databaseURL: "https://thanhphamngu123-default-rtdb.firebaseio.com"
 };
