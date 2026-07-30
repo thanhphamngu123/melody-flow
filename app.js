@@ -1035,11 +1035,13 @@ class MelodyFlow {
         this.dom.searchDropdown.classList.add('visible');
         this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
 
+        if (!this.youtubeApiKey || this.youtubeApiKey === 'YOUR_YOUTUBE_API_KEY') {
+            this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--danger);font-size:13px;">Lỗi: Bạn chưa cấu hình YouTube API Key trong file app.js. Xem hướng dẫn để lấy Key miễn phí.</div>';
+            return;
+        }
+
         try {
-            const baseUrl = (window.location.protocol === 'file:' || window.location.port === '5500') 
-                ? 'http://localhost:3000' 
-                : '';
-            const url = `${baseUrl}/api/search?q=${encodeURIComponent(query)}`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=5&q=${encodeURIComponent(query)}&type=video&key=${this.youtubeApiKey}`;
             const res = await fetch(url);
             const data = await res.json();
 
