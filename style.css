@@ -2586,11 +2586,9 @@ body.in-room {
     .playlist-header { padding: 20px 16px 10px; }
     .add-song-bar { padding: 8px 16px 16px; }
     .song-list { padding: 0 12px 20px; }
-    .song-actions { opacity: 1 !important; }
     .player-extra-controls { width: auto; display: flex; align-items: center; justify-content: center; }
     .volume-slider-wrapper { display: none !important; }
     #volumeBtn { display: flex !important; width: 36px; height: 36px; align-items: center; justify-content: center; cursor: pointer; }
-    .control-btn { min-width: 38px; min-height: 38px; display: flex; align-items: center; justify-content: center; }
 }
 
 /* ============ SELECTION ============ */
@@ -2965,42 +2963,53 @@ body.in-room {
 }
 
 /* ============ USER ACTION MENU ============ */
+.user-list {
+    position: relative;
+    overflow-y: auto;
+    overflow-x: visible;
+}
+
 .user-item {
     position: relative;
+    overflow: visible;
 }
 
 .user-action-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.5;
-    transition: all 0.2s;
+    opacity: 1 !important;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .user-action-btn:hover, .user-action-btn.active {
     opacity: 1;
-    background: var(--bg-hover);
-    color: var(--text-primary);
+    background: var(--accent);
+    color: #040806;
+    border-color: var(--accent);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
 .user-action-menu {
     position: absolute;
-    right: 0;
-    top: 100%;
-    margin-top: 4px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 4px;
-    min-width: 180px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-    z-index: 200;
+    right: 8px;
+    top: 40px;
+    background: #0a110d;
+    border: 1px solid rgba(16, 185, 129, 0.5);
+    border-radius: 12px;
+    padding: 6px;
+    min-width: 200px;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.95);
+    z-index: 9999;
     display: none;
     flex-direction: column;
     pointer-events: auto;
@@ -3014,20 +3023,23 @@ body.in-room {
 .user-action-menu-item {
     background: none;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 14px;
     text-align: left;
-    color: var(--text-primary);
-    font-size: 13px;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 600;
     font-family: var(--font);
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: background 0.2s ease;
 }
 
 .user-action-menu-item:hover {
-    background: var(--bg-hover);
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent);
 }
 
 /* ============ REUSABLE BUTTONS ============ */

@@ -1751,29 +1751,18 @@ class MelodyFlow {
     // ---- Playback ----
 
     playSong(index) {
-        if (!this.roomManager.isHost) {
-            showToast('Chỉ Chủ phòng (Host) mới có quyền chuyển bài!', 'info');
-            return;
-        }
+        if (!this.roomManager.isHost) return;
         if (index < 0 || index >= this.playlist.length) return;
 
-        this.unlockAudioContext();
         this.currentSongIndex = index;
         const song = this.playlist[index];
 
         this.updatePlayerInfo(song);
-        this.isPlaying = true;
-        this.updatePlayPauseUI();
 
-        if (this.player) {
-            try {
-                if (typeof this.player.loadVideoById === 'function') {
-                    this.player.loadVideoById(song.videoId, 0);
-                }
-                if (typeof this.player.playVideo === 'function') {
-                    this.player.playVideo();
-                }
-            } catch (e) { console.error('playSong player error:', e); }
+        if (this.player && this.playerReady) {
+            this.player.loadVideoById(song.videoId);
+            this.isPlaying = true;
+            this.updatePlayPauseUI();
         }
 
         this.syncState({
@@ -1787,10 +1776,7 @@ class MelodyFlow {
 
     togglePlay() {
         this.unlockAudioContext();
-        if (!this.roomManager.isHost) {
-            showToast('Chỉ Chủ phòng (Host) mới có quyền bật/tắt nhạc!', 'info');
-            return;
-        }
+        if (!this.roomManager.isHost) return;
 
         if (this.currentSongIndex < 0 && this.playlist.length > 0) {
             this.playSong(0);
@@ -1809,31 +1795,41 @@ class MelodyFlow {
     }
 
     nextSong() {
-        if (!this.roomManager.isHost) {
-            showToast('Chỉ Chủ phòng (Host) mới có quyền chuyển bài!', 'info');
-            return;
-        }
+        if (!this.roomManager.isHost) return;
         if (this.playlist.length === 0) return;
 
-        let nextIdx;
+        let nextIndex;
         if (this.isShuffle) {
-            nextIdx = this.getShuffleIndex();
+            nextIndex = this.getShuffleIndex();
         } else {
-            nextIdx = (this.currentSongIndex + 1) % this.playlist.length;
+            nextIndex = this.currentSongIndex + 1;
+            if (nextIndex >= this.playlist.length) {
+                if (this.repeatMode === 'all') {
+                    nextIndex = 0;
+                } else {
+                    this.stopPlayback();
+                    return;
+                }
+            }
         }
-        this.playSong(nextIdx);
+        this.playSong(nextIndex);
     }
 
     prevSong() {
-        if (!this.roomManager.isHost) {
-            showToast('Chỉ Chủ phòng (Host) mới có quyền chuyển bài!', 'info');
-            return;
-        }
+        if (!this.roomManager.isHost) return;
         if (this.playlist.length === 0) return;
 
-        let prevIdx = this.currentSongIndex - 1;
-        if (prevIdx < 0) prevIdx = this.playlist.length - 1;
-        this.playSong(prevIdx);
+        if (this.getCurrentTime() > 3) {
+            if (this.player && this.playerReady) this.player.seekTo(0, true);
+            this.syncState({ seekTime: 0 });
+            return;
+        }
+
+        let prevIndex = this.currentSongIndex - 1;
+        if (prevIndex < 0) {
+            prevIndex = this.repeatMode === 'all' ? this.playlist.length - 1 : 0;
+        }
+        this.playSong(prevIndex);
     }
 
     onSongEnded() {
@@ -2047,11 +2043,7 @@ class MelodyFlow {
 
             item.addEventListener('click', (e) => {
                 if (e.target.closest('.song-actions')) return;
-                if (!this.roomManager.isHost) {
-                    showToast('Chỉ Chủ phòng (Host) mới có quyền chọn bài!', 'info');
-                    return;
-                }
-                this.playSong(index);
+                if (this.roomManager.isHost) this.playSong(index);
             });
 
             item.querySelectorAll('.song-action-btn').forEach(btn => {
@@ -2114,7 +2106,6 @@ class MelodyFlow {
 
         // Add event listeners for Context Menu and Make Host
         if (this.roomManager.isHost) {
-            // Close menus when clicking outside
             const closeAllMenus = () => {
                 container.querySelectorAll('.user-action-menu').forEach(menu => {
                     menu.classList.remove('visible');
@@ -2127,41 +2118,43 @@ class MelodyFlow {
                 });
             };
 
-            document.addEventListener('click', closeAllMenus, { once: true }); // Need a better way, let's just do it on capture phase or on window
-            // Actually, we can attach it globally, but we only want it active if there's a menu open.
-            
             container.querySelectorAll('.user-action-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent document click from closing it immediately
+                const handleToggle = (e) => {
+                    e.stopPropagation();
                     const id = btn.dataset.id;
                     const menu = document.getElementById(`user-menu-${id}`);
-                    
+                    if (!menu) return;
+
                     const isVisible = menu.classList.contains('visible');
-                    closeAllMenus(); // Close others
-                    
+                    closeAllMenus();
+
                     if (!isVisible) {
                         menu.classList.add('visible');
                         btn.classList.add('active');
-                        btn.closest('.user-item').style.zIndex = '10';
-                        // Add listener to close this menu
-                        document.addEventListener('click', closeAllMenus, { once: true });
+                        btn.closest('.user-item').style.zIndex = '999';
+                        setTimeout(() => {
+                            document.addEventListener('click', closeAllMenus, { once: true });
+                        }, 50);
                     }
-                });
+                };
+
+                btn.addEventListener('click', handleToggle);
             });
 
             container.querySelectorAll('.make-host-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     e.stopPropagation();
                     const id = btn.dataset.id;
+                    closeAllMenus();
                     const confirmed = await this.showConfirmModal(
                         'Chuyển Trưởng phòng',
                         'Bạn có chắc muốn chuyển quyền Trưởng phòng cho người này không?',
-                        { okText: 'Yes', isDanger: false }
+                        { okText: 'Đồng ý', isDanger: false }
                     );
                     if (confirmed) {
                         this.roomManager.transferHost(id);
+                        showToast('Đã chuyển quyền Trưởng phòng!', 'success');
                     }
-                    closeAllMenus();
                 });
             });
         }
