@@ -78,28 +78,12 @@ body.in-room {
     overflow-x: hidden !important;
 }
 
-/* ============ KINETIC FLY-IN ANIMATIONS (SAFE BOUNDS) ============ */
-[data-fly="left"] {
-    opacity: 0;
-    transform: translateY(30px) scale(0.96);
-    filter: blur(8px);
-    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
-    will-change: opacity, transform, filter;
-}
-
-[data-fly="right"] {
-    opacity: 0;
-    transform: translateY(30px) scale(0.96);
-    filter: blur(8px);
-    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
-    will-change: opacity, transform, filter;
-}
-
-[data-fly="zoom"] {
-    opacity: 0;
-    transform: translateY(30px) scale(0.96);
-    filter: blur(8px);
-    transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
+/* ============ KINETIC FLY-IN ANIMATIONS (FAILSAFE VISIBILITY) ============ */
+[data-fly="left"], [data-fly="right"], [data-fly="zoom"] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease;
     will-change: opacity, transform, filter;
 }
 

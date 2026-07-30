@@ -466,8 +466,7 @@ class MelodyFlow {
                     end: 'bottom top',
                     scrub: 1
                 },
-                y: -50,
-                opacity: 0.7
+                y: -30
             });
 
             gsap.to('#vinylDeck', {
@@ -493,14 +492,14 @@ class MelodyFlow {
                 ease: 'none'
             });
 
-            // GSAP Batch Reveal with Stagger Wave
+            // GSAP Batch Reveal with Stagger Wave (Failsafe Permanent Visibility)
             ScrollTrigger.batch('.stat-capsule, .organic-feature-card, .step-card, .music-demo-widget, .comparison-card, .usecase-card, .faq-item, .grand-cta-box', {
                 onEnter: batch => gsap.fromTo(batch, 
-                    { opacity: 0, y: 50, scale: 0.94 },
-                    { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.12, ease: 'power3.out', overwrite: 'auto' }
+                    { opacity: 0.3, y: 30, scale: 0.96 },
+                    { opacity: 1, y: 0, scale: 1, duration: 0.7, stagger: 0.1, ease: 'power2.out', overwrite: 'auto' }
                 ),
-                onLeaveBack: batch => gsap.to(batch, { opacity: 0, y: 30, scale: 0.96, duration: 0.4, overwrite: 'auto' }),
-                start: 'top 88%'
+                once: true,
+                start: 'top 95%'
             });
         }
 
