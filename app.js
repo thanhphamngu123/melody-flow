@@ -606,54 +606,17 @@ class MelodyFlow {
         const cursorGlow = document.getElementById('cursorGlow');
         if (cursorGlow) {
             let mouseX = 0, mouseY = 0;
-            let currentX = 0, currentY = 0;
-
+            let cur            let glowTicking = false;
             document.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-            });
-
-            const renderGlow = () => {
-                currentX += (mouseX - currentX) * 0.15;
-                currentY += (mouseY - currentY) * 0.15;
-                cursorGlow.style.left = `${currentX}px`;
-                cursorGlow.style.top = `${currentY}px`;
-                requestAnimationFrame(renderGlow);
-            };
-            renderGlow();
-        }
-
-        // Audio Background Canvas Visualizer Waves
-        const canvas = document.getElementById('audioVisualizerCanvas');
-        if (canvas) {
-            const ctx = canvas.getContext('2d');
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
-            let step = 0;
-
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
-
-            const drawWaves = () => {
-                ctx.clearRect(0, 0, width, height);
-                ctx.lineWidth = 1.5;
-                ctx.strokeStyle = 'rgba(16, 185, 129, 0.12)';
-
-                for (let j = 0; j < 3; j++) {
-                    ctx.beginPath();
-                    for (let x = 0; x < width; x += 10) {
-                        const y = Math.sin((x + step + j * 100) * 0.005) * 35 + height * (0.3 + j * 0.25);
-                        if (x === 0) ctx.moveTo(x, y);
-                        else ctx.lineTo(x, y);
-                    }
-                    ctx.stroke();
+                if (!glowTicking) {
+                    requestAnimationFrame(() => {
+                        cursorGlow.style.transform = `translate3d(${e.clientX - 150}px, ${e.clientY - 150}px, 0)`;
+                        glowTicking = false;
+                    });
+                    glowTicking = true;
                 }
-                step += 1.5;
-                requestAnimationFrame(drawWaves);
-            };
-            drawWaves();
+            }, { passive: true });
+        }     drawWaves();
            // 3D Mouse Parallax Tilt for Hero Vinyl Deck
         const heroSection = document.querySelector('.landing-hero');
         const vinylDeck = document.querySelector('#vinylDeck');
@@ -2069,15 +2032,15 @@ class MelodyFlow {
                     this.dom.totalTime.textContent = formatTime(duration);
                 }
             }
-            this.progressAnimFrame = requestAnimationFrame(update);
         };
-        this.progressAnimFrame = requestAnimationFrame(update);
+        update();
+        this.progressInterval = setInterval(update, 500);
     }
 
     stopProgressUpdate() {
-        if (this.progressAnimFrame) {
-            cancelAnimationFrame(this.progressAnimFrame);
-            this.progressAnimFrame = null;
+        if (this.progressInterval) {
+            clearInterval(this.progressInterval);
+            this.progressInterval = null;
         }
     }
 
