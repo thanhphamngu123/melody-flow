@@ -470,8 +470,8 @@ class MelodyFlow {
                 ease: 'none'
             });
 
-            // Bento Cards & Stats Reveal
-            gsap.utils.toArray('.stat-card, .bento-card, .step-card, .music-demo-widget').forEach(card => {
+            // Bento Cards & Stats & Storytelling Reveal
+            gsap.utils.toArray('.stat-card, .bento-card, .step-card, .music-demo-widget, .comparison-card, .usecase-card, .faq-item, .grand-cta-box').forEach(card => {
                 gsap.from(card, {
                     scrollTrigger: {
                         trigger: card,
@@ -673,6 +673,20 @@ class MelodyFlow {
         });
         document.querySelectorAll('#joinRoomBtn, .btn-join-room').forEach(btn => {
             btn.addEventListener('click', () => this.showJoinModal());
+        });
+
+        // FAQ Accordion Toggle Listener
+        document.querySelectorAll('.faq-question').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                const isOpen = item.classList.contains('open');
+
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+
+                if (!isOpen) {
+                    item.classList.add('open');
+                }
+            });
         });
 
         // Room actions
