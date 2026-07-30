@@ -1037,11 +1037,8 @@ class MelodyFlow {
         this.dom.searchResultsList.innerHTML = '<div style="padding:15px;text-align:center;color:var(--text-muted);font-size:13px;">Searching...</div>';
 
         try {
-            // First try calling our new Vercel serverless API
-            let url = `/api/search?q=${encodeURIComponent(query)}`;
-            
-            // If running locally on Live Server (port 5500) or file://, you need to deploy to Vercel first
-            // Or you can run `vercel dev` locally to test the API.
+            // Gọi API riêng trên Vercel (repo my-youtube-api)
+            const url = `https://my-youtube-api-nine.vercel.app/api/search?q=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             
             if (!res.ok) {
