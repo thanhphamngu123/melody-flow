@@ -67,6 +67,10 @@ body.in-room {
     overflow: hidden;
 }
 
+.in-room #cursorGlow {
+    display: none !important;
+}
+
 /* ============ LANDING PAGE & SECTIONS ============ */
 .landing {
     min-height: 100dvh;
@@ -1650,14 +1654,16 @@ body.in-room {
 .room-app {
     display: flex;
     height: 100dvh;
-    background: #09090b;
+    background: #08080a;
+    padding: 12px;
+    gap: 12px;
 }
 
 .lofi-vibe-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 14px;
+    padding: 6px 16px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 100px;
@@ -1679,12 +1685,14 @@ body.in-room {
 .sidebar {
     width: var(--sidebar-width);
     height: 100%;
-    background: #0f0f12;
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    background: #111115;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    padding-bottom: var(--player-height);
+    overflow: hidden;
+    padding-bottom: 80px;
 }
 
 .sidebar-header {
@@ -1718,8 +1726,10 @@ body.in-room {
 /* Room Info Section */
 .room-info-section {
     padding: 18px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(16, 185, 129, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 20px;
+    margin: 12px;
 }
 
 .room-code-display {
@@ -1887,9 +1897,9 @@ body.in-room {
     justify-content: center;
     gap: 8px;
     padding: 11px;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 12px;
-    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 100px;
+    background: rgba(239, 68, 68, 0.06);
     color: #f87171;
     font-size: 13.5px;
     font-weight: 600;
@@ -1939,8 +1949,11 @@ body.in-room {
 .main-content {
     flex: 1;
     height: 100%;
+    background: #0e0e11;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
     overflow-y: auto;
-    padding-bottom: var(--player-height);
+    padding-bottom: 90px;
     display: flex;
     flex-direction: column;
     position: relative;
@@ -2198,17 +2211,20 @@ body.in-room {
 /* ============ PLAYER BAR ============ */
 .player-bar {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: var(--player-height);
-    background: #0c110e;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.6);
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 48px);
+    max-width: 1100px;
+    height: 72px;
+    background: #14141a;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 100px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    z-index: 100;
+    padding: 0 24px;
+    z-index: 1000;
     gap: 16px;
 }
 
@@ -2217,15 +2233,15 @@ body.in-room {
 .player-song-info { width: 250px; gap: 14px; flex-shrink: 0; }
 
 .player-thumbnail-wrapper {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
     background: rgba(255, 255, 255, 0.05);
     position: relative;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .player-thumbnail { width: 100%; height: 100%; object-fit: cover; display: none; }
@@ -2748,12 +2764,14 @@ body.in-room {
 .chat-sidebar {
     width: 320px;
     height: 100%;
-    background: #0c110e;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    background: #111115;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    padding-bottom: var(--player-height);
+    overflow: hidden;
+    padding-bottom: 80px;
 }
 
 .chat-header {
