@@ -35,6 +35,15 @@
     <!-- GLOWING CURSOR FOLLOWER -->
     <div class="cursor-glow-aura" id="cursorGlow"></div>
 
+    <!-- LEFT EDGE SCROLL EQUALIZER BEAM -->
+    <div class="left-edge-eq-beam">
+        <span class="beam-bar b1"></span>
+        <span class="beam-bar b2"></span>
+        <span class="beam-bar b3"></span>
+        <span class="beam-bar b4"></span>
+        <span class="beam-bar b5"></span>
+    </div>
+
     <!-- ========== LANDING PAGE ========== -->
     <div class="landing" id="landing">
         <div class="cinematic-backdrop"></div>
@@ -75,7 +84,7 @@
                 <!-- Left Column: Copy & Actions -->
                 <div class="hero-copy-col" data-fly="left">
                     <span class="hero-eyebrow">🎵 NỀN TẢNG NGHE NHẠC NHÓM REALTIME #1</span>
-                    <h1 class="hero-main-title">Khi âm nhạc cất lời, <span class="hero-title-highlight">mọi khoảng cách tan biến.</span></h1>
+                    <h1 class="hero-main-title gsap-split-text"><span class="word">Khi</span> <span class="word">âm</span> <span class="word">nhạc</span> <span class="word">cất</span> <span class="word">lời,</span> <br><span class="hero-title-highlight word">mọi</span> <span class="hero-title-highlight word">khoảng</span> <span class="hero-title-highlight word">cách</span> <span class="hero-title-highlight word">tan</span> <span class="hero-title-highlight word">biến.</span></h1>
                     <p class="hero-subtext">Dù cách xa hàng trăm cây số, MelodyFlow đưa bạn và những người thân yêu về chung một phòng studio—cùng nghe một bài hát, cùng vỡ òa một khoảnh khắc.</p>
 
                     <div class="hero-actions">
@@ -178,8 +187,8 @@
                     <div class="module-grid">
                         <div class="module-text-content" data-fly="left">
                             <span class="module-tag">REALTIME AUDIO ENGINE</span>
-                            <h2 class="module-title">Đồng bộ từng nhịp đập, chuẩn xác 0.05 giây.</h2>
-                            <p class="module-desc">Không giật lag, không lệch tone. Khi Host nhấn Play hay tua qua điệp khúc, tất cả thành viên trong phòng đều cảm nhận được cùng một dòng cảm xúc tức thì.</p>
+                            <h2 class="module-title">Đồng bộ từng nhịp đập — Thăng hoa trong cùng một tần số.</h2>
+                            <p class="module-desc">Không giật lag, không lệch tone. Bật Play ở Hà Nội, lắng nghe ở Sài Gòn hay bất kỳ đâu trên thế giới. Nhịp trống vừa cất lên, tất cả cùng phiêu một khoảnh khắc.</p>
                             <div class="module-metrics">
                                 <div class="metric-item">
                                     <span class="metric-num">&lt; 0.05s</span>
@@ -210,8 +219,8 @@
         <section class="story-module-section">
             <div class="landing-container">
                 <div class="story-header" data-fly="zoom">
-                    <h2 class="section-title">Thử đổi bài hát ngay tại đây</h2>
-                    <p class="section-desc">Click vào các bài hát bên dưới để xem giao diện phát nhạc và danh sách phát trực tiếp.</p>
+                    <h2 class="section-title">Chủ động làm chủ giai điệu — Thử phát nhạc trực tiếp</h2>
+                    <p class="section-desc">Click chọn bài hát bên dưới để cảm nhận tốc độ chuyển bài mượt mà trong studio phòng nghe.</p>
                 </div>
 
                 <!-- Interactive Demo Player Widget -->
@@ -265,8 +274,8 @@
                     <!-- Dual Card 1: Batch Search & Queue -->
                     <div class="dual-card" data-fly="left">
                         <div class="dual-card-icon">🚀</div>
-                        <h3 class="dual-card-title">Tìm kiếm &amp; Thêm nhạc hàng loạt</h3>
-                        <p class="dual-card-desc">API YouTube riêng tốc độ cao. Chọn cùng lúc nhiều bài hát, thêm vào hàng chờ phát chỉ trong 1 cú nhấp chuột.</p>
+                        <h3 class="dual-card-title">Kho Nhạc YouTube Vô Tận &amp; Thêm Bài Hát 1-Click</h3>
+                        <p class="dual-card-desc">API YouTube riêng tốc độ cao. Tìm kiếm bất kỳ ca sĩ, album hay danh sách phát nào. Tick chọn cùng lúc 10 bài và quẩy xuyên đêm.</p>
                         <div class="dual-pill-stack">
                             <span class="d-pill">✓ Multi-Select Checkboxes</span>
                             <span class="d-pill">✓ Auto Next Track</span>
@@ -277,8 +286,8 @@
                     <!-- Dual Card 2: Chat Stream & GIF Expressions -->
                     <div class="dual-card" data-fly="right">
                         <div class="dual-card-icon">💬</div>
-                        <h3 class="dual-card-title">Không gian trò chuyện &amp; Thả GIF sôi nổi</h3>
-                        <p class="dual-card-desc">Chia sẻ cảm xúc tức thì qua khung chat trực tiếp. Gửi sticker GIF hài hước từ thư viện Giphy để tạo không khí quẩy hết nấc.</p>
+                        <h3 class="dual-card-title">Bữa Tiệc Cảm Xúc Với Chat Trực Tiếp &amp; Thả GIF</h3>
+                        <p class="dual-card-desc">Không chỉ nghe nhạc, hãy cùng nhau tạo nên những bữa tiệc âm thanh nhộn nhịp nhất với hàng ngàn sticker GIF sinh động từ Giphy.</p>
                         <div class="dual-chat-preview">
                             <div class="chat-row r1"><strong>Minh:</strong> Bài này đỉnh quá bro ơi! 🔥</div>
                             <div class="chat-row r2"><strong>Trang:</strong> Thả tim nè ❤️</div>

@@ -450,10 +450,10 @@ class MelodyFlow {
         if (typeof gsap !== 'undefined') {
             gsap.registerPlugin(ScrollTrigger);
 
-            // Hero Timeline Choreography
+            // Hero Timeline Choreography with Word Wave
             const heroTl = gsap.timeline({ delay: 2.3 });
             heroTl.from('.hero-eyebrow', { opacity: 0, y: -20, duration: 0.6, ease: 'back.out(1.7)' })
-                  .from('.hero-main-title', { opacity: 0, y: 40, duration: 0.9, ease: 'power4.out' }, '-=0.3')
+                  .from('.gsap-split-text .word', { opacity: 0, y: 35, scale: 0.8, duration: 0.7, stagger: 0.05, ease: 'back.out(2)' }, '-=0.3')
                   .from('.hero-subtext', { opacity: 0, y: 25, duration: 0.7, ease: 'power3.out' }, '-=0.4')
                   .from('.hero-actions .cta-button', { opacity: 0, y: 30, scale: 0.85, duration: 0.6, stagger: 0.15, ease: 'back.out(1.7)' }, '-=0.4')
                   .from('#vinylDeck', { opacity: 0, x: 80, rotationY: -35, scale: 0.8, duration: 1.1, ease: 'power4.out' }, '-=0.8');
