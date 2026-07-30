@@ -605,8 +605,7 @@ class MelodyFlow {
         // Glowing Cursor Aura Follower
         const cursorGlow = document.getElementById('cursorGlow');
         if (cursorGlow) {
-            let mouseX = 0, mouseY = 0;
-            let cur            let glowTicking = false;
+            let glowTicking = false;
             document.addEventListener('mousemove', (e) => {
                 if (!glowTicking) {
                     requestAnimationFrame(() => {
@@ -616,8 +615,9 @@ class MelodyFlow {
                     glowTicking = true;
                 }
             }, { passive: true });
-        }     drawWaves();
-           // 3D Mouse Parallax Tilt for Hero Vinyl Deck
+        }
+
+        // 3D Mouse Parallax Tilt for Hero Vinyl Deck
         const heroSection = document.querySelector('.landing-hero');
         const vinylDeck = document.querySelector('#vinylDeck');
         if (heroSection && vinylDeck && typeof gsap !== 'undefined') {
@@ -673,7 +673,6 @@ class MelodyFlow {
                 }
             });
         });
-        }
 
         // Landing buttons
         document.querySelectorAll('#createRoomBtn, .btn-create-room').forEach(btn => {
