@@ -8,23 +8,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
 
 :root {
-    --bg-primary: #09090b;
-    --bg-surface: #121215;
-    --bg-card: #18181b;
-    --bg-card-hover: #27272a;
-    --bg-elevated: #202024;
+    --bg-primary: #040806;
+    --bg-surface: #0a0f0d;
+    --bg-card: rgba(14, 22, 18, 0.65);
+    --bg-card-hover: rgba(14, 22, 18, 0.95);
+    --bg-elevated: #121c17;
     --border: rgba(255, 255, 255, 0.08);
-    --border-light: rgba(255, 255, 255, 0.15);
-    --text-primary: #f4f4f5;
-    --text-secondary: #a1a1aa;
-    --text-muted: #71717a;
-    --accent: #e4e4e7;
-    --accent-hover: #ffffff;
+    --border-light: rgba(16, 185, 129, 0.25);
+    --text-primary: #ffffff;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --accent: #10b981;
+    --accent-hover: #059669;
     --danger: #ef4444;
     --danger-hover: #dc2626;
-    --success: #a1a1aa;
-    --warning: #fbbf24;
-    --glass-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+    --success: #10b981;
+    --warning: #f59e0b;
+    --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
     --sidebar-width: 260px;
     --player-height: 80px;
     --radius-sm: 8px;
@@ -1747,13 +1747,13 @@ body.in-room {
     font-family: var(--font-mono);
     font-size: 24px;
     font-weight: 800;
-    color: #34d399;
+    color: #f4f4f5;
     letter-spacing: 4px;
-    text-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+    text-shadow: none;
 }
 
 .copy-btn:hover {
-    color: var(--accent) !important;
+    color: #ffffff !important;
     transform: scale(1.1);
 }
 
@@ -1763,9 +1763,9 @@ body.in-room {
     gap: 6px;
     font-size: 11px;
     font-weight: 700;
-    color: var(--accent);
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: #a1a1aa;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     padding: 4px 10px;
     border-radius: 100px;
     margin-top: 10px;
@@ -1796,8 +1796,8 @@ body.in-room {
 }
 
 .user-count {
-    color: var(--accent);
-    background: rgba(16, 185, 129, 0.15);
+    color: #a1a1aa;
+    background: rgba(255, 255, 255, 0.08);
     padding: 2px 8px;
     border-radius: 100px;
     font-size: 11px;
@@ -1849,11 +1849,9 @@ body.in-room {
     right: 0;
     width: 9px;
     height: 9px;
-    background: #10b981;
-    border: 2px solid #0a0f0c;
+    background: #a1a1aa;
+    border: 2px solid #0d0d0f;
     border-radius: 50%;
-    box-shadow: 0 0 8px #10b981;
-    animation: pulse-online 2s ease-in-out infinite;
 }
 
 @keyframes pulse-online {
@@ -1986,23 +1984,22 @@ body.in-room {
 .add-song-input-wrapper {
     display: flex;
     align-items: center;
-    background: rgba(14, 22, 18, 0.85);
-    border: 1px solid rgba(16, 185, 129, 0.35);
+    background: #121215;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
     padding: 6px 6px 6px 16px;
     gap: 12px;
-    backdrop-filter: blur(20px);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .add-song-input-wrapper:focus-within {
-    border-color: #10b981;
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.25), 0 0 50px rgba(16, 185, 129, 0.1);
-    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    transform: translateY(-1px);
 }
 
 .add-song-icon {
-    color: var(--accent);
+    color: #a1a1aa;
     flex-shrink: 0;
 }
 
@@ -2026,21 +2023,21 @@ body.in-room {
     padding: 10px 20px;
     border: none;
     border-radius: 12px;
-    background: var(--accent);
-    color: #040806;
+    background: #f4f4f5;
+    color: #09090b;
     font-size: 13.5px;
     font-weight: 800;
     font-family: var(--font);
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .add-song-btn:hover {
-    background: var(--accent-hover);
+    background: #ffffff;
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 
 .add-song-btn:active { transform: translateY(0) scale(0.97); }
@@ -2710,23 +2707,23 @@ body.in-room {
 .progress-bar-fill,
 .volume-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    background: #e4e4e7;
     border-radius: 3px;
     width: 0%;
     transition: none;
     position: relative;
-    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    box-shadow: none;
 }
 
-.progress-bar-wrapper:hover .progress-bar-fill { background: linear-gradient(90deg, #34d399 0%, #6ee7b7 100%); box-shadow: 0 0 14px #10b981; }
-.volume-bar-wrapper:hover .volume-bar-fill { background: #10b981; }
+.progress-bar-wrapper:hover .progress-bar-fill { background: #ffffff; box-shadow: none; }
+.volume-bar-wrapper:hover .volume-bar-fill { background: #ffffff; }
 
 .progress-bar-handle,
 .volume-bar-handle {
     width: 14px;
     height: 14px;
     background: #ffffff;
-    border: 2px solid #10b981;
+    border: 2px solid #a1a1aa;
     border-radius: 50%;
     position: absolute;
     top: 50%;
@@ -2734,7 +2731,7 @@ body.in-room {
     left: 0%;
     opacity: 0;
     transition: opacity 0.2s ease;
-    box-shadow: 0 0 12px #10b981, 0 2px 6px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
     z-index: 2;
     pointer-events: none;
 }
@@ -2788,8 +2785,8 @@ body.in-room {
     color: var(--text-muted);
     margin-bottom: 8px;
     padding: 10px 14px;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
 }
 
@@ -2809,7 +2806,7 @@ body.in-room {
 
 .chat-message-sender {
     font-size: 11px;
-    color: #34d399;
+    color: #a1a1aa;
     font-weight: 600;
     margin-bottom: 4px;
     margin-left: 4px;
@@ -2834,11 +2831,11 @@ body.in-room {
 }
 
 .chat-message.self .chat-bubble {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: #040806;
+    background: #27272a;
+    color: #f4f4f5;
     font-weight: 600;
     border-bottom-right-radius: 4px;
-    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    box-shadow: none;
 }
 
 .chat-message.other .chat-bubble {
@@ -2857,16 +2854,16 @@ body.in-room {
 .chat-input-wrapper {
     display: flex;
     align-items: center;
-    background: rgba(14, 22, 18, 0.9);
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: #121215;
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 24px;
     padding: 4px;
     transition: all 0.25s ease;
 }
 
 .chat-input-wrapper:focus-within {
-    border-color: #10b981;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .chat-input-wrapper input {
@@ -2883,8 +2880,8 @@ body.in-room {
 .chat-input-wrapper input::placeholder { color: var(--text-muted); }
 
 .send-btn {
-    color: var(--accent);
-    background: var(--accent-muted);
+    color: #f4f4f5;
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 50%;
     width: 32px;
     height: 32px;
