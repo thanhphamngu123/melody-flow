@@ -480,6 +480,125 @@ class MelodyFlow {
             });
         });
 
+        // Ambient Audio Synthesizer (Pure Web Audio API)
+        let audioCtx = null;
+        let isAmbientPlaying = false;
+        let ambientOscillators = [];
+        const ambientBtn = document.getElementById('ambientAudioBtn');
+
+        if (ambientBtn) {
+            ambientBtn.addEventListener('click', () => {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                if (isAmbientPlaying) {
+                    ambientOscillators.forEach(osc => osc.stop());
+                    ambientOscillators = [];
+                    isAmbientPlaying = false;
+                    ambientBtn.classList.remove('playing');
+                    ambientBtn.querySelector('.ambient-txt').textContent = 'Nhạc Nền Chill';
+                } else {
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                    const freqs = [130.81, 164.81, 196.00, 246.94]; // Cmaj7 chord
+                    const masterGain = audioCtx.createGain();
+                    masterGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+
+                    const filter = audioCtx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(600, audioCtx.currentTime);
+
+                    filter.connect(masterGain);
+                    masterGain.connect(audioCtx.destination);
+
+                    freqs.forEach(f => {
+                        const osc = audioCtx.createOscillator();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+                        osc.connect(filter);
+                        osc.start();
+                        ambientOscillators.push(osc);
+                    });
+
+                    isAmbientPlaying = true;
+                    ambientBtn.classList.add('playing');
+                    ambientBtn.querySelector('.ambient-txt').textContent = 'Đang Phát Chill...';
+                }
+            });
+        }
+
+        // Floating Music Particle Burst On Click
+        document.addEventListener('click', (e) => {
+            const landing = document.getElementById('landing');
+            if (!landing || landing.style.display === 'none') return;
+
+            const emojis = ['🎵', '🎶', '🔥', '✨', '🎧'];
+            for (let i = 0; i < 3; i++) {
+                const p = document.createElement('span');
+                p.className = 'click-music-particle';
+                p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                p.style.left = `${e.clientX + (Math.random() * 40 - 20)}px`;
+                p.style.top = `${e.clientY + (Math.random() * 40 - 20)}px`;
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 1000);
+            }
+        });
+
+        // Glowing Cursor Aura Follower
+        const cursorGlow = document.getElementById('cursorGlow');
+        if (cursorGlow) {
+            let mouseX = 0, mouseY = 0;
+            let currentX = 0, currentY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            const renderGlow = () => {
+                currentX += (mouseX - currentX) * 0.15;
+                currentY += (mouseY - currentY) * 0.15;
+                cursorGlow.style.left = `${currentX}px`;
+                cursorGlow.style.top = `${currentY}px`;
+                requestAnimationFrame(renderGlow);
+            };
+            renderGlow();
+        }
+
+        // Audio Background Canvas Visualizer Waves
+        const canvas = document.getElementById('audioVisualizerCanvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+            let step = 0;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const drawWaves = () => {
+                ctx.clearRect(0, 0, width, height);
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.12)';
+
+                for (let j = 0; j < 3; j++) {
+                    ctx.beginPath();
+                    for (let x = 0; x < width; x += 10) {
+                        const y = Math.sin((x + step + j * 100) * 0.005) * 35 + height * (0.3 + j * 0.25);
+                        if (x === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+                step += 1.5;
+                requestAnimationFrame(drawWaves);
+            };
+            drawWaves();
+        }
+
         // Landing Demo Music Selector
         document.querySelectorAll('.demo-song-card').forEach(card => {
             card.addEventListener('click', () => {

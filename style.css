@@ -291,6 +291,55 @@ body.in-room {
     border-color: rgba(16, 185, 129, 0.4);
 }
 
+/* ============ CURSOR FOLLOWER & AUDIO CANVAS ============ */
+.cursor-glow-aura {
+    position: fixed;
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: screen;
+}
+
+.audio-bg-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.click-music-particle {
+    position: fixed;
+    font-size: 20px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: float-particle-up 1s ease-out forwards;
+}
+
+@keyframes float-particle-up {
+    0% { transform: scale(0.5) translateY(0); opacity: 1; }
+    100% { transform: scale(1.5) translateY(-60px) rotate(20deg); opacity: 0; }
+}
+
+.ambient-audio-btn {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ambient-audio-btn:hover, .ambient-audio-btn.playing {
+    background: rgba(16, 185, 129, 0.25);
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+}
+
 .landing-container {
     max-width: 1280px;
     width: 92%;

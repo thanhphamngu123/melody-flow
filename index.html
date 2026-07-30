@@ -30,9 +30,13 @@
         </div>
     </div>
 
+    <!-- GLOWING CURSOR FOLLOWER -->
+    <div class="cursor-glow-aura" id="cursorGlow"></div>
+
     <!-- ========== LANDING PAGE ========== -->
     <div class="landing" id="landing">
         <div class="cinematic-backdrop"></div>
+        <canvas id="audioVisualizerCanvas" class="audio-bg-canvas"></canvas>
 
         <!-- TOP NAVIGATION BAR -->
         <header class="landing-nav">
@@ -54,10 +58,15 @@
                 </nav>
 
                 <div class="nav-actions">
+                    <button class="nav-btn ambient-audio-btn" id="ambientAudioBtn" title="Bật âm thanh chill nền">
+                        <span class="sound-wave-icon">🔊</span> <span class="ambient-txt">Nhạc Nền Chill</span>
+                    </button>
                     <button class="nav-btn secondary-nav-btn btn-join-room">Tham gia bằng mã</button>
                     <button class="nav-btn primary-nav-btn btn-create-room">Tạo phòng ngay</button>
                 </div>
             </div>
+        </header>
+
          <!-- HERO SECTION (CINEMATIC AUDIO STAGE) -->
         <section class="landing-hero">
             <div class="landing-container hero-split-grid">
