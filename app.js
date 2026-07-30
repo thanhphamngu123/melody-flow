@@ -446,8 +446,8 @@ class MelodyFlow {
             }
         }, 2200);
 
-        // Scroll Reveal Observer for [data-reveal]
-        const revealElements = document.querySelectorAll('[data-reveal]');
+        // Scroll Reveal Observer for [data-reveal] & [data-fly]
+        const revealElements = document.querySelectorAll('[data-reveal], [data-fly]');
         if ('IntersectionObserver' in window) {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -456,12 +456,29 @@ class MelodyFlow {
                         observer.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.12 });
+            }, { threshold: 0.1 });
 
             revealElements.forEach(el => observer.observe(el));
         } else {
             revealElements.forEach(el => el.classList.add('is-visible'));
         }
+
+        // Interactive 3D Dynamic Tilt Effect on Vinyl Deck & Cards
+        const tiltCards = document.querySelectorAll('.vinyl-player-deck, .story-module-card, .dual-card');
+        tiltCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                const rotX = (y / rect.height) * -16;
+                const rotY = (x / rect.width) * 16;
+                card.style.transform = `perspective(1000px) rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) scale(1.02)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
 
         // Landing Demo Music Selector
         document.querySelectorAll('.demo-song-card').forEach(card => {

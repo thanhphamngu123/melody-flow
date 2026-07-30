@@ -59,10 +59,10 @@
                 </div>
             </div>
          <!-- HERO SECTION (CINEMATIC AUDIO STAGE) -->
-        <section class="landing-hero" data-reveal>
+        <section class="landing-hero">
             <div class="landing-container hero-split-grid">
                 <!-- Left Column: Copy & Actions -->
-                <div class="hero-copy-col">
+                <div class="hero-copy-col" data-fly="left">
                     <span class="hero-eyebrow">🎵 NỀN TẢNG NGHE NHẠC NHÓM REALTIME #1</span>
                     <h1 class="hero-main-title">Khi âm nhạc cất lời, <span class="hero-title-highlight">mọi khoảng cách tan biến.</span></h1>
                     <p class="hero-subtext">Dù cách xa hàng trăm cây số, MelodyFlow đưa bạn và những người thân yêu về chung một phòng studio—cùng nghe một bài hát, cùng vỡ òa một khoảnh khắc.</p>
@@ -105,8 +105,8 @@
                 </div>
 
                 <!-- Right Column: Interactive 3D Vinyl Player Deck -->
-                <div class="hero-visual-col">
-                    <div class="vinyl-player-deck">
+                <div class="hero-visual-col" data-fly="right">
+                    <div class="vinyl-player-deck" id="vinylDeck">
                         <div class="deck-glow"></div>
                         <div class="vinyl-disc-wrapper">
                             <img src="assets/vinyl.png" alt="Spinning Vinyl Record" class="vinyl-disc-img spinning">
@@ -159,13 +159,13 @@
         </div>
 
         <!-- STORY MODULE 1: THE SYNCHRONIZED PULSE -->
-        <section class="story-module-section" id="showcaseSection" data-reveal>
+        <section class="story-module-section" id="showcaseSection">
             <div class="landing-container">
-                <div class="story-module-card">
+                <div class="story-module-card" data-fly="zoom">
                     <div class="module-backdrop" style="background-image: url('assets/soundwave_bg.png');"></div>
                     <div class="module-overlay"></div>
                     <div class="module-grid">
-                        <div class="module-text-content">
+                        <div class="module-text-content" data-fly="left">
                             <span class="module-tag">REALTIME AUDIO ENGINE</span>
                             <h2 class="module-title">Đồng bộ từng nhịp đập, chuẩn xác 0.05 giây.</h2>
                             <p class="module-desc">Không giật lag, không lệch tone. Khi Host nhấn Play hay tua qua điệp khúc, tất cả thành viên trong phòng đều cảm nhận được cùng một dòng cảm xúc tức thì.</p>
@@ -180,7 +180,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="module-visual-content">
+                        <div class="module-visual-content" data-fly="right">
                             <div class="live-radar-box">
                                 <div class="radar-ping"></div>
                                 <div class="radar-center-avatar">🎵</div>
@@ -196,15 +196,15 @@
         </section>
 
         <!-- STORY MODULE 2: INTERACTIVE MUSIC ROOM SIMULATOR -->
-        <section class="story-module-section" data-reveal>
+        <section class="story-module-section">
             <div class="landing-container">
-                <div class="story-header">
+                <div class="story-header" data-fly="zoom">
                     <h2 class="section-title">Thử đổi bài hát ngay tại đây</h2>
                     <p class="section-desc">Click vào các bài hát bên dưới để xem giao diện phát nhạc và danh sách phát trực tiếp.</p>
                 </div>
 
                 <!-- Interactive Demo Player Widget -->
-                <div class="music-demo-widget">
+                <div class="music-demo-widget" data-fly="zoom">
                     <div class="demo-sidebar-songs">
                         <div class="demo-song-card active" data-song="1" data-title="Chúng Ta Của Tương Lai" data-artist="Sơn Tùng M-TP" data-img="assets/vibe.png">
                             <span class="demo-track-num">01</span>
@@ -248,11 +248,11 @@
         </section>
 
         <!-- STORY MODULE 3: FULL-BLEED CHAT & BATCH ADD EXPERIENCE -->
-        <section class="story-module-section" id="featuresSection" data-reveal>
+        <section class="story-module-section" id="featuresSection">
             <div class="landing-container">
                 <div class="story-dual-grid">
                     <!-- Dual Card 1: Batch Search & Queue -->
-                    <div class="dual-card" data-reveal>
+                    <div class="dual-card" data-fly="left">
                         <div class="dual-card-icon">🚀</div>
                         <h3 class="dual-card-title">Tìm kiếm &amp; Thêm nhạc hàng loạt</h3>
                         <p class="dual-card-desc">API YouTube riêng tốc độ cao. Chọn cùng lúc nhiều bài hát, thêm vào hàng chờ phát chỉ trong 1 cú nhấp chuột.</p>
@@ -264,7 +264,7 @@
                     </div>
 
                     <!-- Dual Card 2: Chat Stream & GIF Expressions -->
-                    <div class="dual-card" data-reveal>
+                    <div class="dual-card" data-fly="right">
                         <div class="dual-card-icon">💬</div>
                         <h3 class="dual-card-title">Không gian trò chuyện &amp; Thả GIF sôi nổi</h3>
                         <p class="dual-card-desc">Chia sẻ cảm xúc tức thì qua khung chat trực tiếp. Gửi sticker GIF hài hước từ thư viện Giphy để tạo không khí quẩy hết nấc.</p>
@@ -278,9 +278,9 @@
         </section>
 
         <!-- CONTINUOUS TIMELINE RIBBON: 3-STEP JOURNEY -->
-        <section class="story-timeline-section" id="stepsSection" data-reveal>
+        <section class="story-timeline-section" id="stepsSection">
             <div class="landing-container">
-                <div class="timeline-header">
+                <div class="timeline-header" data-fly="zoom">
                     <h2 class="section-title">Khởi đầu cuộc vui chỉ trong 3 bước</h2>
                     <p class="section-desc">Không cài đặt ứng dụng. Không đăng ký rườm rà. Tất cả diễn ra ngay trên trình duyệt.</p>
                 </div>
@@ -288,7 +288,7 @@
                 <div class="timeline-journey-wrapper">
                     <div class="glowing-timeline-laser"></div>
 
-                    <div class="journey-node" data-reveal>
+                    <div class="journey-node" data-fly="left">
                         <div class="node-number">01</div>
                         <div class="node-content">
                             <h3 class="node-title">Tạo Phòng Studio Âm Nhạc</h3>
@@ -296,7 +296,7 @@
                         </div>
                     </div>
 
-                    <div class="journey-node" data-reveal>
+                    <div class="journey-node" data-fly="left">
                         <div class="node-number">02</div>
                         <div class="node-content">
                             <h3 class="node-title">Gửi Mã 5 Ký Tự Cho Bạn Bè</h3>
@@ -304,7 +304,7 @@
                         </div>
                     </div>
 
-                    <div class="journey-node" data-reveal>
+                    <div class="journey-node" data-fly="left">
                         <div class="node-number">03</div>
                         <div class="node-content">
                             <h3 class="node-title">Cùng Thưởng Thức Giai Điệu</h3>
