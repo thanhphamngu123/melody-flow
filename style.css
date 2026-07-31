@@ -4444,3 +4444,82 @@ body.in-room {
         border-radius: 12px;
     }
 }
+
+/* ============ KINETIC MARQUEE STRIP ============ */
+.kinetic-marquee {
+    width: 100%;
+    overflow: hidden;
+    background: rgba(16, 185, 129, 0.06);
+    border-top: 1px solid rgba(16, 185, 129, 0.15);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.15);
+    padding: 14px 0;
+    margin: 20px 0 40px;
+    white-space: nowrap;
+}
+
+.marquee-track {
+    display: inline-flex;
+    align-items: center;
+    gap: 24px;
+    animation: marquee-scroll 25s linear infinite;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: #10b981;
+    text-transform: uppercase;
+}
+
+.marquee-track .dot {
+    color: rgba(16, 185, 129, 0.4);
+}
+
+@keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+/* ============ ORGANIC FLOATING METRICS CAPSULES ============ */
+.landing-stats-section {
+    padding: 20px 0 50px;
+    width: 100%;
+}
+
+.organic-stats-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    justify-content: center;
+}
+
+.stat-capsule {
+    background: rgba(14, 22, 18, 0.7);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 100px;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.stat-capsule:hover {
+    transform: translateY(-4px);
+    border-color: rgba(16, 185, 129, 0.5);
+}
+
+.capsule-num {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 900;
+    color: #10b981;
+    white-space: nowrap;
+}
+
+.capsule-txt {
+    font-size: 13px;
+    font-weight: 600;
+    color: #cbd5e1;
+    line-height: 1.3;
+}
