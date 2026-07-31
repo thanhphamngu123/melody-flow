@@ -2353,6 +2353,10 @@ class MelodyFlow {
 
 // ============ INIT ============
 
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        window.app = new MelodyFlow();
+    });
+} else {
     window.app = new MelodyFlow();
-});
+}
