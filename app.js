@@ -79,47 +79,55 @@ function showToast(message, type = 'info') {
 
 class RoomManager {
     constructor() {
-        this.sb = null;          // supabase client
+        this.sb = null;
         this.roomCode = null;
         this.userId = getUserId();
         this.isHost = false;
         this.hostId = null;
-        this._channels = [];     // realtime channel handles
+        this._channels = [];
         this._reactionChannel = null;
+
+        // Local caches — avoid DB reads before every write
+        this._cachedPlaylist = [];
+        this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: 0 };
+
+        // Registered callbacks — set by enterRoom()
+        this._cb = {
+            playlist: null,
+            host: null,
+            state: null,
+            users: null,
+            roomDeleted: null,
+            chat: null
+        };
+
         this.initSupabase();
 
-        // Clean up on tab close
+        // Cleanup on tab close using fetch with keepalive (sendBeacon doesn't support DELETE)
         window.addEventListener('beforeunload', () => {
             if (!this.roomCode || !this.sb) return;
-            // Use sendBeacon for reliable cleanup on page unload
-            const url = `${SUPABASE_URL}/rest/v1/room_users?room_code=eq.${this.roomCode}&user_id=eq.${this.userId}`;
-            navigator.sendBeacon
-                ? navigator.sendBeacon(url + '&_method=DELETE', null)
-                : fetch(url, { method: 'DELETE', headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }, keepalive: true });
+            const headers = { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
+            fetch(`${SUPABASE_URL}/rest/v1/room_users?room_code=eq.${this.roomCode}&user_id=eq.${this.userId}`, { method: 'DELETE', headers, keepalive: true });
             if (this.isHost) {
-                const rurl = `${SUPABASE_URL}/rest/v1/rooms?code=eq.${this.roomCode}`;
-                fetch(rurl, { method: 'DELETE', headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }, keepalive: true });
+                fetch(`${SUPABASE_URL}/rest/v1/rooms?code=eq.${this.roomCode}`, { method: 'DELETE', headers, keepalive: true });
             }
         });
     }
 
     initSupabase() {
         try {
-            if (typeof supabase === 'undefined') {
-                console.warn('Supabase SDK not loaded');
-                return;
-            }
+            if (typeof supabase === 'undefined') { console.warn('Supabase SDK not loaded'); return; }
             this.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-                realtime: { params: { eventsPerSecond: 20 } }
+                realtime: { params: { eventsPerSecond: 10 } }
             });
         } catch (e) {
             console.error('Supabase init failed:', e);
         }
     }
 
-    isReady() {
-        return !!this.sb;
-    }
+    isReady() { return !!this.sb; }
+
+    // ---- Create / Join ----
 
     async createRoom(roomName, nickname) {
         if (!this.sb) throw new Error('Supabase not configured');
@@ -128,23 +136,24 @@ class RoomManager {
         this.roomCode = code;
         this.isHost = true;
         this.hostId = this.userId;
+        this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: Date.now() };
+        this._cachedPlaylist = [];
 
         const { error } = await this.sb.from('rooms').insert({
             code,
             name: roomName || 'MelodyFlow Room',
             host_id: this.userId,
             playlist: [],
-            state: { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: Date.now() }
+            state: this._cachedState
         });
         if (error) throw new Error(error.message);
 
-        const { error: ue } = await this.sb.from('room_users').insert({
+        await this.sb.from('room_users').insert({
             id: this.userId + '_' + code,
             room_code: code,
             user_id: this.userId,
             name: nickname
         });
-        if (ue) throw new Error(ue.message);
 
         return code;
     }
@@ -153,15 +162,15 @@ class RoomManager {
         if (!this.sb) throw new Error('Supabase not configured');
 
         code = code.toUpperCase().trim();
-
         const { data: room, error } = await this.sb.from('rooms').select('*').eq('code', code).single();
         if (error || !room) throw new Error('Room not found');
 
         this.roomCode = code;
         this.isHost = room.host_id === this.userId;
         this.hostId = room.host_id;
+        this._cachedPlaylist = room.playlist || [];
+        this._cachedState = room.state || this._cachedState;
 
-        // Upsert user into room_users
         await this.sb.from('room_users').upsert({
             id: this.userId + '_' + code,
             room_code: code,
@@ -172,109 +181,84 @@ class RoomManager {
         return room;
     }
 
-    // ---- Realtime listeners ----
+    // ---- Register callbacks (called once, then subscribeAll) ----
 
-    _subscribe(channelName, config, handler) {
-        const ch = this.sb.channel(channelName);
-        config.forEach(c => ch.on(c.type, c.filter, handler));
-        ch.subscribe();
-        this._channels.push(ch);
-        return ch;
-    }
+    onPlaylistChange(cb) { this._cb.playlist = cb; }
+    onHostChange(cb)    { this._cb.host = cb; }
+    onStateChange(cb)   { this._cb.state = cb; }
+    onUsersChange(cb)   { this._cb.users = cb; }
+    onRoomDeleted(cb)   { this._cb.roomDeleted = cb; }
+    onChatAdded(cb)     { this._cb.chat = cb; }
 
-    onPlaylistChange(callback) {
+    // Call this ONCE after all callbacks are registered
+    subscribeAll() {
         if (!this.sb || !this.roomCode) return;
-        const ch = this.sb.channel('playlist_' + this.roomCode)
+
+        // ── 1. Single unified channel for the `rooms` row ──
+        const roomCh = this.sb.channel('room_row_' + this.roomCode)
             .on('postgres_changes', {
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'rooms',
                 filter: `code=eq.${this.roomCode}`
             }, payload => {
-                if (payload.new && payload.new.playlist !== undefined) {
-                    callback(payload.new.playlist || []);
+                const n = payload.new;
+                if (!n) return;
+
+                // Playlist changed?
+                const newPlaylistStr = JSON.stringify(n.playlist);
+                if (this._cb.playlist && newPlaylistStr !== JSON.stringify(this._cachedPlaylist)) {
+                    this._cachedPlaylist = n.playlist || [];
+                    this._cb.playlist(this._cachedPlaylist);
+                }
+
+                // Host changed?
+                if (this._cb.host && n.host_id && n.host_id !== this.hostId) {
+                    this.isHost = n.host_id === this.userId;
+                    this.hostId = n.host_id;
+                    this._cb.host(n.host_id);
+                }
+
+                // State changed? (compare updatedAt to avoid re-firing same state)
+                if (this._cb.state && n.state && n.state.updatedAt !== this._cachedState.updatedAt) {
+                    this._cachedState = n.state;
+                    this._cb.state(n.state);
                 }
             })
-            .subscribe();
-        this._channels.push(ch);
-    }
-
-    onHostChange(callback) {
-        if (!this.sb || !this.roomCode) return;
-        const ch = this.sb.channel('host_' + this.roomCode)
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'rooms',
-                filter: `code=eq.${this.roomCode}`
-            }, payload => {
-                if (payload.new && payload.new.host_id) {
-                    const hostId = payload.new.host_id;
-                    this.isHost = hostId === this.userId;
-                    this.hostId = hostId;
-                    callback(hostId);
-                }
-            })
-            .subscribe();
-        this._channels.push(ch);
-    }
-
-    onStateChange(callback) {
-        if (!this.sb || !this.roomCode) return;
-        const ch = this.sb.channel('state_' + this.roomCode)
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'rooms',
-                filter: `code=eq.${this.roomCode}`
-            }, payload => {
-                if (payload.new && payload.new.state !== undefined) {
-                    callback(payload.new.state);
-                }
-            })
-            .subscribe();
-        this._channels.push(ch);
-    }
-
-    onUsersChange(callback) {
-        if (!this.sb || !this.roomCode) return;
-        const fetchUsers = async () => {
-            const { data } = await this.sb.from('room_users').select('*').eq('room_code', this.roomCode);
-            const usersMap = {};
-            (data || []).forEach(u => { usersMap[u.user_id] = { name: u.name, joinedAt: u.joined_at }; });
-            callback(usersMap);
-        };
-        fetchUsers();
-        const ch = this.sb.channel('users_' + this.roomCode)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'room_users', filter: `room_code=eq.${this.roomCode}` }, () => fetchUsers())
-            .subscribe();
-        this._channels.push(ch);
-    }
-
-    onRoomDeleted(callback) {
-        if (!this.sb || !this.roomCode) return;
-        const ch = this.sb.channel('roomdel_' + this.roomCode)
             .on('postgres_changes', {
                 event: 'DELETE',
                 schema: 'public',
                 table: 'rooms',
                 filter: `code=eq.${this.roomCode}`
-            }, () => callback())
+            }, () => {
+                if (this._cb.roomDeleted) this._cb.roomDeleted();
+            })
             .subscribe();
-        this._channels.push(ch);
-    }
+        this._channels.push(roomCh);
 
-    onChatAdded(callback) {
-        if (!this.sb || !this.roomCode) return;
-        const ch = this.sb.channel('chat_' + this.roomCode)
+        // ── 2. Channel for room_users ──
+        const fetchUsers = async () => {
+            const { data } = await this.sb.from('room_users').select('*').eq('room_code', this.roomCode);
+            const map = {};
+            (data || []).forEach(u => { map[u.user_id] = { name: u.name, joinedAt: u.joined_at }; });
+            if (this._cb.users) this._cb.users(map);
+        };
+        fetchUsers(); // initial fetch
+        const usersCh = this.sb.channel('room_users_' + this.roomCode)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'room_users', filter: `room_code=eq.${this.roomCode}` }, fetchUsers)
+            .subscribe();
+        this._channels.push(usersCh);
+
+        // ── 3. Channel for chat inserts ──
+        const chatCh = this.sb.channel('room_chat_' + this.roomCode)
             .on('postgres_changes', {
                 event: 'INSERT',
                 schema: 'public',
                 table: 'room_chat',
                 filter: `room_code=eq.${this.roomCode}`
             }, payload => {
-                if (payload.new) {
-                    callback({
+                if (payload.new && this._cb.chat) {
+                    this._cb.chat({
                         userId: payload.new.user_id,
                         name: payload.new.name,
                         text: payload.new.text,
@@ -284,29 +268,25 @@ class RoomManager {
                 }
             })
             .subscribe();
-        this._channels.push(ch);
+        this._channels.push(chatCh);
+
+        // ── 4. Broadcast channel for reactions ──
+        this._reactionChannel = this.sb.channel('reactions_bc_' + this.roomCode);
+        this._reactionChannel.subscribe();
+        this._channels.push(this._reactionChannel);
     }
 
-    onReactionAdded(callback) {
-        if (!this.sb || !this.roomCode) return;
-        if (!this._reactionChannel) {
-            this._reactionChannel = this.sb.channel('reactions_bc_' + this.roomCode);
-            this._reactionChannel
-                .on('broadcast', { event: 'reaction' }, payload => callback(payload.payload))
-                .subscribe();
-            this._channels.push(this._reactionChannel);
-        }
+    // Legacy shim — reactions callback goes through broadcast channel
+    onReactionAdded(cb) {
+        if (!this._reactionChannel) return;
+        this._reactionChannel.on('broadcast', { event: 'reaction' }, payload => cb(payload.payload));
     }
 
     // ---- Write operations ----
 
     async sendReaction(emoji) {
         if (!this._reactionChannel) return;
-        await this._reactionChannel.send({
-            type: 'broadcast',
-            event: 'reaction',
-            payload: { emoji, timestamp: Date.now() }
-        });
+        await this._reactionChannel.send({ type: 'broadcast', event: 'reaction', payload: { emoji, timestamp: Date.now() } });
     }
 
     async sendMessage(text, isGif = false) {
@@ -322,26 +302,21 @@ class RoomManager {
 
     async addSong(song) {
         if (!this.sb || !this.roomCode) return;
-        const { data: room } = await this.sb.from('rooms').select('playlist').eq('code', this.roomCode).single();
-        const playlist = room?.playlist || [];
-        playlist.push(song);
-        await this.sb.from('rooms').update({ playlist }).eq('code', this.roomCode);
+        this._cachedPlaylist.push(song);
+        await this.sb.from('rooms').update({ playlist: this._cachedPlaylist }).eq('code', this.roomCode);
     }
 
     async removeSong(index) {
         if (!this.sb || !this.roomCode) return;
-        const { data: room } = await this.sb.from('rooms').select('playlist').eq('code', this.roomCode).single();
-        const playlist = room?.playlist || [];
-        playlist.splice(index, 1);
-        await this.sb.from('rooms').update({ playlist }).eq('code', this.roomCode);
+        this._cachedPlaylist.splice(index, 1);
+        await this.sb.from('rooms').update({ playlist: this._cachedPlaylist }).eq('code', this.roomCode);
     }
 
+    // updateState uses local cache — NO DB read needed
     async updateState(stateUpdate) {
         if (!this.sb || !this.roomCode) return;
-        // Merge with existing state then write
-        const { data: room } = await this.sb.from('rooms').select('state').eq('code', this.roomCode).single();
-        const merged = { ...(room?.state || {}), ...stateUpdate, updatedAt: Date.now() };
-        await this.sb.from('rooms').update({ state: merged }).eq('code', this.roomCode);
+        this._cachedState = { ...this._cachedState, ...stateUpdate, updatedAt: Date.now() };
+        await this.sb.from('rooms').update({ state: this._cachedState }).eq('code', this.roomCode);
     }
 
     async transferHost(newHostId) {
@@ -357,25 +332,21 @@ class RoomManager {
 
     async leaveRoom() {
         if (!this.sb || !this.roomCode) return;
-
-        // Unsubscribe all realtime channels
         for (const ch of this._channels) {
             try { await this.sb.removeChannel(ch); } catch (e) {}
         }
         this._channels = [];
         this._reactionChannel = null;
-
-        // Remove this user
         await this.sb.from('room_users').delete().eq('room_code', this.roomCode).eq('user_id', this.userId);
-
-        // If host, delete whole room (cascades to room_users and room_chat)
         if (this.isHost) {
             await this.sb.from('rooms').delete().eq('code', this.roomCode);
         }
-
         this.roomCode = null;
         this.isHost = false;
         this.hostId = null;
+        this._cachedPlaylist = [];
+        this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: 0 };
+        this._cb = { playlist: null, host: null, state: null, users: null, roomDeleted: null, chat: null };
     }
 }
 
@@ -1256,7 +1227,6 @@ class MelodyFlow {
             this.updateControlPermissions();
             this.dom.hostBadge.style.display = this.roomManager.isHost ? 'flex' : 'none';
             if (this.currentUsers) this.renderUsers(this.currentUsers);
-            
             if (previousHostId && previousHostId !== this.roomManager.userId && this.roomManager.isHost) {
                 this.showConfirmModal(
                     'Chúc mừng!',
@@ -1267,7 +1237,7 @@ class MelodyFlow {
             previousHostId = hostId;
         });
 
-        // Mở màn hình Overlay bắt buộc tương tác đối với Guest
+        // Overlay cho Guest
         if (!this.roomManager.isHost) {
             this.isUserInteracted = false;
             this.dom.syncOverlay.classList.add('visible');
@@ -1275,32 +1245,22 @@ class MelodyFlow {
             this.isUserInteracted = true;
         }
 
-        // Listen for real-time updates
+        // Playlist — chỉ re-render, KHÔNG gọi handleRemoteStateChange (tránh crash cascade)
         this.roomManager.onPlaylistChange((playlist) => {
             this.playlist = playlist || [];
             this.renderSongs();
-            if (this.latestRemoteState) {
-                this.handleRemoteStateChange(this.latestRemoteState, true);
-            }
         });
 
         this.roomManager.onStateChange((state) => {
             if (!state) return;
             this.latestRemoteState = state;
-
-            // NẾU GUEST CHƯA BẤM NÚT "BẮT ĐẦU NGHE", CHỈ LƯU DATA VÀ DỪNG LẠI.
-            if (!this.roomManager.isHost && !this.isUserInteracted) {
-                return;
-            }
-
+            if (!this.roomManager.isHost && !this.isUserInteracted) return;
             if (this.ignoreNextStateUpdate) {
                 this.ignoreNextStateUpdate = false;
                 return;
             }
-            // Only sync if update is recent (within 3 seconds) or it's a new song
             const timeSinceUpdate = Date.now() - (state.updatedAt || 0);
             if (timeSinceUpdate > 10000 && state.currentIndex === this.currentSongIndex) return;
-
             this.handleRemoteStateChange(state);
         });
 
@@ -1309,15 +1269,11 @@ class MelodyFlow {
             const currentUserCount = Object.keys(users).length;
             const isNewUser = prevUserCount > 0 && currentUserCount > prevUserCount;
             prevUserCount = currentUserCount;
-
             this.currentUsers = users;
             this.renderUsers(users);
-
-            // Host auto-syncs for new joiners
             if (isNewUser && this.roomManager.isHost && this.isPlaying && this.player && this.playerReady) {
                 this.player.pauseVideo();
                 this.syncState({ isPlaying: false, seekTime: this.getCurrentTime() });
-
                 setTimeout(() => {
                     this.player.playVideo();
                     this.syncState({ isPlaying: true, seekTime: this.getCurrentTime() });
@@ -1328,16 +1284,13 @@ class MelodyFlow {
         this.roomManager.onChatAdded((msg) => {
             if (msg) {
                 this.appendChatMessage(msg);
-                // Show red dot if sidebar is closed and it's a new message
                 if (this.dom.chatSidebar && !this.dom.chatSidebar.classList.contains('open')) {
-                    // Only show badge if the window is small enough to have the mobile chat button
                     if (window.innerWidth <= 1000 && this.dom.chatBadge) {
                         this.dom.chatBadge.style.display = 'block';
                     }
                 }
             }
         });
-
 
         this.roomManager.onRoomDeleted(() => {
             if (!this.roomManager.isHost) {
@@ -1346,11 +1299,19 @@ class MelodyFlow {
             }
         });
 
-        // Get initial room info
+        // Khởi động tất cả Supabase Realtime subscriptions (1 lần duy nhất sau khi đăng ký callbacks)
+        this.roomManager.subscribeAll();
+
+        // Load initial state cho Guest từ cached data
+        if (!this.roomManager.isHost) {
+            const pl = this.roomManager._cachedPlaylist;
+            const st = this.roomManager._cachedState;
+            if (pl && pl.length > 0) { this.playlist = pl; this.renderSongs(); }
+            if (st && st.currentIndex >= 0) { this.latestRemoteState = st; }
+        }
+
         this.roomManager.getRoomInfo().then(info => {
-            if (info) {
-                this.dom.roomName.textContent = info.name || 'MelodyFlow Room';
-            }
+            if (info) this.dom.roomName.textContent = info.name || 'MelodyFlow Room';
         });
     }
 
