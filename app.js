@@ -75,253 +75,307 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// ============ FIREBASE ROOM MANAGER ============
+// ============ SUPABASE ROOM MANAGER ============
 
 class RoomManager {
     constructor() {
-        this.db = null;
-        this.roomRef = null;
+        this.sb = null;          // supabase client
         this.roomCode = null;
         this.userId = getUserId();
         this.isHost = false;
-        this.listeners = [];
-        this.initFirebase();
+        this.hostId = null;
+        this._channels = [];     // realtime channel handles
+        this._reactionChannel = null;
+        this.initSupabase();
 
-        // Ensure user is removed from DB immediately if tab is closed without hitting Leave
+        // Clean up on tab close
         window.addEventListener('beforeunload', () => {
-            if (this.roomRef) {
-                if (this.isHost) {
-                    this.roomRef.remove();
-                } else {
-                    this.roomRef.child('users/' + this.userId).remove();
-                }
+            if (!this.roomCode || !this.sb) return;
+            // Use sendBeacon for reliable cleanup on page unload
+            const url = `${SUPABASE_URL}/rest/v1/room_users?room_code=eq.${this.roomCode}&user_id=eq.${this.userId}`;
+            navigator.sendBeacon
+                ? navigator.sendBeacon(url + '&_method=DELETE', null)
+                : fetch(url, { method: 'DELETE', headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }, keepalive: true });
+            if (this.isHost) {
+                const rurl = `${SUPABASE_URL}/rest/v1/rooms?code=eq.${this.roomCode}`;
+                fetch(rurl, { method: 'DELETE', headers: { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY }, keepalive: true });
             }
         });
     }
 
-    initFirebase() {
+    initSupabase() {
         try {
-            if (typeof firebase === 'undefined' || !firebaseConfig || firebaseConfig.apiKey === 'YOUR_API_KEY') {
-                console.warn('Firebase not configured');
+            if (typeof supabase === 'undefined') {
+                console.warn('Supabase SDK not loaded');
                 return;
             }
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
-            this.db = firebase.database();
+            this.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                realtime: { params: { eventsPerSecond: 20 } }
+            });
         } catch (e) {
-            console.error('Firebase init failed:', e);
+            console.error('Supabase init failed:', e);
         }
     }
 
     isReady() {
-        return !!this.db;
+        return !!this.sb;
     }
 
     async createRoom(roomName, nickname) {
-        if (!this.db) throw new Error('Firebase not configured');
+        if (!this.sb) throw new Error('Supabase not configured');
 
         const code = generateRoomCode();
         this.roomCode = code;
         this.isHost = true;
-        this.roomRef = this.db.ref('rooms/' + code);
+        this.hostId = this.userId;
 
-        await this.roomRef.set({
+        const { error } = await this.sb.from('rooms').insert({
+            code,
             name: roomName || 'MelodyFlow Room',
-            host: this.userId,
-            createdAt: Date.now(),
+            host_id: this.userId,
             playlist: [],
-            state: {
-                currentIndex: -1,
-                isPlaying: false,
-                seekTime: 0,
-                updatedAt: Date.now()
-            }
+            state: { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: Date.now() }
         });
+        if (error) throw new Error(error.message);
 
-        // Add self to users
-        await this.roomRef.child('users/' + this.userId).set({
-            name: nickname,
-            joinedAt: Date.now()
+        const { error: ue } = await this.sb.from('room_users').insert({
+            id: this.userId + '_' + code,
+            room_code: code,
+            user_id: this.userId,
+            name: nickname
         });
-
-        // Setup presence (auto-remove on disconnect)
-        this.roomRef.child('users/' + this.userId).onDisconnect().remove();
-
-        // If host disconnects initially, we try to remove the room, but onHostChange will manage this later
-        this.roomRef.onDisconnect().remove();
+        if (ue) throw new Error(ue.message);
 
         return code;
     }
 
     async joinRoom(code, nickname) {
-        if (!this.db) throw new Error('Firebase not configured');
+        if (!this.sb) throw new Error('Supabase not configured');
 
         code = code.toUpperCase().trim();
-        this.roomRef = this.db.ref('rooms/' + code);
 
-        // Check if room exists
-        const snapshot = await this.roomRef.once('value');
-        if (!snapshot.exists()) {
-            throw new Error('Room not found');
-        }
+        const { data: room, error } = await this.sb.from('rooms').select('*').eq('code', code).single();
+        if (error || !room) throw new Error('Room not found');
 
         this.roomCode = code;
-        const roomData = snapshot.val();
-        this.isHost = roomData.host === this.userId;
-        this.hostId = roomData.host;
+        this.isHost = room.host_id === this.userId;
+        this.hostId = room.host_id;
 
-        // Add self to users
-        await this.roomRef.child('users/' + this.userId).set({
-            name: nickname,
-            joinedAt: Date.now()
+        // Upsert user into room_users
+        await this.sb.from('room_users').upsert({
+            id: this.userId + '_' + code,
+            room_code: code,
+            user_id: this.userId,
+            name: nickname
         });
 
-        // Auto-remove on disconnect
-        this.roomRef.child('users/' + this.userId).onDisconnect().remove();
-
-        return roomData;
+        return room;
     }
 
-    // Listen for real-time changes
+    // ---- Realtime listeners ----
+
+    _subscribe(channelName, config, handler) {
+        const ch = this.sb.channel(channelName);
+        config.forEach(c => ch.on(c.type, c.filter, handler));
+        ch.subscribe();
+        this._channels.push(ch);
+        return ch;
+    }
+
     onPlaylistChange(callback) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('playlist');
-        ref.on('value', snap => callback(snap.val() || []));
-        this.listeners.push({ ref, event: 'value' });
+        if (!this.sb || !this.roomCode) return;
+        const ch = this.sb.channel('playlist_' + this.roomCode)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'rooms',
+                filter: `code=eq.${this.roomCode}`
+            }, payload => {
+                if (payload.new && payload.new.playlist !== undefined) {
+                    callback(payload.new.playlist || []);
+                }
+            })
+            .subscribe();
+        this._channels.push(ch);
     }
 
     onHostChange(callback) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('host');
-        ref.on('value', snap => {
-            const hostId = snap.val();
-            if (hostId) {
-                this.isHost = hostId === this.userId;
-                this.hostId = hostId;
-                
-                if (this.isHost) {
-                    this.roomRef.onDisconnect().remove();
-                } else {
-                    this.roomRef.onDisconnect().cancel();
+        if (!this.sb || !this.roomCode) return;
+        const ch = this.sb.channel('host_' + this.roomCode)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'rooms',
+                filter: `code=eq.${this.roomCode}`
+            }, payload => {
+                if (payload.new && payload.new.host_id) {
+                    const hostId = payload.new.host_id;
+                    this.isHost = hostId === this.userId;
+                    this.hostId = hostId;
+                    callback(hostId);
                 }
-                
-                callback(hostId);
-            }
-        });
-        this.listeners.push({ ref, event: 'value' });
+            })
+            .subscribe();
+        this._channels.push(ch);
     }
 
     onStateChange(callback) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('state');
-        ref.on('value', snap => callback(snap.val()));
-        this.listeners.push({ ref, event: 'value' });
+        if (!this.sb || !this.roomCode) return;
+        const ch = this.sb.channel('state_' + this.roomCode)
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'rooms',
+                filter: `code=eq.${this.roomCode}`
+            }, payload => {
+                if (payload.new && payload.new.state !== undefined) {
+                    callback(payload.new.state);
+                }
+            })
+            .subscribe();
+        this._channels.push(ch);
     }
 
     onUsersChange(callback) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('users');
-        ref.on('value', snap => callback(snap.val() || {}));
-        this.listeners.push({ ref, event: 'value' });
+        if (!this.sb || !this.roomCode) return;
+        const fetchUsers = async () => {
+            const { data } = await this.sb.from('room_users').select('*').eq('room_code', this.roomCode);
+            const usersMap = {};
+            (data || []).forEach(u => { usersMap[u.user_id] = { name: u.name, joinedAt: u.joined_at }; });
+            callback(usersMap);
+        };
+        fetchUsers();
+        const ch = this.sb.channel('users_' + this.roomCode)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'room_users', filter: `room_code=eq.${this.roomCode}` }, () => fetchUsers())
+            .subscribe();
+        this._channels.push(ch);
     }
 
     onRoomDeleted(callback) {
-        if (!this.roomRef) return;
-        this.roomRef.on('value', snap => {
-            if (!snap.exists()) callback();
-        });
+        if (!this.sb || !this.roomCode) return;
+        const ch = this.sb.channel('roomdel_' + this.roomCode)
+            .on('postgres_changes', {
+                event: 'DELETE',
+                schema: 'public',
+                table: 'rooms',
+                filter: `code=eq.${this.roomCode}`
+            }, () => callback())
+            .subscribe();
+        this._channels.push(ch);
     }
 
     onChatAdded(callback) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('chat');
-        ref.on('child_added', snap => callback(snap.val()));
-        this.listeners.push({ ref, event: 'child_added' });
+        if (!this.sb || !this.roomCode) return;
+        const ch = this.sb.channel('chat_' + this.roomCode)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'room_chat',
+                filter: `room_code=eq.${this.roomCode}`
+            }, payload => {
+                if (payload.new) {
+                    callback({
+                        userId: payload.new.user_id,
+                        name: payload.new.name,
+                        text: payload.new.text,
+                        isGif: payload.new.is_gif,
+                        timestamp: payload.new.created_at
+                    });
+                }
+            })
+            .subscribe();
+        this._channels.push(ch);
     }
 
     onReactionAdded(callback) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('reactions');
-        ref.on('child_added', snap => callback(snap.val()));
-        this.listeners.push({ ref, event: 'child_added' });
+        if (!this.sb || !this.roomCode) return;
+        if (!this._reactionChannel) {
+            this._reactionChannel = this.sb.channel('reactions_bc_' + this.roomCode);
+            this._reactionChannel
+                .on('broadcast', { event: 'reaction' }, payload => callback(payload.payload))
+                .subscribe();
+            this._channels.push(this._reactionChannel);
+        }
     }
 
-    // Write operations
+    // ---- Write operations ----
+
     async sendReaction(emoji) {
-        if (!this.roomRef) return;
-        const ref = this.roomRef.child('reactions').push();
-        await ref.set({
-            emoji: emoji,
-            timestamp: Date.now()
+        if (!this._reactionChannel) return;
+        await this._reactionChannel.send({
+            type: 'broadcast',
+            event: 'reaction',
+            payload: { emoji, timestamp: Date.now() }
         });
     }
 
-    // Write operations
     async sendMessage(text, isGif = false) {
-        if (!this.roomRef) return;
-        const chatRef = this.roomRef.child('chat').push();
-        await chatRef.set({
-            userId: this.userId,
+        if (!this.sb || !this.roomCode) return;
+        await this.sb.from('room_chat').insert({
+            room_code: this.roomCode,
+            user_id: this.userId,
             name: getNickname(),
-            text: text,
-            isGif: isGif,
-            timestamp: Date.now()
+            text,
+            is_gif: isGif
         });
     }
+
     async addSong(song) {
-        if (!this.roomRef) return;
-        const snap = await this.roomRef.child('playlist').once('value');
-        const playlist = snap.val() || [];
+        if (!this.sb || !this.roomCode) return;
+        const { data: room } = await this.sb.from('rooms').select('playlist').eq('code', this.roomCode).single();
+        const playlist = room?.playlist || [];
         playlist.push(song);
-        await this.roomRef.child('playlist').set(playlist);
+        await this.sb.from('rooms').update({ playlist }).eq('code', this.roomCode);
     }
 
     async removeSong(index) {
-        if (!this.roomRef) return;
-        const snap = await this.roomRef.child('playlist').once('value');
-        const playlist = snap.val() || [];
+        if (!this.sb || !this.roomCode) return;
+        const { data: room } = await this.sb.from('rooms').select('playlist').eq('code', this.roomCode).single();
+        const playlist = room?.playlist || [];
         playlist.splice(index, 1);
-        await this.roomRef.child('playlist').set(playlist);
+        await this.sb.from('rooms').update({ playlist }).eq('code', this.roomCode);
     }
 
-    async updateState(state) {
-        if (!this.roomRef) return;
-        await this.roomRef.child('state').update({
-            ...state,
-            updatedAt: Date.now()
-        });
+    async updateState(stateUpdate) {
+        if (!this.sb || !this.roomCode) return;
+        // Merge with existing state then write
+        const { data: room } = await this.sb.from('rooms').select('state').eq('code', this.roomCode).single();
+        const merged = { ...(room?.state || {}), ...stateUpdate, updatedAt: Date.now() };
+        await this.sb.from('rooms').update({ state: merged }).eq('code', this.roomCode);
     }
 
     async transferHost(newHostId) {
-        if (!this.roomRef || !this.isHost) return;
-        await this.roomRef.child('host').set(newHostId);
+        if (!this.sb || !this.roomCode || !this.isHost) return;
+        await this.sb.from('rooms').update({ host_id: newHostId }).eq('code', this.roomCode);
     }
 
     async getRoomInfo() {
-        if (!this.roomRef) return null;
-        const snap = await this.roomRef.once('value');
-        return snap.val();
+        if (!this.sb || !this.roomCode) return null;
+        const { data } = await this.sb.from('rooms').select('*').eq('code', this.roomCode).single();
+        return data ? { name: data.name, host: data.host_id, playlist: data.playlist, state: data.state } : null;
     }
 
     async leaveRoom() {
-        if (!this.roomRef) return;
+        if (!this.sb || !this.roomCode) return;
 
-        // Remove listeners
-        this.listeners.forEach(({ ref }) => ref.off());
-        this.listeners = [];
+        // Unsubscribe all realtime channels
+        for (const ch of this._channels) {
+            try { await this.sb.removeChannel(ch); } catch (e) {}
+        }
+        this._channels = [];
+        this._reactionChannel = null;
 
-        // Remove user
-        await this.roomRef.child('users/' + this.userId).remove();
+        // Remove this user
+        await this.sb.from('room_users').delete().eq('room_code', this.roomCode).eq('user_id', this.userId);
 
-        // If host, delete room
+        // If host, delete whole room (cascades to room_users and room_chat)
         if (this.isHost) {
-            await this.roomRef.remove();
+            await this.sb.from('rooms').delete().eq('code', this.roomCode);
         }
 
-        this.roomRef = null;
         this.roomCode = null;
         this.isHost = false;
+        this.hostId = null;
     }
 }
 
@@ -1118,11 +1172,8 @@ class MelodyFlow {
             return;
         }
         if (!this.roomManager.isReady()) {
-            this.roomManager.initFirebase();
-            if (!this.roomManager.isReady()) {
-                showToast('Không thể kết nối máy chủ. Vui lòng thử lại sau giây lát.', 'error');
-                return;
-            }
+            showToast('Không thể kết nối Supabase. Vui lòng tải lại trang.', 'error');
+            return;
         }
 
         try {
@@ -1142,11 +1193,8 @@ class MelodyFlow {
             return;
         }
         if (!this.roomManager.isReady()) {
-            this.roomManager.initFirebase();
-            if (!this.roomManager.isReady()) {
-                showToast('Không thể kết nối máy chủ. Vui lòng thử lại sau giây lát.', 'error');
-                return;
-            }
+            showToast('Không thể kết nối Supabase. Vui lòng tải lại trang.', 'error');
+            return;
         }
         this.dom.joinCodeInput.value = '';
         this.dom.joinOverlay.classList.add('visible');
