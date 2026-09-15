@@ -1,4 +1,4 @@
-// ============ UTILITY FUNCTIONS ============
+﻿// ============ UTILITY FUNCTIONS ============
 
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
@@ -66,7 +66,7 @@ function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    const icons = { success: '✓', error: '✕', info: 'ℹ' };
+    const icons = { success: 'âœ“', error: 'âœ•', info: 'â„¹' };
     toast.innerHTML = `<span style="font-weight:700;font-size:15px;">${icons[type] || icons.info}</span> ${message}`;
     container.appendChild(toast);
     setTimeout(() => {
@@ -76,6 +76,7 @@ function showToast(message, type = 'info') {
 }
 
 // ============ SUPABASE ROOM MANAGER ============
+// Architecture: Broadcast for ephemeral (state/chat/reactions), DB for persistent (rooms/users/playlist)
 
 class RoomManager {
     constructor() {
@@ -84,33 +85,18 @@ class RoomManager {
         this.userId = getUserId();
         this.isHost = false;
         this.hostId = null;
-        this._channels = [];
-        this._reactionChannel = null;
-
-        // Local caches — avoid DB reads before every write
         this._cachedPlaylist = [];
         this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: 0 };
-
-        // Registered callbacks — set by enterRoom()
-        this._cb = {
-            playlist: null,
-            host: null,
-            state: null,
-            users: null,
-            roomDeleted: null,
-            chat: null
-        };
+        this._roomChannel = null;
+        this._cb = { playlist: null, host: null, state: null, users: null, roomDeleted: null, chat: null, reaction: null };
 
         this.initSupabase();
 
-        // Cleanup on tab close using fetch with keepalive (sendBeacon doesn't support DELETE)
         window.addEventListener('beforeunload', () => {
             if (!this.roomCode || !this.sb) return;
-            const headers = { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
-            fetch(`${SUPABASE_URL}/rest/v1/room_users?room_code=eq.${this.roomCode}&user_id=eq.${this.userId}`, { method: 'DELETE', headers, keepalive: true });
-            if (this.isHost) {
-                fetch(`${SUPABASE_URL}/rest/v1/rooms?code=eq.${this.roomCode}`, { method: 'DELETE', headers, keepalive: true });
-            }
+            const h = { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
+            fetch(`${SUPABASE_URL}/rest/v1/room_users?room_code=eq.${this.roomCode}&user_id=eq.${this.userId}`, { method: 'DELETE', headers: h, keepalive: true });
+            if (this.isHost) fetch(`${SUPABASE_URL}/rest/v1/rooms?code=eq.${this.roomCode}`, { method: 'DELETE', headers: h, keepalive: true });
         });
     }
 
@@ -120,184 +106,122 @@ class RoomManager {
             this.sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
                 realtime: { params: { eventsPerSecond: 10 } }
             });
-        } catch (e) {
-            console.error('Supabase init failed:', e);
-        }
+        } catch (e) { console.error('Supabase init failed:', e); }
     }
 
     isReady() { return !!this.sb; }
 
-    // ---- Create / Join ----
-
     async createRoom(roomName, nickname) {
         if (!this.sb) throw new Error('Supabase not configured');
-
         const code = generateRoomCode();
         this.roomCode = code;
         this.isHost = true;
         this.hostId = this.userId;
-        this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: Date.now() };
         this._cachedPlaylist = [];
-
-        const { error } = await this.sb.from('rooms').insert({
-            code,
-            name: roomName || 'MelodyFlow Room',
-            host_id: this.userId,
-            playlist: [],
-            state: this._cachedState
-        });
+        this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: Date.now() };
+        const { error } = await this.sb.from('rooms').insert({ code, name: roomName || 'MelodyFlow Room', host_id: this.userId, playlist: [], state: this._cachedState });
         if (error) throw new Error(error.message);
-
-        await this.sb.from('room_users').insert({
-            id: this.userId + '_' + code,
-            room_code: code,
-            user_id: this.userId,
-            name: nickname
-        });
-
+        const { error: e2 } = await this.sb.from('room_users').insert({ id: this.userId + '_' + code, room_code: code, user_id: this.userId, name: nickname });
+        if (e2) throw new Error(e2.message);
         return code;
     }
 
     async joinRoom(code, nickname) {
         if (!this.sb) throw new Error('Supabase not configured');
-
         code = code.toUpperCase().trim();
         const { data: room, error } = await this.sb.from('rooms').select('*').eq('code', code).single();
         if (error || !room) throw new Error('Room not found');
-
         this.roomCode = code;
         this.isHost = room.host_id === this.userId;
         this.hostId = room.host_id;
         this._cachedPlaylist = room.playlist || [];
         this._cachedState = room.state || this._cachedState;
-
-        await this.sb.from('room_users').upsert({
-            id: this.userId + '_' + code,
-            room_code: code,
-            user_id: this.userId,
-            name: nickname
-        });
-
+        await this.sb.from('room_users').upsert({ id: this.userId + '_' + code, room_code: code, user_id: this.userId, name: nickname });
         return room;
     }
 
-    // ---- Register callbacks (called once, then subscribeAll) ----
+    onPlaylistChange(cb)  { this._cb.playlist = cb; }
+    onHostChange(cb)      { this._cb.host = cb; }
+    onStateChange(cb)     { this._cb.state = cb; }
+    onUsersChange(cb)     { this._cb.users = cb; }
+    onRoomDeleted(cb)     { this._cb.roomDeleted = cb; }
+    onChatAdded(cb)       { this._cb.chat = cb; }
+    onReactionAdded(cb)   { this._cb.reaction = cb; }
 
-    onPlaylistChange(cb) { this._cb.playlist = cb; }
-    onHostChange(cb)    { this._cb.host = cb; }
-    onStateChange(cb)   { this._cb.state = cb; }
-    onUsersChange(cb)   { this._cb.users = cb; }
-    onRoomDeleted(cb)   { this._cb.roomDeleted = cb; }
-    onChatAdded(cb)     { this._cb.chat = cb; }
-
-    // Call this ONCE after all callbacks are registered
     subscribeAll() {
-        if (!this.sb || !this.roomCode) return;
-
-        // ── 1. Single unified channel for the `rooms` row ──
-        const roomCh = this.sb.channel('room_row_' + this.roomCode)
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'rooms',
-                filter: `code=eq.${this.roomCode}`
-            }, payload => {
-                const n = payload.new;
-                if (!n) return;
-
-                // Playlist changed?
-                const newPlaylistStr = JSON.stringify(n.playlist);
-                if (this._cb.playlist && newPlaylistStr !== JSON.stringify(this._cachedPlaylist)) {
-                    this._cachedPlaylist = n.playlist || [];
-                    this._cb.playlist(this._cachedPlaylist);
-                }
-
-                // Host changed?
-                if (this._cb.host && n.host_id && n.host_id !== this.hostId) {
-                    this.isHost = n.host_id === this.userId;
-                    this.hostId = n.host_id;
-                    this._cb.host(n.host_id);
-                }
-
-                // State changed? (compare updatedAt to avoid re-firing same state)
-                if (this._cb.state && n.state && n.state.updatedAt !== this._cachedState.updatedAt) {
-                    this._cachedState = n.state;
-                    this._cb.state(n.state);
-                }
-            })
-            .on('postgres_changes', {
-                event: 'DELETE',
-                schema: 'public',
-                table: 'rooms',
-                filter: `code=eq.${this.roomCode}`
-            }, () => {
-                if (this._cb.roomDeleted) this._cb.roomDeleted();
-            })
-            .subscribe();
-        this._channels.push(roomCh);
-
-        // ── 2. Channel for room_users ──
-        const fetchUsers = async () => {
-            const { data } = await this.sb.from('room_users').select('*').eq('room_code', this.roomCode);
-            const map = {};
-            (data || []).forEach(u => { map[u.user_id] = { name: u.name, joinedAt: u.joined_at }; });
-            if (this._cb.users) this._cb.users(map);
-        };
-        fetchUsers(); // initial fetch
-        const usersCh = this.sb.channel('room_users_' + this.roomCode)
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'room_users', filter: `room_code=eq.${this.roomCode}` }, fetchUsers)
-            .subscribe();
-        this._channels.push(usersCh);
-
-        // ── 3. Channel for chat inserts ──
-        const chatCh = this.sb.channel('room_chat_' + this.roomCode)
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'room_chat',
-                filter: `room_code=eq.${this.roomCode}`
-            }, payload => {
-                if (payload.new && this._cb.chat) {
-                    this._cb.chat({
-                        userId: payload.new.user_id,
-                        name: payload.new.name,
-                        text: payload.new.text,
-                        isGif: payload.new.is_gif,
-                        timestamp: payload.new.created_at
-                    });
-                }
-            })
-            .subscribe();
-        this._channels.push(chatCh);
-
-        // ── 4. Broadcast channel for reactions ──
-        this._reactionChannel = this.sb.channel('reactions_bc_' + this.roomCode);
-        this._reactionChannel.subscribe();
-        this._channels.push(this._reactionChannel);
+        if (!this.sb || !this.roomCode || this._roomChannel) return;
+        this._roomChannel = this.sb.channel('room:' + this.roomCode, {
+            config: { broadcast: { self: false }, presence: { key: this.userId } }
+        });
+        this._roomChannel.on('broadcast', { event: 'state' }, ({ payload }) => {
+            if (!payload) return;
+            this._cachedState = payload;
+            if (this._cb.state) this._cb.state(payload);
+        });
+        this._roomChannel.on('broadcast', { event: 'chat' }, ({ payload }) => {
+            if (payload && this._cb.chat) this._cb.chat(payload);
+        });
+        this._roomChannel.on('broadcast', { event: 'reaction' }, ({ payload }) => {
+            if (payload && this._cb.reaction) this._cb.reaction(payload);
+        });
+        this._roomChannel.on('broadcast', { event: 'host_change' }, ({ payload }) => {
+            if (!payload || !payload.hostId) return;
+            this.isHost = payload.hostId === this.userId;
+            this.hostId = payload.hostId;
+            if (this._cb.host) this._cb.host(payload.hostId);
+        });
+        this._roomChannel.on('presence', { event: 'sync' }, () => {
+            const state = this._roomChannel.presenceState();
+            const usersMap = {};
+            Object.values(state).forEach(presences => {
+                presences.forEach(p => {
+                    if (p.userId) usersMap[p.userId] = { name: p.name || 'Guest', joinedAt: p.joinedAt || Date.now() };
+                });
+            });
+            if (this._cb.users) this._cb.users(usersMap);
+        });
+        this._roomChannel.on('postgres_changes', {
+            event: 'UPDATE', schema: 'public', table: 'rooms', filter: `code=eq.${this.roomCode}`
+        }, payload => {
+            const n = payload.new;
+            if (!n) return;
+            const newStr = JSON.stringify(n.playlist);
+            if (this._cb.playlist && newStr !== JSON.stringify(this._cachedPlaylist)) {
+                this._cachedPlaylist = n.playlist || [];
+                this._cb.playlist(this._cachedPlaylist);
+            }
+        });
+        this._roomChannel.on('postgres_changes', {
+            event: 'DELETE', schema: 'public', table: 'rooms', filter: `code=eq.${this.roomCode}`
+        }, () => {
+            if (this._cb.roomDeleted) this._cb.roomDeleted();
+        });
+        this._roomChannel.subscribe(async (status) => {
+            if (status !== 'SUBSCRIBED') return;
+            await this._roomChannel.track({ userId: this.userId, name: getNickname(), joinedAt: Date.now() });
+            if (this.isHost && this._cachedState.currentIndex >= 0) {
+                this._roomChannel.send({ type: 'broadcast', event: 'state', payload: this._cachedState });
+            }
+        });
     }
 
-    // Legacy shim — reactions callback goes through broadcast channel
-    onReactionAdded(cb) {
-        if (!this._reactionChannel) return;
-        this._reactionChannel.on('broadcast', { event: 'reaction' }, payload => cb(payload.payload));
-    }
-
-    // ---- Write operations ----
-
-    async sendReaction(emoji) {
-        if (!this._reactionChannel) return;
-        await this._reactionChannel.send({ type: 'broadcast', event: 'reaction', payload: { emoji, timestamp: Date.now() } });
+    async updateState(stateUpdate) {
+        if (!this._roomChannel) return;
+        this._cachedState = { ...this._cachedState, ...stateUpdate, updatedAt: Date.now() };
+        this._roomChannel.send({ type: 'broadcast', event: 'state', payload: this._cachedState });
+        if (this.sb && this.roomCode) {
+            this.sb.from('rooms').update({ state: this._cachedState }).eq('code', this.roomCode).then(() => {});
+        }
     }
 
     async sendMessage(text, isGif = false) {
-        if (!this.sb || !this.roomCode) return;
-        await this.sb.from('room_chat').insert({
-            room_code: this.roomCode,
-            user_id: this.userId,
-            name: getNickname(),
-            text,
-            is_gif: isGif
-        });
+        if (!this._roomChannel) return;
+        this._roomChannel.send({ type: 'broadcast', event: 'chat', payload: { userId: this.userId, name: getNickname(), text, isGif, timestamp: Date.now() } });
+    }
+
+    async sendReaction(emoji) {
+        if (!this._roomChannel) return;
+        this._roomChannel.send({ type: 'broadcast', event: 'reaction', payload: { emoji, timestamp: Date.now() } });
     }
 
     async addSong(song) {
@@ -312,44 +236,32 @@ class RoomManager {
         await this.sb.from('rooms').update({ playlist: this._cachedPlaylist }).eq('code', this.roomCode);
     }
 
-    // updateState uses local cache — NO DB read needed
-    async updateState(stateUpdate) {
-        if (!this.sb || !this.roomCode) return;
-        this._cachedState = { ...this._cachedState, ...stateUpdate, updatedAt: Date.now() };
-        await this.sb.from('rooms').update({ state: this._cachedState }).eq('code', this.roomCode);
-    }
-
     async transferHost(newHostId) {
         if (!this.sb || !this.roomCode || !this.isHost) return;
         await this.sb.from('rooms').update({ host_id: newHostId }).eq('code', this.roomCode);
+        if (this._roomChannel) this._roomChannel.send({ type: 'broadcast', event: 'host_change', payload: { hostId: newHostId } });
     }
 
     async getRoomInfo() {
         if (!this.sb || !this.roomCode) return null;
-        const { data } = await this.sb.from('rooms').select('*').eq('code', this.roomCode).single();
-        return data ? { name: data.name, host: data.host_id, playlist: data.playlist, state: data.state } : null;
+        const { data } = await this.sb.from('rooms').select('name,host_id').eq('code', this.roomCode).single();
+        return data ? { name: data.name, host: data.host_id } : null;
     }
 
     async leaveRoom() {
-        if (!this.sb || !this.roomCode) return;
-        for (const ch of this._channels) {
-            try { await this.sb.removeChannel(ch); } catch (e) {}
+        if (this._roomChannel) {
+            try { await this.sb.removeChannel(this._roomChannel); } catch (e) {}
+            this._roomChannel = null;
         }
-        this._channels = [];
-        this._reactionChannel = null;
-        await this.sb.from('room_users').delete().eq('room_code', this.roomCode).eq('user_id', this.userId);
-        if (this.isHost) {
-            await this.sb.from('rooms').delete().eq('code', this.roomCode);
+        if (this.sb && this.roomCode) {
+            await this.sb.from('room_users').delete().eq('room_code', this.roomCode).eq('user_id', this.userId);
+            if (this.isHost) await this.sb.from('rooms').delete().eq('code', this.roomCode);
         }
-        this.roomCode = null;
-        this.isHost = false;
-        this.hostId = null;
-        this._cachedPlaylist = [];
-        this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: 0 };
-        this._cb = { playlist: null, host: null, state: null, users: null, roomDeleted: null, chat: null };
+        this.roomCode = null; this.isHost = false; this.hostId = null;
+        this._cachedPlaylist = []; this._cachedState = { currentIndex: -1, isPlaying: false, seekTime: 0, updatedAt: 0 };
+        this._cb = { playlist: null, host: null, state: null, users: null, roomDeleted: null, chat: null, reaction: null };
     }
 }
-
 // ============ MAIN APP ============
 
 class MelodyFlow {
@@ -579,7 +491,7 @@ class MelodyFlow {
                     ambientOscillators = [];
                     isAmbientPlaying = false;
                     ambientBtn.classList.remove('playing');
-                    ambientBtn.querySelector('.ambient-txt').textContent = 'Nhạc Nền Chill';
+                    ambientBtn.querySelector('.ambient-txt').textContent = 'Nháº¡c Ná»n Chill';
                 } else {
                     if (audioCtx.state === 'suspended') audioCtx.resume();
 
@@ -605,7 +517,7 @@ class MelodyFlow {
 
                     isAmbientPlaying = true;
                     ambientBtn.classList.add('playing');
-                    ambientBtn.querySelector('.ambient-txt').textContent = 'Đang Phát Chill...';
+                    ambientBtn.querySelector('.ambient-txt').textContent = 'Äang PhÃ¡t Chill...';
                 }
             });
         }
@@ -615,7 +527,7 @@ class MelodyFlow {
             const landing = document.getElementById('landing');
             if (!landing || landing.style.display === 'none') return;
 
-            const emojis = ['🎵', '🎶', '🔥', '✨', '🎧'];
+            const emojis = ['ðŸŽµ', 'ðŸŽ¶', 'ðŸ”¥', 'âœ¨', 'ðŸŽ§'];
             for (let i = 0; i < 3; i++) {
                 const p = document.createElement('span');
                 p.className = 'click-music-particle';
@@ -877,13 +789,13 @@ class MelodyFlow {
             if (e.key === 'Enter') this.confirmNickname();
         });
 
-        // Sync Overlay (Chờ người dùng click để đồng bộ)
+        // Sync Overlay (Chá» ngÆ°á»i dÃ¹ng click Ä‘á»ƒ Ä‘á»“ng bá»™)
         if (this.dom.syncConfirmBtn) {
             this.dom.syncConfirmBtn.addEventListener('click', () => {
                 this.isUserInteracted = true;
                 this.dom.syncOverlay.classList.remove('visible');
 
-                // Ngay khi click, nếu có data chờ sẵn thì áp dụng luôn
+                // Ngay khi click, náº¿u cÃ³ data chá» sáºµn thÃ¬ Ã¡p dá»¥ng luÃ´n
                 if (this.latestRemoteState) {
                     this.handleRemoteStateChange(this.latestRemoteState, true);
                 }
@@ -1040,8 +952,8 @@ class MelodyFlow {
         try {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: song.title || 'MelodyFlow Studio',
-                artist: song.addedBy ? `Thêm bởi ${song.addedBy}` : 'MelodyFlow Realtime',
-                album: this.roomManager.roomCode ? `Phòng ${this.roomManager.roomCode}` : 'MelodyFlow',
+                artist: song.addedBy ? `ThÃªm bá»Ÿi ${song.addedBy}` : 'MelodyFlow Realtime',
+                album: this.roomManager.roomCode ? `PhÃ²ng ${this.roomManager.roomCode}` : 'MelodyFlow',
                 artwork: [
                     { src: song.thumbnail || 'assets/vinyl.png', sizes: '96x96', type: 'image/jpeg' },
                     { src: song.thumbnail || 'assets/vinyl.png', sizes: '128x128', type: 'image/jpeg' },
@@ -1099,7 +1011,7 @@ class MelodyFlow {
         this.unlockAudioContext();
         const name = this.dom.nicknameInput.value.trim();
         if (!name) {
-            showToast('Vui lòng nhập biệt danh của bạn', 'error');
+            showToast('Vui lÃ²ng nháº­p biá»‡t danh cá»§a báº¡n', 'error');
             return;
         }
         setNickname(name);
@@ -1143,16 +1055,16 @@ class MelodyFlow {
             return;
         }
         if (!this.roomManager.isReady()) {
-            showToast('Không thể kết nối Supabase. Vui lòng tải lại trang.', 'error');
+            showToast('KhÃ´ng thá»ƒ káº¿t ná»‘i Supabase. Vui lÃ²ng táº£i láº¡i trang.', 'error');
             return;
         }
 
         try {
             const code = await this.roomManager.createRoom('MelodyFlow Room', getNickname());
             this.enterRoom(code);
-            showToast(`Đã tạo phòng! Mã: ${code}`, 'success');
+            showToast(`ÄÃ£ táº¡o phÃ²ng! MÃ£: ${code}`, 'success');
         } catch (e) {
-            showToast('Lỗi khi tạo phòng: ' + e.message, 'error');
+            showToast('Lá»—i khi táº¡o phÃ²ng: ' + e.message, 'error');
         }
     }
 
@@ -1164,7 +1076,7 @@ class MelodyFlow {
             return;
         }
         if (!this.roomManager.isReady()) {
-            showToast('Không thể kết nối Supabase. Vui lòng tải lại trang.', 'error');
+            showToast('KhÃ´ng thá»ƒ káº¿t ná»‘i Supabase. Vui lÃ²ng táº£i láº¡i trang.', 'error');
             return;
         }
         this.dom.joinCodeInput.value = '';
@@ -1229,9 +1141,9 @@ class MelodyFlow {
             if (this.currentUsers) this.renderUsers(this.currentUsers);
             if (previousHostId && previousHostId !== this.roomManager.userId && this.roomManager.isHost) {
                 this.showConfirmModal(
-                    'Chúc mừng!',
-                    'Bạn đã được chuyển quyền làm Chủ phòng! Bạn hiện có toàn quyền điều khiển phòng nghe nhạc này.',
-                    { okText: 'Đóng', isDanger: false, hideCancel: true }
+                    'ChÃºc má»«ng!',
+                    'Báº¡n Ä‘Ã£ Ä‘Æ°á»£c chuyá»ƒn quyá»n lÃ m Chá»§ phÃ²ng! Báº¡n hiá»‡n cÃ³ toÃ n quyá»n Ä‘iá»u khiá»ƒn phÃ²ng nghe nháº¡c nÃ y.',
+                    { okText: 'ÄÃ³ng', isDanger: false, hideCancel: true }
                 );
             }
             previousHostId = hostId;
@@ -1245,7 +1157,7 @@ class MelodyFlow {
             this.isUserInteracted = true;
         }
 
-        // Playlist — chỉ re-render, KHÔNG gọi handleRemoteStateChange (tránh crash cascade)
+        // Playlist â€” chá»‰ re-render, KHÃ”NG gá»i handleRemoteStateChange (trÃ¡nh crash cascade)
         this.roomManager.onPlaylistChange((playlist) => {
             this.playlist = playlist || [];
             this.renderSongs();
@@ -1299,10 +1211,10 @@ class MelodyFlow {
             }
         });
 
-        // Khởi động tất cả Supabase Realtime subscriptions (1 lần duy nhất sau khi đăng ký callbacks)
+        // Khá»Ÿi Ä‘á»™ng táº¥t cáº£ Supabase Realtime subscriptions (1 láº§n duy nháº¥t sau khi Ä‘Äƒng kÃ½ callbacks)
         this.roomManager.subscribeAll();
 
-        // Load initial state cho Guest từ cached data
+        // Load initial state cho Guest tá»« cached data
         if (!this.roomManager.isHost) {
             const pl = this.roomManager._cachedPlaylist;
             const st = this.roomManager._cachedState;
@@ -1437,11 +1349,11 @@ class MelodyFlow {
                 <div class="search-actions-bar">
                     <label class="search-select-all-label">
                         <input type="checkbox" id="searchSelectAll" class="search-checkbox">
-                        <span>Chọn tất cả</span>
+                        <span>Chá»n táº¥t cáº£</span>
                     </label>
                     <button class="search-add-selected-btn" id="addSelectedBtn" disabled>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                        Thêm đã chọn (<span id="selectedCount">0</span>)
+                        ThÃªm Ä‘Ã£ chá»n (<span id="selectedCount">0</span>)
                     </button>
                 </div>
             `;
@@ -1459,7 +1371,7 @@ class MelodyFlow {
                         <img src="${thumb}" class="search-result-thumb" alt="" loading="lazy">
                         <div class="search-result-info">
                             <span class="search-result-title">${title}</span>
-                            <span class="search-result-channel">${channel}${duration ? ' · ' + duration : ''}</span>
+                            <span class="search-result-channel">${channel}${duration ? ' Â· ' + duration : ''}</span>
                         </div>
                     </div>
                 `;
@@ -1505,7 +1417,7 @@ class MelodyFlow {
             if (checked.length === 0) return;
 
             addSelectedBtn.disabled = true;
-            addSelectedBtn.innerHTML = '<div class="spinner"></div> Đang thêm...';
+            addSelectedBtn.innerHTML = '<div class="spinner"></div> Äang thÃªm...';
 
             let addedCount = 0;
             for (const cb of checked) {
@@ -1519,7 +1431,7 @@ class MelodyFlow {
                 }
             }
 
-            showToast(`Đã thêm ${addedCount} bài hát!`, 'success');
+            showToast(`ÄÃ£ thÃªm ${addedCount} bÃ i hÃ¡t!`, 'success');
             this.dom.searchDropdown.classList.remove('visible');
             this.dom.songUrlInput.value = '';
         });
@@ -1649,7 +1561,7 @@ class MelodyFlow {
         this.dom.playerBar.style.display = 'none';
         this.dom.landing.style.display = 'block';
         this.stopPlayback();
-        this.dom.chatMessages.innerHTML = '<div class="chat-welcome">Welcome to the chat! 👋</div>';
+        this.dom.chatMessages.innerHTML = '<div class="chat-welcome">Welcome to the chat! ðŸ‘‹</div>';
 
         // Clear URL params
         const url = new URL(window.location);
@@ -2011,10 +1923,10 @@ class MelodyFlow {
         if (this.volume > 0) {
             this._prevVolume = this.volume;
             this.setVolume(0);
-            showToast('Đã tắt âm thanh 🔇', 'info');
+            showToast('ÄÃ£ táº¯t Ã¢m thanh ðŸ”‡', 'info');
         } else {
             this.setVolume(this._prevVolume || 80);
-            showToast('Đã bật âm thanh 🔊', 'info');
+            showToast('ÄÃ£ báº­t Ã¢m thanh ðŸ”Š', 'info');
         }
     }
 
@@ -2101,7 +2013,7 @@ class MelodyFlow {
 
         const statusText = document.getElementById('indieDeckStatusText');
         if (statusText) {
-            statusText.textContent = this.isPlaying ? 'Now Playing • Lofi Focus Flow' : 'Paused • Focus Break';
+            statusText.textContent = this.isPlaying ? 'Now Playing â€¢ Lofi Focus Flow' : 'Paused â€¢ Focus Break';
         }
 
         // GSAP Vinyl Disc Rotation Physics
@@ -2238,7 +2150,7 @@ class MelodyFlow {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
                             </svg>
-                            Chuyển quyền Trưởng phòng
+                            Chuyá»ƒn quyá»n TrÆ°á»Ÿng phÃ²ng
                         </button>
                     </div>
                 `;
@@ -2300,13 +2212,13 @@ class MelodyFlow {
                     const id = btn.dataset.id;
                     closeAllMenus();
                     const confirmed = await this.showConfirmModal(
-                        'Chuyển Trưởng phòng',
-                        'Bạn có chắc muốn chuyển quyền Trưởng phòng cho người này không?',
-                        { okText: 'Đồng ý', isDanger: false }
+                        'Chuyá»ƒn TrÆ°á»Ÿng phÃ²ng',
+                        'Báº¡n cÃ³ cháº¯c muá»‘n chuyá»ƒn quyá»n TrÆ°á»Ÿng phÃ²ng cho ngÆ°á»i nÃ y khÃ´ng?',
+                        { okText: 'Äá»“ng Ã½', isDanger: false }
                     );
                     if (confirmed) {
                         this.roomManager.transferHost(id);
-                        showToast('Đã chuyển quyền Trưởng phòng!', 'success');
+                        showToast('ÄÃ£ chuyá»ƒn quyá»n TrÆ°á»Ÿng phÃ²ng!', 'success');
                     }
                 });
             });
