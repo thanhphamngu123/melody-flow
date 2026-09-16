@@ -880,6 +880,34 @@ class MelodyFlow {
                 case 'm': case 'M': this.toggleMute(); break;
             }
         });
+
+        // Song list — single delegated listener (replaces per-item listeners inside renderSongs)
+        this.dom.songList.addEventListener('click', (e) => {
+            const actionBtn = e.target.closest('.song-action-btn');
+            if (actionBtn) {
+                e.stopPropagation();
+                const action = actionBtn.dataset.action;
+                const idx = parseInt(actionBtn.dataset.index);
+                const song = this.playlist[idx];
+                if (action === 'delete') this.removeSong(idx);
+                if (action === 'open' && song) window.open(`https://www.youtube.com/watch?v=${song.videoId}`, '_blank');
+                return;
+            }
+            const item = e.target.closest('.song-item');
+            if (item && this.roomManager.isHost) {
+                this.playSong(parseInt(item.dataset.index));
+            }
+        });
+
+        // Single global listener to close user action menus on outside click (replaces per-render document.addEventListener)
+        document.addEventListener('click', (e) => {
+            if (!this.dom.userList) return;
+            if (!e.target.closest('.user-action-btn') && !e.target.closest('.user-action-menu')) {
+                this.dom.userList.querySelectorAll('.user-action-menu.visible').forEach(m => m.classList.remove('visible'));
+                this.dom.userList.querySelectorAll('.user-action-btn.active').forEach(b => b.classList.remove('active'));
+                this.dom.userList.querySelectorAll('.user-item').forEach(i => i.style.zIndex = '');
+            }
+        });
     }
 
     unlockAudioContext() {
@@ -1576,7 +1604,15 @@ class MelodyFlow {
         this.dom.roomApp.style.display = 'none';
         this.dom.playerBar.style.display = 'none';
         this.dom.landing.style.display = 'block';
+        // Always clear progress interval first — stopPlayback() alone misses BUFFERING state
+        this.stopProgressUpdate();
         this.stopPlayback();
+        // Kill lingering GSAP vinyl spin tween (repeat:-1 keeps running after leave if not killed)
+        if (typeof gsap !== 'undefined') {
+            const vinyl = document.getElementById('indieVinylDisc');
+            if (vinyl) gsap.killTweensOf(vinyl);
+        }
+        this._renderedPlaylistLength = -1;
         this.dom.chatMessages.innerHTML = '<div class="chat-welcome">Welcome to the chat! ðŸ‘‹</div>';
 
         // Clear URL params
@@ -2058,13 +2094,17 @@ class MelodyFlow {
                 bgAudio.pause();
             }
         }
-
-        this.renderSongs();
+        // NOTE: renderSongs() intentionally NOT called here — it would trigger a full DOM rebuild
+        // + GSAP animation every 500ms via the progress interval. Call renderSongs() only when
+        // playlist content or active song index actually changes.
     }
 
     renderSongs() {
         const container = this.dom.songList;
         const isEmpty = this.playlist.length === 0;
+        // Track previous length so we only GSAP-animate when songs are added/removed,
+        // not on every play/pause state update.
+        const prevLength = this._renderedPlaylistLength ?? -1;
 
         this.dom.emptyPlaylistState.style.display = isEmpty ? 'flex' : 'none';
         this.dom.songList.style.display = isEmpty ? 'none' : 'block';
@@ -2076,6 +2116,8 @@ class MelodyFlow {
             const isPlayingThis = this.currentSongIndex === index;
             const item = document.createElement('div');
             item.className = `song-item ${isPlayingThis ? 'playing' : ''} ${isPlayingThis && !this.isPlaying ? 'paused' : ''}`;
+            // Store index as data attribute for event delegation (no per-item listeners needed)
+            item.dataset.index = index;
             item.innerHTML = `
                 <div class="song-index">
                     <span class="song-index-number">${index + 1}</span>
@@ -2107,30 +2149,18 @@ class MelodyFlow {
                     </button>
                 </div>`;
 
-            item.addEventListener('click', (e) => {
-                if (e.target.closest('.song-actions')) return;
-                if (this.roomManager.isHost) this.playSong(index);
-            });
-
-            item.querySelectorAll('.song-action-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const action = btn.dataset.action;
-                    const idx = parseInt(btn.dataset.index);
-                    if (action === 'delete') this.removeSong(idx);
-                    if (action === 'open') window.open(`https://www.youtube.com/watch?v=${song.videoId}`, '_blank');
-                });
-            });
-
             container.appendChild(item);
         });
 
-        if (typeof gsap !== 'undefined' && container.children.length > 0) {
+        // Only animate when playlist length changes (songs added/removed),
+        // NOT on every play/pause update — avoids GSAP tween accumulation.
+        if (typeof gsap !== 'undefined' && container.children.length > 0 && this.playlist.length !== prevLength) {
             gsap.fromTo(container.children,
                 { opacity: 0, y: 14 },
                 { opacity: 1, y: 0, duration: 0.35, stagger: 0.03, ease: 'power2.out' }
             );
         }
+        this._renderedPlaylistLength = this.playlist.length;
     }
 
     renderUsers(users) {
@@ -2213,9 +2243,7 @@ class MelodyFlow {
                         menu.classList.add('visible');
                         btn.classList.add('active');
                         btn.closest('.user-item').style.zIndex = '999';
-                        setTimeout(() => {
-                            document.addEventListener('click', closeAllMenus, { once: true });
-                        }, 50);
+                        // Closing is handled by the single global delegated listener in bindEvents()
                     }
                 };
 
