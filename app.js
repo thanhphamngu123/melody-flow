@@ -588,7 +588,8 @@ class MelodyFlow {
                     rotationY: x * 16,
                     rotationX: -y * 16,
                     duration: 0.5,
-                    ease: 'power2.out'
+                    ease: 'power2.out',
+                    overwrite: 'auto'  // Kill previous in-flight tween — avoids tween queue buildup on rapid mouse movement
                 });
             });
             heroSection.addEventListener('mouseleave', () => {
@@ -1158,6 +1159,29 @@ class MelodyFlow {
     }
 
     enterRoom(code) {
+        // ---- Critical: Kill all landing page GSAP/ScrollTrigger instances ----
+        // ScrollTrigger scroll listeners and GSAP tweens on the landing page
+        // continue running in the background even after landing is hidden (display:none).
+        // On Edge/Brave with limited memory budgets, this causes crashes.
+        if (typeof gsap !== 'undefined') {
+            // Kill all ScrollTrigger scroll listeners (landing page parallax, reveal animations)
+            if (typeof ScrollTrigger !== 'undefined') {
+                ScrollTrigger.getAll().forEach(st => st.kill());
+            }
+            // Kill tweens on specific landing elements (NOT globalTimeline.clear which would
+            // also kill the room entrance animation we're about to start below)
+            const landingTargets = [
+                '.hero-main-title', '.hero-subtext', '.hero-actions .cta-button',
+                '#vinylDeck', '.vinyl-disc-img', '.hero-copy-col',
+                '.stat-capsule', '.organic-feature-card', '.step-card',
+                '.music-demo-widget', '.comparison-card', '.usecase-card',
+                '.faq-item', '.grand-cta-box', '.landing-hero'
+            ];
+            landingTargets.forEach(sel => {
+                document.querySelectorAll(sel).forEach(el => gsap.killTweensOf(el));
+            });
+        }
+
         // Switch UI
         document.body.classList.add('in-room');
         this.dom.landing.style.display = 'none';
@@ -2074,12 +2098,16 @@ class MelodyFlow {
         }
 
         // GSAP Vinyl Disc Rotation Physics
+        // Guard with a flag to avoid creating a new repeat:-1 tween on every
+        // updatePlayPauseUI() call (e.g., on every state sync from Supabase).
         if (typeof gsap !== 'undefined') {
             const vinyl = document.getElementById('indieVinylDisc');
             if (vinyl) {
-                if (this.isPlaying) {
-                    gsap.to(vinyl, { rotation: '+=360', duration: 10, repeat: -1, ease: 'none', overwrite: 'auto' });
-                } else {
+                if (this.isPlaying && !this._vinylSpinning) {
+                    this._vinylSpinning = true;
+                    gsap.to(vinyl, { rotation: '+=360', duration: 10, repeat: -1, ease: 'none', overwrite: true });
+                } else if (!this.isPlaying && this._vinylSpinning) {
+                    this._vinylSpinning = false;
                     gsap.killTweensOf(vinyl);
                 }
             }
