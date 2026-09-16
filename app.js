@@ -1,4 +1,4 @@
-﻿// ============ UTILITY FUNCTIONS ============
+// ============ UTILITY FUNCTIONS ============
 
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
@@ -170,6 +170,21 @@ class RoomManager {
             this.hostId = payload.hostId;
             if (this._cb.host) this._cb.host(payload.hostId);
         });
+
+        // Host responds to guest's sync_request with precise current state
+        this._roomChannel.on('broadcast', { event: 'sync_request' }, ({ payload }) => {
+            if (!this.isHost || !payload) return;
+            const responseState = { ...this._cachedState, serverTime: Date.now() };
+            this._roomChannel.send({ type: 'broadcast', event: 'sync_response', payload: responseState });
+        });
+
+        // Guest receives precise state from host on demand
+        this._roomChannel.on('broadcast', { event: 'sync_response' }, ({ payload }) => {
+            if (this.isHost || !payload) return;
+            this._cachedState = payload;
+            if (this._cb.state) this._cb.state(payload);
+        });
+
         this._roomChannel.on('presence', { event: 'sync' }, () => {
             const state = this._roomChannel.presenceState();
             const usersMap = {};
@@ -200,7 +215,11 @@ class RoomManager {
             if (status !== 'SUBSCRIBED') return;
             await this._roomChannel.track({ userId: this.userId, name: getNickname(), joinedAt: Date.now() });
             if (this.isHost && this._cachedState.currentIndex >= 0) {
+                // Broadcast current state for anyone already in the channel
                 this._roomChannel.send({ type: 'broadcast', event: 'state', payload: this._cachedState });
+            } else if (!this.isHost) {
+                // Guest: actively request a fresh sync snapshot from the host
+                this._roomChannel.send({ type: 'broadcast', event: 'sync_request', payload: { userId: this.userId } });
             }
         });
     }
@@ -1183,13 +1202,10 @@ class MelodyFlow {
             prevUserCount = currentUserCount;
             this.currentUsers = users;
             this.renderUsers(users);
-            if (isNewUser && this.roomManager.isHost && this.isPlaying && this.player && this.playerReady) {
-                this.player.pauseVideo();
-                this.syncState({ isPlaying: false, seekTime: this.getCurrentTime() });
-                setTimeout(() => {
-                    this.player.playVideo();
-                    this.syncState({ isPlaying: true, seekTime: this.getCurrentTime() });
-                }, 200);
+            if (isNewUser && this.roomManager.isHost && this.currentSongIndex >= 0) {
+                // Broadcast precise current playback position to the newly joined user.
+                // No pause/play interruption — host just sends an updated seekTime snapshot.
+                this.syncState({ isPlaying: this.isPlaying, seekTime: this.getCurrentTime() });
             }
         });
 
