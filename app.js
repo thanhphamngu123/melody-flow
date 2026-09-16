@@ -95,8 +95,11 @@ class RoomManager {
         window.addEventListener('beforeunload', () => {
             if (!this.roomCode || !this.sb) return;
             const h = { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
+            // Only remove self from room_users on page unload.
+            // The room itself is NOT deleted here — deletion only happens via the explicit
+            // "Leave Room" button (leaveRoom()). This allows the host to refresh the page
+            // and rejoin their own room without kicking all guests out.
             fetch(`${SUPABASE_URL}/rest/v1/room_users?room_code=eq.${this.roomCode}&user_id=eq.${this.userId}`, { method: 'DELETE', headers: h, keepalive: true });
-            if (this.isHost) fetch(`${SUPABASE_URL}/rest/v1/rooms?code=eq.${this.roomCode}`, { method: 'DELETE', headers: h, keepalive: true });
         });
     }
 
@@ -1258,8 +1261,10 @@ class MelodyFlow {
         // Khá»Ÿi Ä‘á»™ng táº¥t cáº£ Supabase Realtime subscriptions (1 láº§n duy nháº¥t sau khi Ä‘Äƒng kÃ½ callbacks)
         this.roomManager.subscribeAll();
 
-        // Load initial state cho Guest tá»« cached data
-        if (!this.roomManager.isHost) {
+        // Restore playlist & state from DB for BOTH host (reconnecting after refresh)
+        // and guest (initial join). Previously this only ran for guests, meaning a host
+        // who refreshed would see an empty player with no song loaded.
+        {
             const pl = this.roomManager._cachedPlaylist;
             const st = this.roomManager._cachedState;
             if (pl && pl.length > 0) { this.playlist = pl; this.renderSongs(); }
