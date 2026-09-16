@@ -49,36 +49,12 @@
         return originalXHROpen.apply(this, arguments);
     };
 
-    // 4. DOM MutationObserver to detect and obliterate YouTube ad overlays
-    const observer = new MutationObserver((mutations) => {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-                if (node.nodeType === 1) {
-                    if (
-                        node.classList.contains('ytp-ad-module') ||
-                        node.classList.contains('ytp-ad-overlay-container') ||
-                        node.classList.contains('video-ads') ||
-                        node.classList.contains('ytp-ad-text') ||
-                        node.id === 'player-ads'
-                    ) {
-                        node.remove();
-                    }
-                    const skipBtn = node.querySelector ? node.querySelector('.ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button') : null;
-                    if (skipBtn) {
-                        try { skipBtn.click(); } catch(e) {}
-                    }
-                }
-            }
-        }
-    });
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            observer.observe(document.body, { childList: true, subtree: true });
-        });
-    } else {
-        observer.observe(document.body, { childList: true, subtree: true });
-    }
+    // NOTE: MutationObserver removed — YouTube embeds use cross-origin iframes,
+    // so a document.body observer (subtree:true) can never see YouTube ad elements.
+    // More critically, observing document.body with subtree:true fires the callback
+    // for EVERY DOM change in the app (song renders, chat, user list updates),
+    // executing querySelector on each new node — this was the #1 crash cause on Edge/Brave.
+    // YouTube ad skipping is handled by the YouTube IFrame API in app.js (trySkipAd()).
 
     console.log('[MelodyFlow AdBlock Engine] Loaded & Active 🛡️');
 })();
